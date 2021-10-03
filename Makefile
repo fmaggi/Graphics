@@ -1,34 +1,34 @@
 TARGET = test
 
+
 SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
 OBJECTS  = $(SRC:.c=.o)
+GENERATED = $(addprefix $(OBJ)/, $(notdir $(OBJECTS)))
 OBJ = obj
 
 DEPS = dependencies
-LIBSOBJ = obj/libs
+LIBSOBJ = bin
 BIN = bin
 
 CC = gcc
 
-CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include
-LFLAGS = $(LIBSOBJ)/glad.o $(LIBSOBJ)/libglfw3.a -lm -ldl -lpthread
+CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -Isrc
+LFLAGS = $(LIBSOBJ)/glad.o $(LIBSOBJ)/libglfw3.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl
 
-all: dirs libs project
+all: $(TARGET)
+
+first: dirs libs $(TARGET)
 
 $(TARGET): $(OBJECTS)
 	@echo [EXE] $(TARGET) 
-	@$(CC) -o $(BIN)/$@ $(OBJ)/$(notdir $^) $(LFLAGS)
+	@$(CC) -o $@  $(addprefix $(OBJ)/, $(notdir $^)) $(LFLAGS)
+
+t:
+	@echo $(GENERATED)
 
 %.o: %.c
 	@echo [CC] $<
 	@$(CC) -o $(OBJ)/$(notdir $@) -c $< $(CFLAGS)
-
-project:
-	@echo
-	@echo ============== Building project ===============
-	@make --no-print-directory $(TARGET)
-	@echo ===================== Done! ===================
-	@echo
 
 libs:
 	@echo
