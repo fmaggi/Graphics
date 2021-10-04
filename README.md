@@ -9,12 +9,12 @@ The program needs GLFW, Glad and cglm.
 
 Clone the submodules if you haven't
 
-`$ git clone --recurse-submodules https://github.com/fmaggi/Graphics.git`
+`$ git clone --recurse-submodules https://github.com/fmaggi/Graphics.git`\
 `$ make setup`
 
 This will build the directories and libraries
 
-To compile de executable
+To compile de executable\
 `$ make`
 
 
