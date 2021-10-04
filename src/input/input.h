@@ -2,7 +2,9 @@
 #define INPUT_H
 
 #include "entity/entity.h"
+#include "graphics/gfx.h"
 
-void handleInput(Entity* movable);
+void initInput(GLFWwindow* window);
+void handleInput(Entity* movable, double timestep);
 
 #endif

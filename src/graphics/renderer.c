@@ -13,7 +13,7 @@ typedef struct _renderer
     Shader* currentShader;
 } Renderer;
 
-Renderer* createRenderer()
+Renderer* createRenderer(mat4s proj)
 {
     Renderer* self = malloc(sizeof(Renderer));
     if (self == NULL)
@@ -24,6 +24,9 @@ Renderer* createRenderer()
     self->shaders[basicShader] = createShader("vertex.glsl", "fragment.glsl");
     self->currentShader = self->shaders[basicShader];
     self->type = basicShader;
+
+    rendererSetProjectionMatrix(self, proj);
+
     return self;
 }
 
@@ -39,16 +42,20 @@ void _render(struct Vao vao, Ibo indexBuffer)
     glDrawElements(GL_TRIANGLES, indexBuffer.count, GL_UNSIGNED_INT, 0);
 }
 
-void _renderEntity(Entity* e)
+void _renderEntity(Renderer* r, Entity* e)
 {
+    mat4s m;
+    m = glms_mat4_identity();
+    m = glms_translate(m, e->pos);
+    shaderSetUniformMat4(r->currentShader, m, "model");
     _render(e->vao, e->ibo);
 }
 
-void render(World* w)
+void render(Renderer* r, World* w)
 {
     int maxEntity = w->index;
     for (int i = 0; i < maxEntity; i++)
-        _renderEntity(&(w->entities[i]));
+        _renderEntity(r, &(w->entities[i]));
 }
 
 static int mode;
@@ -61,7 +68,18 @@ void rendererChangeMode()
 void rendererUseShader(Renderer* r, enum ShaderType type)
 {
     r->currentShader = r->shaders[type];
-    r->type = basicShader;
+    r->type = type;
+
+    useShader(r->currentShader);
+}
+
+void rendererSetProjectionMatrix(Renderer* r, mat4s proj)
+{
+    for (int i = 0; i < MAX_SHADER; i++)
+    { 
+        useShader(r->shaders[i]);
+        shaderSetUniformMat4(r->shaders[i], proj, "proj");
+    }
 
     useShader(r->currentShader);
 }

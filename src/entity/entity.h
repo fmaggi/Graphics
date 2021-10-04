@@ -4,12 +4,14 @@
 #include "graphics/vao.h"
 #include "graphics/buffer.h"
 
-typedef struct _entity
+#include "cglm/struct.h"
+
+typedef struct _entity // basically just a mesh
 {
     struct Vao vao;
     Vbo vbo;
     Ibo ibo;
-    int pos;
+    vec3s pos;
 } Entity;
 
 #endif

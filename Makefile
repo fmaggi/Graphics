@@ -1,7 +1,7 @@
 CC = gcc
 
-CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -Isrc
-LFLAGS = $(LIBSOBJ)/glad.o $(LIBSOBJ)/libglfw3.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl
+CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/cglm/include -Isrc
+LFLAGS = $(LIBSOBJ)/glad.o $(LIBSOBJ)/libglfw3.a $(LIBSOBJ)/libcglm.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
 
 SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
 
@@ -16,7 +16,7 @@ ifeq ($(config), debug)
 	OBJ = obj/debug
 else
 	TARGET = test
-	OBJ = obj
+	OBJ = obj/release
 endif
 
 OBJECTS  = $(SRC:src/%.c=$(OBJ)/%.o)
@@ -48,6 +48,8 @@ libs:
 	@cd $(DEPS)/GLFW && cmake . && make -s --no-print-directory && cp ./src/libglfw3.a ../../$(LIBSOBJ)
 	@echo [LIB] Glad
 	@cd $(DEPS)/glad && $(CC) -o src/glad.o -Iinclude -c src/glad.c && mv src/glad.o ../../$(LIBSOBJ)
+	@echo [LIB] cglm
+	@cd $(DEPS)/cglm && cmake . -DCGLM_STATIC=ON && make -s --no-print-directory && cp ./libcglm.a ../../$(LIBSOBJ)
 	@echo ===================== Done! ===================
 	@echo
 

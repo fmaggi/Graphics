@@ -11,9 +11,15 @@ typedef struct _window
     GLFWwindow* g_window;
     int width, height;
     EventDispatchFunc eventCallback;
+    mat4s projection;
 } Window;
 
 Window* window = NULL;
+
+void _calculateProjectionMatrix(Window* window, int width, int height)
+{
+    window->projection = glms_ortho(0, width, 0, height, -100.0f, 100.0f);
+}
 
 void _errorCallback(int error, const char* description)
 {
@@ -27,6 +33,19 @@ void _windowCloseCallback(GLFWwindow* window)
     EventHolder holder;
     holder.instance = &e;
     holder.type = WindowClose;
+    userWindow->eventCallback(&holder);
+}
+
+void _windowResizeCallback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+    Window* userWindow = (Window*) glfwGetWindowUserPointer(window);
+
+    _calculateProjectionMatrix(userWindow, width, height);
+    WindowResizeEvent e;
+    EventHolder holder;
+    holder.instance = &e;
+    holder.type = WindowResize;
     userWindow->eventCallback(&holder);
 }
 
@@ -84,6 +103,7 @@ Window* createWindow(int width, int height, const char* title, EventDispatchFunc
     glfwSetWindowUserPointer(g_window, window);
 
     glfwSetWindowCloseCallback(g_window, _windowCloseCallback);
+    glfwSetWindowSizeCallback(g_window, _windowResizeCallback);
     glfwSetKeyCallback(g_window, _keyCallback);
     glfwSetMouseButtonCallback(g_window, _mouseCallback);
 
@@ -97,6 +117,10 @@ Window* createWindow(int width, int height, const char* title, EventDispatchFunc
         exit(-1);
     }
 
+    glViewport(0, 0, width, height);
+
+    window->projection = glms_ortho(0, width, 0, height, -100.0f, 100.0f);
+
     return window;
 }
 
@@ -104,6 +128,16 @@ void destroyWindow(Window* window)
 {
     glfwDestroyWindow(window->g_window);
     free(window);
+}
+
+void* getNativeWindow(Window* window)
+{
+    return window->g_window;
+}
+
+mat4s getProjectionMatrix(Window* window)
+{
+    return window->projection;
 }
 
 void prepareWindow(Window* window)

@@ -1,13 +1,10 @@
 #include "shader.h"
 
 #include "gfx.h"
+
 #include "log/log.h"
 #include "stdlib.h"
 #include "string.h"
-
-static const char* shaderTypes[] = {
-    "Vertex", "Fragment"
-};
 
 typedef struct _shader 
 {
@@ -49,10 +46,11 @@ unsigned int compileShader(const char* path, unsigned int type)
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success)
     {
-        int i = type == GL_VERTEX_SHADER ? 0 : 1;
+        char* s = type == GL_VERTEX_SHADER ? "Vertex" : "Fragment";
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        LOG_ERROR("%s shader compilation:\n%s\n", shaderTypes[i], infoLog);
-        return 0;
+        LOG_ERROR("%s shader compilation:\n", s);
+        LOG("  %s\n", infoLog);
+        exit(-1);
     }
     return shader;
 }
@@ -70,8 +68,9 @@ unsigned int linkShader(unsigned int vertexID, unsigned int fragmentID)
     if (!success) 
     {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        LOG_ERROR("Shader linking:\n%s\n",infoLog);
-        return 0;
+        LOG_ERROR("Shader linking:\n");
+        LOG("  %s\n", infoLog);
+        exit(-1);
     }
     return shaderProgram;
 }
@@ -91,6 +90,15 @@ void destroyShader(Shader* shader)
     glDeleteShader(shader->fragmentID);
     glDeleteProgram(shader->fragmentID);
     free(shader);
+}
+
+void shaderSetUniformMat4(Shader* shader, mat4s mat, const char* name)
+{
+    int location = glGetUniformLocation(shader->programID, name);
+    if (location == -1)
+        LOG_WARN("Uniform %s doesn't exist\n", name);
+
+    glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&mat.raw);
 }
 
 void useShader(Shader* shader)
