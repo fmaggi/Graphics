@@ -1,9 +1,13 @@
 #include "shader.h"
 
 #include "gfx.h"
-#include "stdio.h"
+#include "log/log.h"
 #include "stdlib.h"
 #include "string.h"
+
+static const char* shaderTypes[] = {
+    "Vertex", "Fragment"
+};
 
 typedef struct _shader 
 {
@@ -20,7 +24,8 @@ unsigned int compileShader(const char* path, unsigned int type)
     FILE* srcFile = fopen(buf, "r");
     if (!srcFile)
     {
-        printf("Failed to open %s\n", path);
+        LOG_WARN("Failed to open %s\n", path);
+        return 0;
     }
 
     fseek(srcFile, 0L, SEEK_END);
@@ -44,8 +49,10 @@ unsigned int compileShader(const char* path, unsigned int type)
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success)
     {
+        int i = type == GL_VERTEX_SHADER ? 0 : 1;
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        printf("COMPILING SHADER ERROR:\n%s\n",infoLog);
+        LOG_ERROR("%s shader compilation:\n%s\n", shaderTypes[i], infoLog);
+        return 0;
     }
     return shader;
 }
@@ -63,7 +70,8 @@ unsigned int linkShader(unsigned int vertexID, unsigned int fragmentID)
     if (!success) 
     {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        printf("LINKING SHADER ERROR:\n%s\n",infoLog);
+        LOG_ERROR("Shader linking:\n%s\n",infoLog);
+        return 0;
     }
     return shaderProgram;
 }

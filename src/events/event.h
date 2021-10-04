@@ -3,10 +3,9 @@
 
 enum EventType
 {
-    NOP = 0,
-    WindowClose, WindowResize,
+    WindowClose = 0, WindowResize,
     KeyPressed, KeyReleased,
-    MousePressed, MouseReleased, MouseMoved, MouseScrolled
+    MousePressed, MouseReleased, MouseMoved, MouseScrolled,
 };
 
 typedef struct _event 
@@ -27,7 +26,11 @@ typedef struct _mouseButton
     int button, action, mods;
 } MouseButtonEvent;
 
-EventHolder createmouseButtonEvent(int button, int action, int mods);
-EventHolder createmouseMovedEvent();
+EventHolder createMouseButtonEvent(int button, int action, int mods);
+EventHolder createMouseMovedEvent();
+
+typedef struct _windowClose
+{
+} WindowCloseEvent;
 
 #endif

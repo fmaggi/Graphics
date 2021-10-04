@@ -1,34 +1,45 @@
-TARGET = test
-
-
-SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
-OBJECTS  = $(SRC:.c=.o)
-GENERATED = $(addprefix $(OBJ)/, $(notdir $(OBJECTS)))
-OBJ = obj
-
-DEPS = dependencies
-LIBSOBJ = bin
-BIN = bin
-
 CC = gcc
 
 CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -Isrc
 LFLAGS = $(LIBSOBJ)/glad.o $(LIBSOBJ)/libglfw3.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl
 
+SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
+
+ifndef config
+	config=release
+endif
+
+ifeq ($(config), debug)
+	CFLAGS += -DDEBUG
+
+	TARGET = test_debug
+	OBJ = obj/debug
+else
+	TARGET = test
+	OBJ = obj
+endif
+
+OBJECTS  = $(SRC:src/%.c=$(OBJ)/%.o)
+OBJDIRS = $(dir $(OBJECTS))
+
+DEPS = dependencies
+LIBSOBJ = bin
+BIN = bin
+
 all: $(TARGET)
 
-first: dirs libs $(TARGET)
+setup: dirs libs
 
 $(TARGET): $(OBJECTS)
-	@echo [EXE] $(TARGET) 
-	@$(CC) -o $@  $(addprefix $(OBJ)/, $(notdir $^)) $(LFLAGS)
+	@echo [EXE] $(TARGET)
+	@$(CC) -o $@  $^ $(LFLAGS)
 
 t:
 	@echo $(GENERATED)
 
-%.o: %.c
+$(OBJ)/%.o: src/%.c
 	@echo [CC] $<
-	@$(CC) -o $(OBJ)/$(notdir $@) -c $< $(CFLAGS)
+	@$(CC) -o $@ -c $< $(CFLAGS)
 
 libs:
 	@echo
@@ -44,6 +55,7 @@ dirs:
 	@mkdir -p ./$(OBJ)
 	@mkdir -p ./$(LIBSOBJ)
 	@mkdir -p ./$(BIN)
+	@mkdir -p ./$(OBJDIRS)
 
 clean:
 	@rm -rf $(OBJ) $(BIN)

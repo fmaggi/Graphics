@@ -1,7 +1,6 @@
 #include "event.h"
 
 #include "graphics/gfx.h"
-#include "stdio.h"
 
 KeyEvent createKeyEvent(int key, int scancode, int action, int mods)
 {
