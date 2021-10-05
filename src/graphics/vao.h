@@ -15,6 +15,6 @@ void destroyVao(struct Vao vao);
 
 void bindVao(struct Vao vao);
 
-void addAttribute(struct Vao* vao, struct Buffer, int size, unsigned int stride);
+void addAttribute(struct Vao* vao, int size, unsigned int stride);
 
 #endif

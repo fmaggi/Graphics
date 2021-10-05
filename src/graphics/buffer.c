@@ -25,14 +25,14 @@ Ibo createIbo()
     return createBuffer(GL_ELEMENT_ARRAY_BUFFER);
 }
 
-void destroyBuffer(struct Buffer* b)
+void destroyBuffer(struct Buffer b)
 {
-    if (b->data != NULL)
+    if (b.data != NULL)
     {
-        free(b->data);
-        b->data = NULL;
+        free(b.data);
+        b.data = NULL;
     }
-    glDeleteBuffers(1, &(b->id));
+    glDeleteBuffers(1, b.id);
 }
 
 void addDataToBuffer(struct Buffer* b, int size, const void* data)

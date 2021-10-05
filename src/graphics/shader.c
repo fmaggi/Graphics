@@ -15,7 +15,7 @@ typedef struct _shader
 
 unsigned int compileShader(const char* path, unsigned int type)
 {
-    char buf[256];
+    char buf[256] = {0};
     strcpy(buf, "res/");
     strcat(buf, path);
     FILE* srcFile = fopen(buf, "r");
@@ -92,12 +92,17 @@ void destroyShader(Shader* shader)
     free(shader);
 }
 
-void shaderSetUniformMat4(Shader* shader, mat4s mat, const char* name)
+int getUniformLocation(Shader* shader, const char* name)
 {
     int location = glGetUniformLocation(shader->programID, name);
     if (location == -1)
-        LOG_WARN("Uniform %s doesn't exist\n", name);
+        LOG_WARN("Invalid uniform: %s\n", name);
+    return location;
+}
 
+void shaderSetUniformMat4(Shader* shader, mat4s mat, const char* name)
+{
+    int location = getUniformLocation(shader, name);
     glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&mat.raw);
 }
 

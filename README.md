@@ -14,7 +14,7 @@ Clone the submodules if you haven't
 
 This will build the directories and libraries
 
-To compile de executable\
+To compile the executable\
 `$ make`
 
 

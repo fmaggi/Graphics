@@ -1,10 +1,8 @@
 #include "window.h"
 
-#include "gfx.h"
-
 #include "stdlib.h"
 #include "log/log.h"
-
+#include "log/assert_g.h"
 
 typedef struct _window
 {
@@ -23,7 +21,8 @@ void _calculateProjectionMatrix(Window* window, int width, int height)
 
 void _errorCallback(int error, const char* description)
 {
-    LOG_ERROR("OpenGL Error: {%i} %s\n", error, description);
+    LOG_ERROR("OpenGL Error: {%i}:\n", error);
+    LOG("  %s\n", description);
 }
 
 void _windowCloseCallback(GLFWwindow* window)
@@ -67,12 +66,14 @@ void _mouseCallback(GLFWwindow* window, int button, int action, int mods)
 Window* createWindow(int width, int height, const char* title, EventDispatchFunc callbackFunc)
 {
     if (window != NULL)
-        return window;
+    {
+        LOG_WARN("Window already created\n");
+        return NULL;
+    }
 
-#ifdef DEBUG
-    LOG_INFO("[DEBUG]\n");
-#endif
-    LOG_TRACE("Initializing GLFW and Glad\n");    
+    LOG_TRACE("Initializing GLFW and Glad\n");   
+
+    glfwSetErrorCallback(_errorCallback);
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -92,13 +93,12 @@ Window* createWindow(int width, int height, const char* title, EventDispatchFunc
     GLFWwindow* g_window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (g_window == NULL)
     {
-        LOG_ERROR("Failed to create GLFW window");
+        LOG_ERROR("Failed to create GLFW window\n");
         glfwTerminate();
         free(window);
         exit(-1);
     }
-
-    glfwSetErrorCallback(_errorCallback);
+    glfwMakeContextCurrent(g_window);
 
     glfwSetWindowUserPointer(g_window, window);
 
@@ -108,12 +108,11 @@ Window* createWindow(int width, int height, const char* title, EventDispatchFunc
     glfwSetMouseButtonCallback(g_window, _mouseCallback);
 
     window->g_window = g_window;
-    glfwMakeContextCurrent(g_window);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        LOG_ERROR("Failed to initialize GLAD");
-        destroyWindow(window);
+        LOG_ERROR("Failed to initialize GLAD\n");
+        destroyWindow();
         exit(-1);
     }
 
@@ -124,23 +123,24 @@ Window* createWindow(int width, int height, const char* title, EventDispatchFunc
     return window;
 }
 
-void destroyWindow(Window* window)
+void destroyWindow()
 {
-    glfwDestroyWindow(window->g_window);
     free(window);
 }
 
-void* getNativeWindow(Window* window)
+GLFWwindow* getNativeWindow()
 {
+    ASSERT(window != NULL, "Window not created\n");
     return window->g_window;
 }
 
-mat4s getProjectionMatrix(Window* window)
+mat4s getProjectionMatrix()
 {
+    ASSERT(window != NULL, "Window not created\n");
     return window->projection;
 }
 
-void prepareWindow(Window* window)
+void prepareWindow()
 {
     glfwSwapBuffers(window->g_window);
     glfwPollEvents();

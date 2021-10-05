@@ -1,5 +1,7 @@
 #include "input.h"
 
+#include "graphics/window.h"
+
 #include "cglm/struct.h"
 
 #include "log/log.h"
@@ -15,13 +17,15 @@ struct _inputs
 
 static struct _inputs inputs;
 
-void initInput(GLFWwindow* window)
+void initInput()
 {
     inputs.up    = GLFW_KEY_W;
     inputs.down  = GLFW_KEY_S;
     inputs.left  = GLFW_KEY_A;
     inputs.right = GLFW_KEY_D;
-    inputs.window = window;
+    inputs.window = getNativeWindow();
+    if (inputs.window == NULL)
+        LOG_WARN("Window hasn't been created\n");
 }
 
 void handleInput(Entity* movable, double timestep)

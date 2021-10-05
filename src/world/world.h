@@ -10,6 +10,7 @@ typedef struct _world
 {
     Entity entities[MAX_NTTs];
     unsigned int index;
+    Entity player;
 } World;
 
 World* emptyWorld();

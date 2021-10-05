@@ -24,12 +24,10 @@ void bindVao(struct Vao vao)
     glBindVertexArray(vao.id);
 }
 
-void addAttribute(struct Vao* vao, struct Buffer vbo, int size, unsigned int stride)
+void addAttribute(struct Vao* vao,  int size, unsigned int stride)
 {
-    glBindBuffer(GL_ARRAY_BUFFER, vbo.id);
-
     unsigned int index = vao->index;
-    unsigned long int offset = vao->offset; // the long is just to remove some warnings
+    unsigned long int offset = vao->offset; // the long is just to remove some warngins
 
     glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)offset);
     glEnableVertexAttribArray(index);

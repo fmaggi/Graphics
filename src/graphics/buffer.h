@@ -14,7 +14,7 @@ typedef struct Buffer Ibo;
 
 Vbo createVbo();
 Ibo createIbo();
-void destroyBuffer(struct Buffer* b);
+void destroyBuffer(struct Buffer b);
 
 void addDataToBuffer(struct Buffer* b, int size, const void* data);
 void bindBuffer(struct Buffer b);

@@ -53,9 +53,7 @@ void _renderEntity(Renderer* r, Entity* e)
 
 void render(Renderer* r, World* w)
 {
-    int maxEntity = w->index;
-    for (int i = 0; i < maxEntity; i++)
-        _renderEntity(r, &(w->entities[i]));
+    _renderEntity(r, &w->player);
 }
 
 static int mode;
@@ -65,12 +63,13 @@ void rendererChangeMode()
     mode = !mode;
 }
 
-void rendererUseShader(Renderer* r, enum ShaderType type)
+unsigned int rendererUseShader(Renderer* r, enum ShaderType type)
 {
     r->currentShader = r->shaders[type];
-    r->type = type;
+    r->type = basicShader;
 
     useShader(r->currentShader);
+
 }
 
 void rendererSetProjectionMatrix(Renderer* r, mat4s proj)

@@ -5,6 +5,4 @@ int main()
     setUpGame();
     runGame();
     destroyGame();
-
-    return 0;
 }

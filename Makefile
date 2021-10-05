@@ -12,10 +12,10 @@ endif
 ifeq ($(config), debug)
 	CFLAGS += -DDEBUG
 
-	TARGET = test_debug
+	TARGET = game_debug
 	OBJ = obj/debug
 else
-	TARGET = test
+	TARGET = game
 	OBJ = obj/release
 endif
 
@@ -27,6 +27,8 @@ LIBSOBJ = bin
 BIN = bin
 
 all: $(TARGET)
+
+fresh: clean setup $(TARGET)
 
 setup: dirs libs
 
@@ -60,4 +62,4 @@ dirs:
 	@mkdir -p ./$(OBJDIRS)
 
 clean:
-	@rm -rf $(OBJ) $(BIN)
+	@rm -rf ./obj $(BIN)
