@@ -11,6 +11,7 @@ typedef struct _world
     Entity entities[MAX_NTTs];
     unsigned int index;
     Entity player;
+    Entity player2;
 } World;
 
 World* emptyWorld();

@@ -9,15 +9,9 @@ typedef struct _window
     GLFWwindow* g_window;
     int width, height;
     EventDispatchFunc eventCallback;
-    mat4s projection;
 } Window;
 
 Window* window = NULL;
-
-void _calculateProjectionMatrix(Window* window, int width, int height)
-{
-    window->projection = glms_ortho(0, width, 0, height, -100.0f, 100.0f);
-}
 
 void _errorCallback(int error, const char* description)
 {
@@ -40,8 +34,9 @@ void _windowResizeCallback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
     Window* userWindow = (Window*) glfwGetWindowUserPointer(window);
 
-    _calculateProjectionMatrix(userWindow, width, height);
     WindowResizeEvent e;
+    e.width = width;
+    e.height = height;
     EventHolder holder;
     holder.instance = &e;
     holder.type = WindowResize;
@@ -118,8 +113,6 @@ Window* createWindow(int width, int height, const char* title, EventDispatchFunc
 
     glViewport(0, 0, width, height);
 
-    window->projection = glms_ortho(0, width, 0, height, -100.0f, 100.0f);
-
     return window;
 }
 
@@ -132,12 +125,6 @@ GLFWwindow* getNativeWindow()
 {
     ASSERT(window != NULL, "Window not created\n");
     return window->g_window;
-}
-
-mat4s getProjectionMatrix()
-{
-    ASSERT(window != NULL, "Window not created\n");
-    return window->projection;
 }
 
 void prepareWindow()

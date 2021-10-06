@@ -6,6 +6,7 @@
 
 #include "graphics/window.h"
 #include "graphics/renderer.h"
+#include "graphics/camera.h"
 #include "graphics/gfx.h"
 
 #include "world/world.h"
@@ -19,8 +20,8 @@ typedef struct _game
     int running;
     double lastFrame;
     Window* window;
-    Renderer* r;
     World* world;
+    Camera camera;
 } Game; //state of the game
 
 static Game game;
@@ -30,10 +31,9 @@ void onWindowClose()
     game.running = 0;
 }
 
-void onWindowResize()
+void onWindowResize(WindowResizeEvent event)
 {
-    mat4s proj = getProjectionMatrix();
-    rendererSetProjectionMatrix(game.r ,proj);
+    updateProjectionMatrix(&game.camera, event.width, event.height);
 }
 
 void onKeyPressed(KeyEvent event)
@@ -65,7 +65,7 @@ void onEvent(EventHolder* event)
     switch (event->type)
     {   
         case WindowClose:  return onWindowClose();
-        case WindowResize: return onWindowResize();
+        case WindowResize: return onWindowResize(*(WindowResizeEvent*) event->instance);
         case KeyPressed:   return onKeyPressed(*(KeyEvent*) event->instance);
         case KeyReleased:  return;
 
@@ -77,12 +77,11 @@ void onEvent(EventHolder* event)
 
 void setUpGame()
 {
-    PROFILE_FUNC();
     LOG_INFO_DEBUG("DEBUG\n");
     game.window = createWindow(800, 600, "LearnOpenGL", &onEvent);
-    mat4s proj = getProjectionMatrix();
+    game.camera = orthoCamera((vec3s){0, 0, -1}, 800, 600);
 
-    game.r = createRenderer(proj);
+    createRenderer();
 
     initInput();
 
@@ -96,7 +95,6 @@ void setUpGame()
 
 void onUpdate()
 {
-
     prepareRenderer();
 
     double now = glfwGetTime();
@@ -104,12 +102,15 @@ void onUpdate()
     game.lastFrame = now;
     LOG_INFO_DEBUG("Frametime: %fms\n", ts);
 
-    handleInput(&(game.world->player), ts);
+    handleInput(&(game.camera), ts);
 }
 
 void onRender()
 {
-    render(game.r, game.world);
+    startScene(&game.camera);
+    render(game.world);
+    endScene();
+
     prepareWindow(); 
 }
 
@@ -124,10 +125,9 @@ void runGame()
 
 void destroyGame()
 {  
-    //glfwTerminate(); 
+    // glfwTerminate(); 
     destroyWorld(game.world);
-    destroyRenderer(game.r);
+    destroyRenderer();
     destroyWindow();
     LOG_TRACE("Good bye\n");
-    PROFILE_FUNC();
 }

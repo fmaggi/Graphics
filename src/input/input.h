@@ -2,8 +2,9 @@
 #define INPUT_H
 
 #include "entity/entity.h"
+#include "graphics/camera.h"
 
 void initInput();
-void handleInput(Entity* movable, double timestep);
+void handleInput(Camera* movable, double timestep);
 
 #endif

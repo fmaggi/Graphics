@@ -37,6 +37,7 @@ typedef struct _windowClose
 
 typedef struct _windowResize
 {
+    float width, height;
 } WindowResizeEvent;
 
 #endif
