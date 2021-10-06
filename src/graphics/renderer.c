@@ -10,12 +10,9 @@
 
 #include "cglm/struct.h"
 
-
-#define MAX_SHADER 1
-enum ShaderType
-{
-    basicShader
-};
+void prepareRenderer();
+void rendererSetProjectionMatrix(mat4s proj);
+void rendererSetShader(enum ShaderType type);
 
 #define MAX_QUADS 16
 #define maxVertices MAX_QUADS * 4
@@ -32,7 +29,7 @@ typedef struct _renderer
     Shader* shaders[MAX_SHADER];
     Shader* currentShader;
 
-    struct Vao vao;
+    Vao vao;
     Vbo vbo;
     Ibo ibo;
 
@@ -101,7 +98,6 @@ void destroyRenderer()
 
 void _renderBatch()
 {
-    //shaderSetUniformMat4(r.currentShader, r.camera->view, "view");
     bindVao(r.vao);
     glDrawElements(GL_TRIANGLES, r.indexCount, GL_UNSIGNED_INT, 0);
     r.renderCalls++;
@@ -114,19 +110,9 @@ void startBatch()
     r.quadCount = 0;
 }
 
-void rendererSetProjectionMatrix(mat4s proj)
-{
-    for (int i = 0; i < MAX_SHADER; i++)
-    { 
-        useShader(r.shaders[i]);
-        shaderSetUniformMat4(r.shaders[i], proj, "projview");
-    }
-
-    useShader(r.currentShader);
-}
-
 void startFrame(Camera* c)
 {
+    prepareRenderer();
     r.renderCalls = 0;
     rendererSetProjectionMatrix(c->projview);
     startBatch();
@@ -146,11 +132,11 @@ void endFrame()
     LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
 }
 
-void _render(struct Vao vao, Ibo indexBuffer)
-{
-    bindVao(vao);
-    glDrawElements(GL_TRIANGLES, indexBuffer.count, GL_UNSIGNED_INT, 0);
-}
+// void _render(struct Vao vao, Ibo indexBuffer)
+// {
+//     bindVao(vao);
+//     glDrawElements(GL_TRIANGLES, indexBuffer.count, GL_UNSIGNED_INT, 0);
+// }
 
 void _drawQuad(mat4s transform, vec3 color)
 {
@@ -190,6 +176,12 @@ void render(World* w)
         _pushEntity(&(w->entities[i]));
 }
 
+/**
+ *      ----------------------------------------------
+ *      --------------- Renderer Utils ---------------
+ *      ----------------------------------------------
+*/
+
 static int mode;
 void rendererChangeMode()
 {
@@ -198,13 +190,23 @@ void rendererChangeMode()
 }
 
 
-unsigned int rendererUseShader(enum ShaderType type)
+void rendererSetShader(enum ShaderType type)
 {
     r.currentShader = r.shaders[type];
-    r.type = basicShader;
+    r.type = type;
 
     useShader(r.currentShader);
+}
 
+void rendererSetProjectionMatrix(mat4s proj)
+{
+    for (int i = 0; i < MAX_SHADER; i++)
+    { 
+        useShader(r.shaders[i]);
+        shaderSetUniformMat4(r.shaders[i], proj, "projview");
+    }
+
+    useShader(r.currentShader);
 }
 
 void prepareRenderer()

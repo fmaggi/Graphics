@@ -3,18 +3,18 @@
 
 #include "buffer.h"
 
-struct Vao
+typedef struct _vao
 {
     unsigned int id;
     unsigned int index;
     unsigned int offset;
-};
+} Vao;
 
-struct Vao createVao();
-void destroyVao(struct Vao vao);
+Vao createVao();
+void destroyVao(Vao vao);
 
-void bindVao(struct Vao vao);
+void bindVao(Vao vao);
 
-void addAttribute(struct Vao* vao, int size, unsigned int stride);
+void addAttribute(Vao* vao, int size, unsigned int stride);
 
 #endif

@@ -1,4 +1,5 @@
 #include "game.h"
+#include "timestep.h"
 
 #include "cglm/struct.h"
 
@@ -7,7 +8,6 @@
 #include "graphics/window.h"
 #include "graphics/renderer.h"
 #include "graphics/camera.h"
-#include "graphics/gfx.h"
 
 #include "world/world.h"
 
@@ -18,8 +18,6 @@
 typedef struct _game
 {
     int running;
-    double lastFrame;
-    Window* window;
     World* world;
     Camera camera;
 } Game; //state of the game
@@ -42,14 +40,14 @@ void onKeyPressed(KeyEvent event)
         return;
     switch (event.key)
     {
-        case GLFW_KEY_M:
+        case KEY_M:
         {
             rendererChangeMode();
             break;
         }
-        case GLFW_KEY_C:
+        case KEY_C:
         {
-            if (event.mods == GLFW_MOD_CONTROL)
+            if (event.mods == MOD_CONTROL)
                 game.running = 0;
             break;
         }
@@ -78,7 +76,7 @@ void onEvent(EventHolder* event)
 void setUpGame()
 {
     LOG_INFO_DEBUG("DEBUG\n");
-    game.window = createWindow(800, 600, "LearnOpenGL", &onEvent);
+    createWindow(800, 600, "LearnOpenGL", &onEvent);
     game.camera = orthoCamera((vec3s){0, 0, -1}, 800, 600);
 
     createRenderer();
@@ -89,17 +87,12 @@ void setUpGame()
     initWorld(game.world);
 
     game.running = 1;
-    game.lastFrame = 0;
     LOG_TRACE("All done!\n");
 }
 
 void onUpdate()
 {
-    prepareRenderer();
-
-    double now = glfwGetTime();
-    double ts = now - game.lastFrame;
-    game.lastFrame = now;
+    double ts = getTimestep();
     LOG_INFO_DEBUG("Frametime: %fms\n", ts);
 
     handleInput(&(game.camera), ts);
@@ -110,8 +103,6 @@ void onRender()
     startFrame(&game.camera);
     render(game.world);
     endFrame();
-
-    prepareWindow(); 
 }
 
 void runGame()
@@ -120,12 +111,12 @@ void runGame()
     {
         onUpdate();
         onRender();
+        updateWindow();
     }
 }
 
 void destroyGame()
 {  
-    // glfwTerminate(); 
     destroyWorld(game.world);
     destroyRenderer();
     destroyWindow();

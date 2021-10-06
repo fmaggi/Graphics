@@ -4,6 +4,12 @@
 #include "world/world.h"
 #include "camera.h"
 
+#define MAX_SHADER 1
+enum ShaderType
+{
+    basicShader
+};
+
 void createRenderer();
 void destroyRenderer();
 
@@ -15,6 +21,5 @@ void endFrame();
 //void drawIndexed();
 
 void rendererChangeMode();
-void prepareRenderer();
 
 #endif

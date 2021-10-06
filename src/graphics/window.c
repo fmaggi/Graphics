@@ -1,5 +1,7 @@
 #include "window.h"
 
+#include "gfx.h"
+
 #include "stdlib.h"
 #include "log/log.h"
 #include "log/assert_g.h"
@@ -58,12 +60,12 @@ void _mouseCallback(GLFWwindow* window, int button, int action, int mods)
 
 }
 
-Window* createWindow(int width, int height, const char* title, EventDispatchFunc callbackFunc)
+void createWindow(int width, int height, const char* title, EventDispatchFunc callbackFunc)
 {
     if (window != NULL)
     {
         LOG_WARN("Window already created\n");
-        return NULL;
+        return;
     }
 
     LOG_TRACE("Initializing GLFW and Glad\n");   
@@ -89,7 +91,6 @@ Window* createWindow(int width, int height, const char* title, EventDispatchFunc
     if (g_window == NULL)
     {
         LOG_ERROR("Failed to create GLFW window\n");
-        glfwTerminate();
         free(window);
         exit(-1);
     }
@@ -112,8 +113,6 @@ Window* createWindow(int width, int height, const char* title, EventDispatchFunc
     }
 
     glViewport(0, 0, width, height);
-
-    return window;
 }
 
 void destroyWindow()
@@ -121,13 +120,12 @@ void destroyWindow()
     free(window);
 }
 
-GLFWwindow* getNativeWindow()
+int isKeyPressed(unsigned int key)
 {
-    ASSERT(window != NULL, "Window not created\n");
-    return window->g_window;
+    return glfwGetKey(window->g_window, key) == GLFW_PRESS;
 }
 
-void prepareWindow()
+void updateWindow()
 {
     glfwSwapBuffers(window->g_window);
     glfwPollEvents();

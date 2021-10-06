@@ -29,7 +29,7 @@ MouseButtonEvent createMouseButtonEvent(int button, int action, int mods);
 typedef struct _mouseMoved
 {
 } MouseMovedEvent;
-EventHolder createMouseMovedEvent();
+MouseMovedEvent createMouseMovedEvent();
 
 typedef struct _windowClose
 {
