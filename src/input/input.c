@@ -28,43 +28,47 @@ void initInput()
         LOG_WARN("Window hasn't been created\n");
 }
 
-void handleInput(Entity* movable, double timestep)
+void handleInput(Camera* movable, double timestep)
 {
     if (glfwGetKey(inputs.window, inputs.up) == GLFW_PRESS)
     {
         vec3s amount;
         amount.x = 0;
-        amount.y = 100;
+        amount.y = 1 * movable->speed.y;
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
+        updateViewMatrix(movable);
     }
     else if (glfwGetKey(inputs.window, inputs.down) == GLFW_PRESS)
     {
         vec3s amount;
         amount.x = 0;
-        amount.y = -100;
+        amount.y = -1 * movable->speed.y;
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
+        updateViewMatrix(movable);
     }
 
     if (glfwGetKey(inputs.window, inputs.left) == GLFW_PRESS)
     {
         vec3s amount;
-        amount.x = -100;
+        amount.x = -1 * movable->speed.x;
         amount.y = 0;
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
+        updateViewMatrix(movable);
     }
     else if (glfwGetKey(inputs.window, inputs.right) == GLFW_PRESS)
     {
         vec3s amount;
-        amount.x = 100;
+        amount.x = 1 * movable->speed.x;
         amount.y = 0;
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
+        updateViewMatrix(movable);
     }
 }

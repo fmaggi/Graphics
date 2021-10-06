@@ -6,17 +6,18 @@ struct Buffer
     unsigned int type;
     unsigned int id;
     unsigned int count;
-    void* data;
 };
 
 typedef struct Buffer Vbo;
 typedef struct Buffer Ibo;
 
-Vbo createVbo();
-Ibo createIbo();
+Vbo createVbo(unsigned int size);
+Vbo createStaticVbo(unsigned int size, const void* data);
+Ibo createIbo(unsigned int count, unsigned int* data);
+
 void destroyBuffer(struct Buffer b);
 
-void addDataToBuffer(struct Buffer* b, int size, const void* data);
+void pushBufferData(struct Buffer b, int size, const void* data);
 void bindBuffer(struct Buffer b);
 
 #endif

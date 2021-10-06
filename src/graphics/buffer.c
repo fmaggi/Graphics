@@ -5,47 +5,56 @@
 #include "stdlib.h"
 #include "string.h"
 
-static struct Buffer createBuffer(unsigned int type)
+Vbo createVbo(unsigned int size)
 {
     struct Buffer self;
-    glGenBuffers(1, &(self.id));
-    self.data = NULL;
-    self.type = type;
-    self.count = 0;
+    glGenBuffers(1, &self.id);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, self.id);
+    glBufferData(GL_ARRAY_BUFFER, size, 0, GL_DYNAMIC_DRAW);
+
+    self.type = GL_ARRAY_BUFFER;
+
     return self;
 }
 
-Vbo createVbo()
+Vbo createStaticVbo(unsigned int size, const void* data)
 {
-    return createBuffer(GL_ARRAY_BUFFER);
+    struct Buffer self;
+    glGenBuffers(1, &self.id);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, self.id);
+    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+
+    self.type = GL_ARRAY_BUFFER;
+
+    return self;
 }
 
-Ibo createIbo()
+Ibo createIbo(unsigned int count, unsigned int * data)
 {
-    return createBuffer(GL_ELEMENT_ARRAY_BUFFER);
+    struct Buffer self;
+    glGenBuffers(1, &self.id);
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.id);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
+
+    self.type = GL_ELEMENT_ARRAY_BUFFER;
+
+    self.count = count;
+
+    return self;
 }
 
 void destroyBuffer(struct Buffer b)
 {
-    if (b.data != NULL)
-    {
-        free(b.data);
-        b.data = NULL;
-    }
-    glDeleteBuffers(1, b.id);
+    glDeleteBuffers(1, &b.id);
 }
 
-void addDataToBuffer(struct Buffer* b, int size, const void* data)
+void pushBufferData(struct Buffer b, int size, const void* data)
 {
-#ifdef DEBUG
-    b->data = malloc(size);
-    memcpy(b->data, data, size);
-#endif
-
-    b->count = size / sizeof(float);
-
-    glBindBuffer(b->type, b->id);
-    glBufferData(b->type, size, data, GL_STATIC_DRAW);
+    glBindBuffer(b.type, b.id);
+    glBufferSubData(b.type, 0, size, data);
 }
 
 void bindBuffer(struct Buffer b)

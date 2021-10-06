@@ -7,40 +7,30 @@ void init(World* w)
 
     Entity player;
     player.pos = (vec3s){0, 0, 0};
+    player.color = (vec3s){0.2, 0.3, 0.9};
 
-    float vertices[] = {
-        200.0f,  200.0f, 0.0f, 0.2f, 0.4f, 0.8f, // top right
-        200.0f, 0.0f, 0.0f,  0.7f, 0.2, 0.3f,// bottom right
-        0.0f, 0.0f, 0.0f,  0.3f, 0.8f, 0.3f,// bottom left
-        0.0f,  200.0f, 0.0f, 0.6f, 0.8f, 0.8f// top left 
-    };
-    unsigned int indices[] = {
-        0, 1, 3,   // first triangle
-        1, 2, 3    // second triangle
-    }; 
-
-    player.vao = createVao();
-    player.vbo = createVbo();
-    player.ibo = createIbo();
-
-    bindVao(player.vao);
-
-    bindBuffer(player.vbo);
-    addDataToBuffer(&(player.vbo), sizeof(vertices), vertices);
-
-    bindBuffer(player.ibo);
-    addDataToBuffer(&(player.ibo), sizeof(indices), indices);
-
-    addAttribute(&(player.vao), 3, 6*sizeof(float));
-    addAttribute(&(player.vao), 3, 6*sizeof(float));
+    Entity player2;
+    player2.pos = (vec3s){0, 1, 0};
+    player2.color = (vec3s){0.9, 0.8, 0.3};
 
     w->player = player;
+    w->player2 = player2;
+
+    for (int i = 0; i < 3; i++)
+    {
+        Entity e;
+        e.pos = (vec3s){i, 2, 0};
+        e.color = (vec3s){0.9, 0.3, 0.4};
+        w->entities[i] = e;
+    }
+    w->index = 3;
 }
 
 WorldFuncPtr initWorld = &init;
 
 void destroy(World* w)
 {
+    free(w);
 }
 
 WorldFuncPtr destroyWorld = &destroy;
