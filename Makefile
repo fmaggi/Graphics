@@ -1,4 +1,5 @@
 CC = gcc
+TARGET_PREFIX = graphicsExe
 
 CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/cglm/include -Isrc
 LFLAGS = $(LIBSOBJ)/glad.o $(LIBSOBJ)/libglfw3.a $(LIBSOBJ)/libcglm.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
@@ -12,10 +13,10 @@ endif
 ifeq ($(config), debug)
 	CFLAGS += -DDEBUG
 
-	TARGET = game_debug
+	TARGET = $(TARGET_PREFIX)_debug
 	OBJ = obj/debug
 else
-	TARGET = game
+	TARGET = $(TARGET_PREFIX)
 	OBJ = obj/release
 endif
 
