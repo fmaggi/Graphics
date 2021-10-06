@@ -9,8 +9,8 @@ void destroyRenderer();
 
 void render(World* w);
 
-void startScene(Camera* c);
-void endScene();
+void startFrame(Camera* c);
+void endFrame();
 
 //void drawIndexed();
 

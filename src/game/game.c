@@ -107,9 +107,9 @@ void onUpdate()
 
 void onRender()
 {
-    startScene(&game.camera);
+    startFrame(&game.camera);
     render(game.world);
-    endScene();
+    endFrame();
 
     prepareWindow(); 
 }

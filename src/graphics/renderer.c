@@ -125,7 +125,7 @@ void rendererSetProjectionMatrix(mat4s proj)
     useShader(r.currentShader);
 }
 
-void startScene(Camera* c)
+void startFrame(Camera* c)
 {
     r.renderCalls = 0;
     rendererSetProjectionMatrix(c->projview);
@@ -140,7 +140,7 @@ void flush()
     _renderBatch();
 }
 
-void endScene()
+void endFrame()
 {   
     flush();
     LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
