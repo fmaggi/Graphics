@@ -141,7 +141,7 @@ void startFrame(Camera* c)
 {
     prepareRenderer();
     r.renderCalls = 0;
-    //rendererSetProjectionMatrix(c->projview);
+
     shaderSetUniformMat4(r.shaders[basicShader], c->projview, "projview");
     shaderSetUniformMat4(r.shaders[uvShader], c->projview, "projview");
 
@@ -162,7 +162,7 @@ void flush()
 void endFrame()
 {   
     flush();
-    // LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
+    LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
 }
 
 // void _render(struct Vao vao, Ibo indexBuffer)
