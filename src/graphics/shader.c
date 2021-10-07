@@ -6,24 +6,18 @@
 #include "stdlib.h"
 #include "string.h"
 
-typedef struct _shader 
-{
-    unsigned int vertexID;
-    unsigned int fragmentID;
-    unsigned int programID;
-} Shader;
-
 unsigned int compileShader(const char* path, unsigned int type)
 {
     char buf[256] = {0};
-    strcpy(buf, "res/");
+    strcpy(buf, "res/shaders/");
     strcat(buf, path);
     FILE* srcFile = fopen(buf, "r");
     if (!srcFile)
     {
-        LOG_WARN("Failed to open %s\n", path);
+        LOG_WARN("Failed to open %s\n", buf);
         return 0;
     }
+    memset(buf, 0, 256);
 
     fseek(srcFile, 0L, SEEK_END);
     size_t size = ftell(srcFile);
@@ -75,39 +69,47 @@ unsigned int linkShader(unsigned int vertexID, unsigned int fragmentID)
     return shaderProgram;
 }
 
-Shader* createShader(const char* vertexPath, const char* fragmentPath)
+Shader createShader(const char* vertexPath, const char* fragmentPath)
 {
-    Shader* shader = malloc(sizeof(Shader));
-    shader->vertexID = compileShader(vertexPath, GL_VERTEX_SHADER);
-    shader->fragmentID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
-    shader->programID = linkShader(shader->vertexID, shader->fragmentID);
+    Shader shader;
+    shader.vertexID = compileShader(vertexPath, GL_VERTEX_SHADER);
+    shader.fragmentID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
+    shader.programID = linkShader(shader.vertexID, shader.fragmentID);
     return shader;
 }
 
-void destroyShader(Shader* shader)
+void destroyShader(Shader shader)
 {
-    glDeleteShader(shader->vertexID);
-    glDeleteShader(shader->fragmentID);
-    glDeleteProgram(shader->fragmentID);
-    free(shader);
+    glDeleteShader(shader.vertexID);
+    glDeleteShader(shader.fragmentID);
+    glDeleteProgram(shader.fragmentID);
 }
 
-int getUniformLocation(Shader* shader, const char* name)
+int getUniformLocation(Shader shader, const char* name)
 {
-    int location = glGetUniformLocation(shader->programID, name);
+    int location = glGetUniformLocation(shader.programID, name);
     if (location == -1)
         LOG_WARN("Invalid uniform: %s\n", name);
     return location;
 }
 
-void shaderSetUniformMat4(Shader* shader, mat4s mat, const char* name)
+void shaderSetUniformMat4(Shader shader, mat4s mat, const char* name)
 {
+    glUseProgram(shader.programID);
     int location = getUniformLocation(shader, name);
     glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&mat.raw);
 }
 
-void useShader(Shader* shader)
+
+void shaderSetTextureSlot(Shader shader, unsigned int slot, const char* name)
 {
-    glUseProgram(shader->programID);
+    glUseProgram(shader.programID);
+    int location = getUniformLocation(shader, name);
+    glUniform1i(location, slot);
+}
+
+void useShader(Shader shader)
+{
+    glUseProgram(shader.programID);
 }
 

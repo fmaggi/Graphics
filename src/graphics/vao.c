@@ -1,7 +1,8 @@
 #include "vao.h"
 
 #include "gfx.h"
-#include "stdio.h"
+
+#include "log/log.h"
 
 Vao createVao()
 {
@@ -34,5 +35,7 @@ void addAttribute(Vao* vao,  int size, unsigned int stride)
 
     index += 1;
     vao->index = index;
-    vao->offset += size * sizeof(float) * index;
+    vao->offset += size * sizeof(float);
+
+    LOG_INFO_DEBUG("Vao layout: element %i offset =, %li\n", index, offset);
 }

@@ -1,7 +1,7 @@
 CC = gcc
 TARGET_PREFIX = graphicsExe
 
-CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/cglm/include -Isrc
+CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/cglm/include -I$(DEPS)/stb -Isrc
 LFLAGS = $(LIBSOBJ)/glad.o $(LIBSOBJ)/libglfw3.a $(LIBSOBJ)/libcglm.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
 
 SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
@@ -64,3 +64,6 @@ dirs:
 
 clean:
 	@rm -rf ./obj $(BIN)
+
+run:
+	@ ./$(TARGET)

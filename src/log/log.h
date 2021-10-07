@@ -2,6 +2,7 @@
 #define LOG_H
 
 #include "stdio.h"
+#include "cglm/struct.h"
 
 #define PROFILE_FUNC() (printf("[Function call] %s\n",__func__))
 
@@ -24,5 +25,15 @@
     #define LOG_WARN_DEBUG(...)
     #define LOG_ERROR_DEBUG(...)
 #endif
+
+inline void log_vec2(vec2s v)
+{
+    LOG_INFO("%f %f\n", v.x, v.y);
+}
+
+inline void log_vec3(vec3s v)
+{
+    LOG_INFO("%f %f %f\n", v.x, v.y, v.z);
+}
 
 #endif

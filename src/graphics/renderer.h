@@ -4,10 +4,11 @@
 #include "world/world.h"
 #include "camera.h"
 
-#define MAX_SHADER 1
+#define MAX_SHADER 2
 enum ShaderType
 {
-    basicShader
+    basicShader = 0,
+    uvShader
 };
 
 void createRenderer();
@@ -21,5 +22,6 @@ void endFrame();
 //void drawIndexed();
 
 void rendererChangeMode();
+void rendererSetShader(enum ShaderType type);
 
 #endif

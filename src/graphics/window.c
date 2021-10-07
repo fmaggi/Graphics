@@ -55,9 +55,28 @@ void _keyCallback(GLFWwindow* window, int key, int scancode, int action, int mod
     userWindow->eventCallback(&holder);
 }
 
-void _mouseCallback(GLFWwindow* window, int button, int action, int mods)
+void _mouseMovedCallback(GLFWwindow* window, double x, double y)
 {
+    Window* userWindow = (Window*) glfwGetWindowUserPointer(window);
+    MouseMovedEvent e;
+    e.x = (float) x;
+    e.y = (float) y;
+    EventHolder holder;
+    holder.instance = &e;
+    holder.type = MouseMoved;
+    userWindow->eventCallback(&holder);
+}
 
+void _scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    Window* userWindow = (Window*) glfwGetWindowUserPointer(window);
+    MouseScrollEvent e;
+    e.xoffset = (float) xoffset;
+    e.yoffset = (float) yoffset;
+    EventHolder holder;
+    holder.instance = &e;
+    holder.type = MouseScrolled;
+    userWindow->eventCallback(&holder);
 }
 
 void createWindow(int width, int height, const char* title, EventDispatchFunc callbackFunc)
@@ -101,7 +120,8 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
     glfwSetWindowCloseCallback(g_window, _windowCloseCallback);
     glfwSetWindowSizeCallback(g_window, _windowResizeCallback);
     glfwSetKeyCallback(g_window, _keyCallback);
-    glfwSetMouseButtonCallback(g_window, _mouseCallback);
+    glfwSetScrollCallback(g_window, _scrollCallback);
+    glfwSetCursorPosCallback(g_window, _mouseMovedCallback);
 
     window->g_window = g_window;
 
@@ -117,12 +137,18 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
 
 void destroyWindow()
 {
+    glfwTerminate();
     free(window);
 }
 
-int isKeyPressed(unsigned int key)
+int isKeyPressed(int key)
 {
     return glfwGetKey(window->g_window, key) == GLFW_PRESS;
+}
+
+int isMouseButtonPressed(int button)
+{
+    return glfwGetMouseButton(window->g_window, button) == GLFW_PRESS;
 }
 
 void updateWindow()

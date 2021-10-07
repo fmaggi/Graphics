@@ -8,10 +8,10 @@
 
 struct _inputs
 {
-    unsigned int up;
-    unsigned int down;
-    unsigned int left;
-    unsigned int right;
+    int up;
+    int down;
+    int left;
+    int right;
 };
 
 static struct _inputs inputs;
@@ -24,7 +24,7 @@ void initInput()
     inputs.right = KEY_D;
 }
 
-void handleInput(Camera* movable, double timestep)
+void handleInput(Entity* movable, double timestep)
 {
     if (isKeyPressed(inputs.up))
     {
@@ -34,7 +34,6 @@ void handleInput(Camera* movable, double timestep)
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
-        updateViewMatrix(movable);
     }
     else if (isKeyPressed(inputs.down))
     {
@@ -44,7 +43,6 @@ void handleInput(Camera* movable, double timestep)
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
-        updateViewMatrix(movable);
     }
 
     if (isKeyPressed(inputs.left))
@@ -55,7 +53,6 @@ void handleInput(Camera* movable, double timestep)
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
-        updateViewMatrix(movable);
     }
     else if (isKeyPressed(inputs.right))
     {
@@ -65,6 +62,5 @@ void handleInput(Camera* movable, double timestep)
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
-        updateViewMatrix(movable);
     }
 }

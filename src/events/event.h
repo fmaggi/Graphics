@@ -28,8 +28,14 @@ MouseButtonEvent createMouseButtonEvent(int button, int action, int mods);
 
 typedef struct _mouseMoved
 {
+    float x, y;
 } MouseMovedEvent;
 MouseMovedEvent createMouseMovedEvent();
+
+typedef struct _scroll
+{
+    float xoffset, yoffset;
+} MouseScrollEvent;
 
 typedef struct _windowClose
 {
