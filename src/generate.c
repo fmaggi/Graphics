@@ -1,44 +1,40 @@
 #include "world/world.h"
 #include "log/log.h"
 
-#include <stdlib.h>
-#include "time.h"
-
 void init(World* w)
 {
     LOG_TRACE("Creating World\n");
 
-    Entity player;
-    player.pos = (vec3s){0, 0, 0};
-    player.color = (vec3s){0.2, 0.3, 0.9};
-    player.speed = (vec2s){1, 1};
+    initECS();
 
-    Entity player2;
-    player2.pos = (vec3s){0, 1, 0};
-    player2.color = (vec3s){0.9, 0.8, 0.3};
+    EntityID e = newEntity();
+    LOG_INFO("id: %i\n", e);
 
-    w->player = player;
-    //w->player2 = player2;
+    TransformComponent t;
+    t.position = (vec3s){0, 1, 2};
+    t.rotation = (vec3s){20, 4, 5};
+    t.scale = (vec3s){2, 3, 7};
 
-    srand(time(0));
+    SpriteComponent s;
+    s.color = (vec3s){0.2, 0.4, 0.96};
+    s.texIndex = 0;
 
-    for (int i = 0; i < 3; i++)
-    {
-        for (int j = 0; j < 3; j++)
-        {
-            Entity e;
-            e.pos = (vec3s){i, j, 0};
-            e.color = (vec3s){(float)rand()/(float)RAND_MAX, (float)rand()/(float)RAND_MAX, (float)rand()/(float)RAND_MAX};
-            w->entities[3 * i + j] = e;
-        }
-    }
-    w->index = 9;
+    addComponent(e, sprite, (void*)&s);
+    addComponent(e, transform, (void*)&t);
 }
 
 
 void destroy(World* w)
 {
-    free(w);
+    LOG_INFO("%i\n", hasComponent(0, transform));
+
+    TransformComponent* ptr = (TransformComponent*) getComponent(0, transform);
+    LOG_INFO("%f %f %f\n", ptr->position.x, ptr->position.y, ptr->position.z);
+    SpriteComponent* p = (SpriteComponent*) getComponent(0, sprite);
+    LOG_INFO("%f\n", p->texIndex);
+
+    TransformComponent* transforms = registerView(transform);
+    LOG_INFO("%f %f %f\n", transforms[0].position.x, transforms[0].position.y, transforms[0].position.z);
 }
 
 WorldFuncPtr initWorld = &init;

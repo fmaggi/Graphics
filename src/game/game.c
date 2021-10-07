@@ -96,7 +96,7 @@ void runGame()
 
 void destroyGame()
 {  
-    //destroyWorld(game.world);
+    destroyWorld(0);
     destroyRenderer();
     destroyWindow();
     LOG_TRACE("Good bye\n");

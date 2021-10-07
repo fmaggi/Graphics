@@ -105,7 +105,7 @@ void createRenderer()
 
     r.renderCalls = 0;
 
-    r.texture = loadTexture("awesomeface.png");
+    r.texture = loadTexture("test.png");
     bindTexture(r.texture);
     shaderSetTextureSlot(r.shaders[uvShader], r.texture.slot, "u_texture");
 }
@@ -207,7 +207,7 @@ void render(World* w)
     // _pushEntity(&w->player2);
     // for (int i = 0; i < w->index; i++)
     //     _pushEntity(&(w->entities[i]));
-    _pushEntity(&w->player);
+    // _pushEntity(&w->player);
 }
 
 /**
@@ -233,6 +233,8 @@ void rendererSetShader(enum ShaderType type)
 
 void prepareRenderer()
 {
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 }
