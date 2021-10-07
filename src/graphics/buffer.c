@@ -40,7 +40,6 @@ Ibo createIbo(unsigned int count, unsigned int * data)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
 
     self.type = GL_ELEMENT_ARRAY_BUFFER;
-
     self.count = count;
 
     return self;

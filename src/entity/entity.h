@@ -3,10 +3,11 @@
 
 #include "cglm/struct.h"
 
-typedef struct _entity // basically just a mesh
+typedef struct _entity
 {
     vec3s pos;
     vec3s color;
+    vec2s speed;
 } Entity;
 
 #endif

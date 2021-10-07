@@ -1,19 +1,16 @@
 #ifndef WINDOW_H
-#define WINDOW_h
-
-#include "gfx.h"
+#define WINDOW_H
 
 #include "events/event.h"
 
-
 typedef void (*EventDispatchFunc)(EventHolder* event);
-typedef struct _window Window;
 
-Window* createWindow(int width, int height, const char* title, EventDispatchFunc callbackFunc);
+void createWindow(int width, int height, const char* title, EventDispatchFunc callbackFunc);
 void destroyWindow();
 
-GLFWwindow* getNativeWindow();
+int isKeyPressed(int key);
+int isMouseButtonPressed(int button);
 
-void prepareWindow();
+void updateWindow();
 
 #endif // WINDOW_H

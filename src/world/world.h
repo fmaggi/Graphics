@@ -3,7 +3,7 @@
 
 #include "entity/entity.h"
 
-#define MAX_NTTs 8
+#define MAX_NTTs 16
 
 
 typedef struct _world

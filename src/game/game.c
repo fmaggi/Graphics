@@ -1,4 +1,5 @@
 #include "game.h"
+#include "timestep.h"
 
 #include "cglm/struct.h"
 
@@ -7,7 +8,6 @@
 #include "graphics/window.h"
 #include "graphics/renderer.h"
 #include "graphics/camera.h"
-#include "graphics/gfx.h"
 
 #include "world/world.h"
 
@@ -15,16 +15,92 @@
 
 #include "log/log.h"
 
+// On event function definitions
+
+void onWindowClose();
+void onWindowResize(WindowResizeEvent event);
+void onKeyPressed(KeyEvent event);
+void onMouseScrolled(MouseScrollEvent event);
+void onMouseMoved(MouseMovedEvent event);
+
+
+// -----------------------------
+
 typedef struct _game
 {
     int running;
-    double lastFrame;
-    Window* window;
     World* world;
     Camera camera;
 } Game; //state of the game
 
 static Game game;
+
+void onEvent(EventHolder* event)
+{
+    switch (event->type)
+    {   
+        case WindowClose:   return onWindowClose();
+        case WindowResize:  return onWindowResize(*(WindowResizeEvent*) event->instance);
+        case KeyPressed:    return onKeyPressed(*(KeyEvent*) event->instance);
+        case KeyReleased:   return;
+        case MouseScrolled: return onMouseScrolled(*(MouseScrollEvent*) event->instance);
+        case MouseMoved:    return onMouseMoved(*(MouseMovedEvent*) event->instance);
+
+        default:
+            LOG_INFO("Event type not currently handled\n");           
+            return;
+    }
+}
+
+void setUpGame()
+{
+    LOG_INFO_DEBUG("DEBUG\n");
+    createWindow(800, 600, "LearnOpenGL", &onEvent);
+    game.camera = orthoCamera((vec3s){0, 0, 0}, 800, 600);
+
+    createRenderer();
+
+    initInput();
+
+    game.world = emptyWorld();
+    initWorld(game.world);
+
+    game.running = 1;
+    LOG_TRACE("All done!\n");
+}
+
+void onUpdate()
+{
+    double ts = getTimestep();
+    LOG_INFO_DEBUG("Frametime: %fms\n", ts);
+
+    handleInput(&(game.world->player), ts);
+}
+
+void onRender()
+{
+    startFrame(&game.camera);
+    render(game.world);
+    endFrame();
+}
+
+void runGame()
+{
+    while (game.running)
+    {
+        onUpdate();
+        onRender();
+        updateWindow();
+    }
+}
+
+void destroyGame()
+{  
+    //destroyWorld(game.world);
+    destroyRenderer();
+    destroyWindow();
+    LOG_TRACE("Good bye\n");
+}
 
 void onWindowClose()
 {
@@ -42,15 +118,22 @@ void onKeyPressed(KeyEvent event)
         return;
     switch (event.key)
     {
-        case GLFW_KEY_M:
+        case KEY_M:
         {
             rendererChangeMode();
             break;
         }
-        case GLFW_KEY_C:
+        case KEY_C:
         {
-            if (event.mods == GLFW_MOD_CONTROL)
+            if (event.mods == MOD_CONTROL)
                 game.running = 0;
+            else
+                rendererSetShader(basicShader);
+            break;
+        }
+        case KEY_U:
+        {
+            rendererSetShader(uvShader);
             break;
         }
         default:
@@ -60,74 +143,21 @@ void onKeyPressed(KeyEvent event)
     }
 }
 
-void onEvent(EventHolder* event)
-{
-    switch (event->type)
-    {   
-        case WindowClose:  return onWindowClose();
-        case WindowResize: return onWindowResize(*(WindowResizeEvent*) event->instance);
-        case KeyPressed:   return onKeyPressed(*(KeyEvent*) event->instance);
-        case KeyReleased:  return;
 
-        default:
-            LOG_INFO("Event type not currently handled\n");           
-            return;
-    }
+void onMouseScrolled(MouseScrollEvent event)
+{   
+    updateZoom(&game.camera, event.yoffset);
 }
 
-void setUpGame()
+void onMouseMoved(MouseMovedEvent event)
 {
-    LOG_INFO_DEBUG("DEBUG\n");
-    game.window = createWindow(800, 600, "LearnOpenGL", &onEvent);
-    game.camera = orthoCamera((vec3s){0, 0, -1}, 800, 600);
+    static float lastX = 0;
+    static float lastY = 0;
 
-    createRenderer();
+    float offsetX = event.x - lastX;
+    float offsetY = event.y - lastY;
 
-    initInput();
-
-    game.world = emptyWorld();
-    initWorld(game.world);
-
-    game.running = 1;
-    game.lastFrame = 0;
-    LOG_TRACE("All done!\n");
-}
-
-void onUpdate()
-{
-    prepareRenderer();
-
-    double now = glfwGetTime();
-    double ts = now - game.lastFrame;
-    game.lastFrame = now;
-    LOG_INFO_DEBUG("Frametime: %fms\n", ts);
-
-    handleInput(&(game.camera), ts);
-}
-
-void onRender()
-{
-    startScene(&game.camera);
-    render(game.world);
-    endScene();
-
-    prepareWindow(); 
-}
-
-void runGame()
-{
-    while (game.running)
-    {
-        onUpdate();
-        onRender();
-    }
-}
-
-void destroyGame()
-{  
-    // glfwTerminate(); 
-    destroyWorld(game.world);
-    destroyRenderer();
-    destroyWindow();
-    LOG_TRACE("Good bye\n");
+    lastX = event.x;
+    lastY = event.y;
+    moveCamera(&game.camera, offsetX, offsetY);
 }

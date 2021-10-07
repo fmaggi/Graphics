@@ -8,29 +8,25 @@
 
 struct _inputs
 {
-    unsigned int up;
-    unsigned int down;
-    unsigned int left;
-    unsigned int right;
-    GLFWwindow* window;
+    int up;
+    int down;
+    int left;
+    int right;
 };
 
 static struct _inputs inputs;
 
 void initInput()
 {
-    inputs.up    = GLFW_KEY_W;
-    inputs.down  = GLFW_KEY_S;
-    inputs.left  = GLFW_KEY_A;
-    inputs.right = GLFW_KEY_D;
-    inputs.window = getNativeWindow();
-    if (inputs.window == NULL)
-        LOG_WARN("Window hasn't been created\n");
+    inputs.up    = KEY_W;
+    inputs.down  = KEY_S;
+    inputs.left  = KEY_A;
+    inputs.right = KEY_D;
 }
 
-void handleInput(Camera* movable, double timestep)
+void handleInput(Entity* movable, double timestep)
 {
-    if (glfwGetKey(inputs.window, inputs.up) == GLFW_PRESS)
+    if (isKeyPressed(inputs.up))
     {
         vec3s amount;
         amount.x = 0;
@@ -38,9 +34,8 @@ void handleInput(Camera* movable, double timestep)
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
-        updateViewMatrix(movable);
     }
-    else if (glfwGetKey(inputs.window, inputs.down) == GLFW_PRESS)
+    else if (isKeyPressed(inputs.down))
     {
         vec3s amount;
         amount.x = 0;
@@ -48,10 +43,9 @@ void handleInput(Camera* movable, double timestep)
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
-        updateViewMatrix(movable);
     }
 
-    if (glfwGetKey(inputs.window, inputs.left) == GLFW_PRESS)
+    if (isKeyPressed(inputs.left))
     {
         vec3s amount;
         amount.x = -1 * movable->speed.x;
@@ -59,9 +53,8 @@ void handleInput(Camera* movable, double timestep)
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
-        updateViewMatrix(movable);
     }
-    else if (glfwGetKey(inputs.window, inputs.right) == GLFW_PRESS)
+    else if (isKeyPressed(inputs.right))
     {
         vec3s amount;
         amount.x = 1 * movable->speed.x;
@@ -69,6 +62,5 @@ void handleInput(Camera* movable, double timestep)
         amount.z = 0;
         amount = glms_vec3_scale(amount, timestep);
         movable->pos = glms_vec3_add(amount, movable->pos);
-        updateViewMatrix(movable);
     }
 }
