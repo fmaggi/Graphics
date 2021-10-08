@@ -1,14 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-typedef struct _texture
-{
-    unsigned int id;
-    unsigned int slot;
-} Texture;
-
-typedef void (*TextureLoadCallback)(Texture*);
-extern TextureLoadCallback textureCallback;
+typedef struct _texture Texture;
 
 int loadTexture(const char* name);
 

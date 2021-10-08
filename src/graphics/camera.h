@@ -6,8 +6,6 @@
 typedef struct _camera
 {
     vec3s pos;
-    mat4s proj;
-    mat4s view;
     mat4s projview;
     float width, height, zoom;
 } Camera;
@@ -19,7 +17,7 @@ void orthoCamera(vec3s pos, float width, float height);
 int moveCamera(float xpos, float ypos);
 
 void updateZoom(float zoom);
-void updateViewMatrix();
+void calculateViewProj();
 void updateProjectionMatrix(float width, float height);
 
 #endif

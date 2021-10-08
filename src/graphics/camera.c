@@ -13,8 +13,7 @@ void orthoCamera(vec3s pos, float width, float height)
     camera.pos = pos;
     camera.width = width;
     camera.height = height;
-    camera.proj = glms_ortho(-(camera.width/2) * camera.zoom, (camera.width/2) * camera.zoom, -(camera.height/2) * camera.zoom, (camera.height/2), -camera.zoom, camera.zoom);
-    updateViewMatrix();
+    calculateViewProj();
 }
 
 int moveCamera(float xoffset, float yoffset)
@@ -26,30 +25,28 @@ int moveCamera(float xoffset, float yoffset)
     camera.pos.x -= xoffset * camera.zoom;
     camera.pos.y += yoffset * camera.zoom;
 
-    updateViewMatrix();
+    calculateViewProj();
     return 1;
 }
 
-void updateViewMatrix()
+void calculateViewProj()
 {
     mat4s transform = glms_translate(glms_mat4_identity(), camera.pos);
     mat4s view = glms_mat4_inv_fast(transform);
-    camera.view = (view);
-    camera.projview = glms_mat4_mul(camera.proj, camera.view);
+    mat4s proj = glms_ortho(-(camera.width/2) * camera.zoom, (camera.width/2) * camera.zoom, -(camera.height/2) * camera.zoom, (camera.height/2) * camera.zoom, 0.1, 100*camera.zoom);
+    camera.projview = glms_mat4_mul(proj, view);
 }
 
 void updateZoom(float zoom)
 {
     camera.zoom -= zoom * 0.25f;
     camera.zoom = camera.zoom > 0.25f ? camera.zoom : 0.25f;
-    camera.proj = glms_ortho(-(camera.width/2) * camera.zoom, (camera.width/2) * camera.zoom, -(camera.height/2) * camera.zoom, (camera.height/2) * camera.zoom, -camera.zoom, camera.zoom);
-    camera.projview = glms_mat4_mul(camera.proj, camera.view);
+    calculateViewProj();
 }
 
 void updateProjectionMatrix(float width, float height)
 {
     camera.width = width;
     camera.height = height;
-    camera.proj = glms_ortho(-(camera.width/2) * camera.zoom, (camera.width/2) * camera.zoom, -(camera.height/2) * camera.zoom, (camera.height/2) * camera.zoom, -camera.zoom, camera.zoom);
-    camera.projview = glms_mat4_mul(camera.proj, camera.view);
+    calculateViewProj();
 }

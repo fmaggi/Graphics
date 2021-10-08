@@ -30,36 +30,40 @@ void handleInput(EntityID movable, double timestep)
     TransformComponent* t = getComponent(movable, transform);
     if (windowIsKeyPressed(inputs.up))
     {
-        vec2s amount;
+        vec3s amount;
         amount.x = 0;
         amount.y = 1;
-        amount = glms_vec2_scale(amount, timestep);
-        t->position = glms_vec2_add(amount, t->position);
+        amount.z = 0;
+        amount = glms_vec3_scale(amount, timestep);
+        t->position = glms_vec3_add(amount, t->position);
     }
     else if (windowIsKeyPressed(inputs.down))
     {
-        vec2s amount;
+        vec3s amount;
         amount.x = 0;
         amount.y = -1;
-        amount = glms_vec2_scale(amount, timestep);
-        t->position = glms_vec2_add(amount, t->position);
+        amount.z = 0;
+        amount = glms_vec3_scale(amount, timestep);
+        t->position = glms_vec3_add(amount, t->position);
     }
 
     if (windowIsKeyPressed(inputs.left))
     {
-        vec2s amount;
+        vec3s amount;
         amount.x = -1;
         amount.y = 0;
-        amount = glms_vec2_scale(amount, timestep);
-        t->position = glms_vec2_add(amount, t->position);
+        amount.z = 0;
+        amount = glms_vec3_scale(amount, timestep);
+        t->position = glms_vec3_add(amount, t->position);
     }
     else if (windowIsKeyPressed(inputs.right))
     {
-        vec2s amount;
+        vec3s amount;
         amount.x = 1;
         amount.y = 0;
-        amount = glms_vec2_scale(amount, timestep);
-        t->position = glms_vec2_add(amount, t->position);
+        amount.z = 0;
+        amount = glms_vec3_scale(amount, timestep);
+        t->position = glms_vec3_add(amount, t->position);
     }
 }
 

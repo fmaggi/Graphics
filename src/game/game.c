@@ -93,8 +93,8 @@ void runGame()
 
 void destroyGame()
 {  
+    destroyWorld();
     destroyECS();
-    destroyWorld(0);
     destroyRenderer();
     destroyWindow();
     LOG_TRACE("Good bye\n");

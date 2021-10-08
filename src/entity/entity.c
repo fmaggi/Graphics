@@ -11,14 +11,11 @@
     extern void add##_name##Component(); \
     extern void* get##_name##Component();
 
-#define DECL_COMPONENTS() \
-    DECL_COMPONENT(Transform) \
-    DECL_COMPONENT(Sprite) \
-
 #define INIT_COMPONENT(_name) \
     _name##_init(maxEntities);
 
-DECL_COMPONENTS()
+DECL_COMPONENT(Transform)
+DECL_COMPONENT(Sprite)
 
 #define ECS_TAG_VALUE(x) (1 << x)
 

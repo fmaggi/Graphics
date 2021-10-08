@@ -10,10 +10,17 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-static unsigned int usedSlot = 0;
+typedef struct _texture
+{
+    unsigned int id;
+    unsigned int slot;
+} Texture;
+
+extern void onTextureLoad(Texture* texture);
 
 int loadTexture(const char* name)
 {
+    static unsigned int usedSlot = 0;
     Texture* self = malloc(sizeof(Texture));
     if (self == NULL)
     {
@@ -52,7 +59,7 @@ int loadTexture(const char* name)
 
     stbi_image_free(data);
 
-    textureCallback(self);
+    onTextureLoad(self);
     return self->slot;
 }
 
@@ -65,4 +72,5 @@ void bindTexture(Texture* t)
 void unloadTexture(Texture* t)
 {
     glDeleteTextures(1, &t->id);
+    free(t);
 }

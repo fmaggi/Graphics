@@ -16,9 +16,6 @@
 
 void prepareRenderer();
 void rendererSetProjectionMatrix(mat4s proj);
-void OnTextureLoad(Texture* texture);
-
-TextureLoadCallback textureCallback;
 
 #define MAX_QUADS 16
 static const unsigned int maxVertices = MAX_QUADS * 4;
@@ -47,6 +44,7 @@ typedef struct _renderer
     struct QuadVertex* vertexPtrCurrent;
 
     Texture* textures[16];
+    unsigned int currentTexture;
 
     unsigned int indexCount;
     unsigned int quadCount;
@@ -117,7 +115,7 @@ void createRenderer()
 
     r.renderCalls = 0;
 
-    textureCallback = &OnTextureLoad;
+    r.currentTexture = 0;
 }
 
 void destroyRenderer()
@@ -129,10 +127,10 @@ void destroyRenderer()
     destroyBuffer(r.ibo);
     free(r.vertices);
 
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < r.currentTexture; i++)
     {
         if (r.textures[i])
-            free(r.textures[i]);
+            unloadTexture(r.textures[i]);
     }
 }
 
@@ -141,7 +139,7 @@ void _renderBatch()
     if (r.indexCount == 0)
         return;
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < r.currentTexture; i++)
         bindTexture(r.textures[i]);
 
     bindVao(r.vao);
@@ -220,11 +218,10 @@ void render()
         if (sprites[i].render)
         {
             mat4s m;
-            vec3s scale = {transforms[i].scale.x, transforms[i].scale.y, 0};
-            vec3s position = {transforms[i].position.x, transforms[i].position.y, 0};
+            vec3s scale = {transforms[i].scale.x, transforms[i].scale.y, 1};
             m = glms_mat4_identity();
             m = glms_scale(m, scale);
-            m = glms_translate(m, position);
+            m = glms_translate(m, transforms[i].position);
             m = glms_rotate(m, transforms[i].rotation, (vec3s){0, 0, 1});
             _pushQuad(m, sprites[i].color, sprites[i].texIndex);
         }
@@ -237,9 +234,9 @@ void render()
  *      ----------------------------------------------
 */
 
-void OnTextureLoad(Texture* texture)
+void onTextureLoad(Texture* texture)
 {
-    r.textures[texture->slot] = texture;
+    r.textures[r.currentTexture++] = texture;
 }
 
 void rendererChangeMode()

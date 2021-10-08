@@ -10,9 +10,14 @@ out vec4 FragColor;
 
 void main()
 {
+    vec4 texColor;
     switch (int(v_texIndex))
     {
-        case 0: FragColor = texture(u_texture[0], v_uv); break;
-        case 1: FragColor = texture(u_texture[1], v_uv); break;
+        case 0: texColor = texture(u_texture[0], v_uv); break;
+        case 1: texColor = texture(u_texture[1], v_uv); break;
     }
+
+    if (texColor.w < 0.1f)
+        discard;
+    FragColor = texColor;
 };

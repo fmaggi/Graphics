@@ -16,7 +16,7 @@ void initWorld()
     world.player = player;
 
     TransformComponent t;
-    t.position = (vec2s){0, 0};
+    t.position = (vec3s){0, 0, -1};
     t.rotation = 0.785;
     t.scale = (vec2s){200, 200};
 
@@ -35,7 +35,7 @@ void initWorld()
         {
             EntityID e = newEntity();
             TransformComponent t2;
-            t2.position = (vec2s){i, j};
+            t2.position = (vec3s){i, j, -20};
             t2.rotation = 0;
             t2.scale = (vec2s){200, 200};
 
