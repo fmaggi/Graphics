@@ -13,6 +13,7 @@ typedef struct
 }Entity;
 
 void initECS();
+void destroyECS();
 EntityID newEntity();
 
 int hasComponent(EntityID id, enum ComponentType type);

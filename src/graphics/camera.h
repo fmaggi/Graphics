@@ -12,12 +12,14 @@ typedef struct _camera
     float width, height, zoom;
 } Camera;
 
-Camera orthoCamera(vec3s pos, float width, float height);
+extern Camera camera;
 
-int moveCamera(Camera* c, float xpos, float ypos);
+void orthoCamera(vec3s pos, float width, float height);
 
-void updateZoom(Camera* c, float zoom);
-void updateViewMatrix(Camera* c);
-void updateProjectionMatrix(Camera* c, float width, float height);
+int moveCamera(float xpos, float ypos);
+
+void updateZoom(float zoom);
+void updateViewMatrix();
+void updateProjectionMatrix(float width, float height);
 
 #endif

@@ -7,7 +7,7 @@
 
 void Transform_init(unsigned int size)
 {
-    LOG_INFO("Setting up transform component\n");
+    LOG_TRACE("Setting up transform component\n");
     void* temp = malloc(sizeof(TransformComponent) * size);
     if (temp == NULL)
     {

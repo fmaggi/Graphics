@@ -40,6 +40,13 @@ void initECS()
     memset(registers.used, 0, sizeof(registers.used));
 }
 
+void destroyECS()
+{
+    free(registers.transforms);
+    free(registers.sprites);
+    free(registers.used);
+}
+
 EntityID newEntity()
 {
     static EntityID id = 0;
@@ -53,7 +60,8 @@ int hasComponent(EntityID id, enum ComponentType type)
 
 void addComponent(EntityID id, enum ComponentType type, void* component)
 {
-    assert(!(hasComponent(id, type)));
+    if (hasComponent(id, type))
+        LOG_WARN("Entity %i already has component\n", id);
     registers.used[id] |= ECS_TAG_VALUE(type);
     unsigned int size = getSize(type);
     switch (type)

@@ -6,7 +6,7 @@
 
 void Sprite_init(unsigned int size)
 {
-    LOG_INFO("Setting up sprite component\n");
+    LOG_TRACE("Setting up sprite component\n");
     void* temp = malloc(sizeof(SpriteComponent) * size);
     if (temp == NULL)
     {
@@ -19,6 +19,7 @@ void Sprite_init(unsigned int size)
 
 void addSpriteComponent(unsigned int id, SpriteComponent c)
 {
+    c.render = 1;
     registers.sprites[id] = c;
 }
 
