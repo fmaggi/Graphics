@@ -4,6 +4,3 @@
 [submodule "dependencies/cglm"]
 	path = dependencies/cglm
 	url = https://github.com/recp/cglm.git
-[submodule "dependencies/nuklear"]
-	path = dependencies/nuklear
-	url = https://github.com/Immediate-Mode-UI/Nuklear.git
