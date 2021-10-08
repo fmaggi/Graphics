@@ -3,7 +3,7 @@
 
 #include "ECScomponents.h"
 
-typedef unsigned char ComponentsUsed; // just a bit map to mark used components by entities. with unsigned char = 256 components per entity
+typedef unsigned char ComponentsUsed; // just a bit map to mark used components by entities. with unsigned char = 8 components per entity
 
 struct Register
 {
