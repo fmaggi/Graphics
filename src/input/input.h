@@ -8,6 +8,6 @@
 void initInput();
 void changeInput(int keyUp, int keyDown, int keyLeft, int keyRight);
 
-void handleInput(Entity* movable, double timestep);
+void handleInput(EntityID movable, double timestep);
 
 #endif

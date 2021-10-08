@@ -2,7 +2,6 @@
 #define RENDERER_H
 
 #include "world/world.h"
-#include "camera.h"
 
 #define MAX_SHADER 2
 enum ShaderType
@@ -16,7 +15,7 @@ void destroyRenderer();
 
 void render(World* w);
 
-void startFrame(Camera* c);
+void startFrame();
 void endFrame();
 
 //void drawIndexed();

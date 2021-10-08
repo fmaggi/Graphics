@@ -8,10 +8,8 @@
 
 typedef struct _world
 {
-    Entity entities[MAX_NTTs];
-    unsigned int index;
-    Entity player;
-    Entity player2;
+    EntityID player;
+    unsigned int count;
 } World;
 
 World* emptyWorld();

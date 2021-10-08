@@ -10,6 +10,6 @@ World* emptyWorld()
         LOG_ERROR("Failed to initialize world\n");
         exit(-1);
     }
-    self->index = 0;
+    self->count = 0;
     return self;
 }

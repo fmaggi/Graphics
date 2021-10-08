@@ -30,7 +30,6 @@ typedef struct _game
 {
     int running;
     World* world;
-    Camera camera;
 } Game; //state of the game
 
 static Game game;
@@ -56,11 +55,12 @@ void setUpGame()
 {
     LOG_INFO_DEBUG("DEBUG\n");
     createWindow(800, 600, "LearnOpenGL", &onEvent);
-    game.camera = orthoCamera((vec3s){0, 0, 0}, 800, 600);
+
+    orthoCamera((vec3s){0, 0, 0}, 800, 600);
 
     createRenderer();
-
     initInput();
+    initECS();
 
     game.world = emptyWorld();
     initWorld(game.world);
@@ -74,12 +74,15 @@ void onUpdate()
     double ts = getTimestep();
     LOG_INFO_DEBUG("Frametime: %fms\n", ts);
 
-    handleInput(&(game.world->player), ts);
+    TransformComponent* t = getComponent(game.world->player, transform);
+    t->rotation += 1 * ts;
+
+    handleInput(game.world->player, ts);
 }
 
 void onRender()
 {
-    startFrame(&game.camera);
+    startFrame();
     render(game.world);
     endFrame();
 }
@@ -96,7 +99,8 @@ void runGame()
 
 void destroyGame()
 {  
-    //destroyWorld(game.world);
+    destroyECS();
+    destroyWorld(0);
     destroyRenderer();
     destroyWindow();
     LOG_TRACE("Good bye\n");
@@ -109,7 +113,7 @@ void onWindowClose()
 
 void onWindowResize(WindowResizeEvent event)
 {
-    updateProjectionMatrix(&game.camera, event.width, event.height);
+    updateProjectionMatrix(event.width, event.height);
 }
 
 void onKeyPressed(KeyEvent event)
@@ -146,7 +150,7 @@ void onKeyPressed(KeyEvent event)
 
 void onMouseScrolled(MouseScrollEvent event)
 {   
-    updateZoom(&game.camera, event.yoffset);
+    updateZoom(event.yoffset);
 }
 
 void onMouseMoved(MouseMovedEvent event)
@@ -159,5 +163,5 @@ void onMouseMoved(MouseMovedEvent event)
 
     lastX = event.x;
     lastY = event.y;
-    moveCamera(&game.camera, offsetX, offsetY);
+    moveCamera(offsetX, offsetY);
 }

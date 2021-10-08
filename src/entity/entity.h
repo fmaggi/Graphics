@@ -1,13 +1,25 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-#include "cglm/struct.h"
+#include "ECScomponents.h"
 
-typedef struct _entity
+typedef int EntityID;
+
+typedef struct 
 {
-    vec3s pos;
     vec3s color;
-    vec2s speed;
-} Entity;
+    vec3s pos;
+    vec3s speed;
+}Entity;
+
+void initECS();
+void destroyECS();
+EntityID newEntity();
+
+int hasComponent(EntityID id, enum ComponentType type);
+void addComponent(EntityID id, enum ComponentType type, void* component);
+void* getComponent(EntityID id, enum ComponentType type);
+
+void* registerView(enum ComponentType type);
 
 #endif

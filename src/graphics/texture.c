@@ -37,8 +37,7 @@ Texture loadTexture(const char* name)
     unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
     if (data == NULL)
     {   
-        LOG_ERROR("Failed to load texture at %s\n", path);
-        LOG_INFO("  %s\n", stbi_failure_reason());
+        LOG_ERROR("Failed to load texture %s: %s\n", name, stbi_failure_reason());
         --usedSlot;
         return self;
     }
