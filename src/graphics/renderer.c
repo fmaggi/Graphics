@@ -104,9 +104,9 @@ void createRenderer()
     free(indices);
 
     r.vertexPositions[0] = (vec3s){-0.5f, -0.5f, 0.0f}; // bottom left
-    r.vertexPositions[1] = (vec3s){0.5f, -0.5f, 0.0f}; // bottom right
-    r.vertexPositions[2] = (vec3s){0.5f, 0.5f, 0.0f}; // top left
-    r.vertexPositions[3] = (vec3s){-0.5f, 0.5f, 0.0f}; // top right
+    r.vertexPositions[1] = (vec3s){ 0.5f, -0.5f, 0.0f}; // bottom right
+    r.vertexPositions[2] = (vec3s){ 0.5f,  0.5f, 0.0f}; // top left
+    r.vertexPositions[3] = (vec3s){-0.5f,  0.5f, 0.0f}; // top right
 
     r.texturesCoords[0] = (vec2s){0.0f, 0.0f};
     r.texturesCoords[1] = (vec2s){1.0f, 0.0f};
@@ -160,7 +160,7 @@ void startFrame()
     r.renderCalls = 0;
 
     shaderSetUniformMat4(r.shaders[basicShader], camera.projview, "projview");
-    shaderSetUniformMat4(r.shaders[uvShader], camera.projview, "projview");
+    shaderSetUniformMat4(r.shaders[uvShader],    camera.projview, "projview");
 
     useShader(r.currentShader);
 
@@ -257,7 +257,7 @@ void rendererSetShader(enum ShaderType type)
 void prepareRenderer()
 {
     glEnable(GL_DEPTH_TEST);
-    glEnable( GL_BLEND );
+    glEnable(GL_BLEND);
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

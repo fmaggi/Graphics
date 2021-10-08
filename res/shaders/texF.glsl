@@ -13,8 +13,9 @@ void main()
     vec4 texColor;
     switch (int(v_texIndex))
     {
-        case 0: texColor = texture(u_texture[0], v_uv); break;
-        case 1: texColor = texture(u_texture[1], v_uv); break;
+        case -1: texColor = vec4(vColor, 1.0f); break;
+        case  0: texColor = texture(u_texture[0], v_uv); break;
+        case  1: texColor = texture(u_texture[1], v_uv); break;
     }
 
     if (texColor.w < 0.1f)

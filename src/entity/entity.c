@@ -6,6 +6,12 @@
 #include "log/log.h"
 #include "string.h"
 
+// I know that because I have the switch and components are specified at compile time,
+// I could just use separate functions. I just wanted to experiment with macros (I still dont understand them well)
+// and more abstract functions. This are very simple macros. Ive seen ecs implementations in c
+// with much more complex macros that leads to more abstract functions but I didnt understand how 
+// they worked so I didnt want to use them
+
 #define DECL_COMPONENT(_name) \
     extern void _name##_init(); \
     extern void add##_name##Component(); \
@@ -18,8 +24,6 @@ DECL_COMPONENT(Transform)
 DECL_COMPONENT(Sprite)
 
 #define ECS_TAG_VALUE(x) (1 << x)
-
-static unsigned int getSize(enum ComponentType type);
 
 static unsigned int count = 0;
 static EntityID maxEntities = 16;
@@ -67,7 +71,6 @@ void addComponent(EntityID id, enum ComponentType type, void* component)
     if (hasComponent(id, type))
         LOG_WARN("Entity %i already has component\n", id);
     registers.used[id] |= ECS_TAG_VALUE(type);
-    unsigned int size = getSize(type);
     switch (type)
     {
         case transform: return addTransformComponent(id, *(TransformComponent*) component);
@@ -99,13 +102,4 @@ void* registerView(enum ComponentType type)
 
     LOG_WARN("Invalid component\n");
     return 0;
-}
-
-static unsigned int getSize(enum ComponentType type)
-{
-    switch (type)
-    {
-        case transform: return sizeof(TransformComponent);
-        case sprite:    return sizeof(SpriteComponent);
-    }
 }

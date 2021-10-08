@@ -5,13 +5,6 @@
 
 typedef int EntityID;
 
-typedef struct 
-{
-    vec3s color;
-    vec3s pos;
-    vec3s speed;
-}Entity;
-
 void initECS();
 void destroyECS();
 

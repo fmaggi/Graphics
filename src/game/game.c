@@ -15,14 +15,13 @@
 
 #include "log/log.h"
 
-// On event function definitions
+// On event function prototypes
 
 void onWindowClose();
 void onWindowResize(WindowResizeEvent event);
 void onKeyPressed(KeyEvent event);
 void onMouseScrolled(MouseScrollEvent event);
 void onMouseMoved(MouseMovedEvent event);
-
 
 // -----------------------------
 
@@ -52,7 +51,6 @@ void setUpGame()
 {
     LOG_INFO_DEBUG("DEBUG\n");
     createWindow(800, 600, "LearnOpenGL", &onEvent);
-
     orthoCamera((vec3s){0, 0, 0}, 800, 600);
 
     createRenderer();
