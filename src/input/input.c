@@ -18,6 +18,7 @@ static struct _inputs inputs;
 
 void initInput()
 {
+    LOG_TRACE("Initaliazing input\n");
     inputs.up    = KEY_W;
     inputs.down  = KEY_S;
     inputs.left  = KEY_A;
@@ -27,7 +28,7 @@ void initInput()
 void handleInput(EntityID movable, double timestep)
 {
     TransformComponent* t = getComponent(movable, transform);
-    if (isKeyPressed(inputs.up))
+    if (windowIsKeyPressed(inputs.up))
     {
         vec2s amount;
         amount.x = 0;
@@ -35,7 +36,7 @@ void handleInput(EntityID movable, double timestep)
         amount = glms_vec2_scale(amount, timestep);
         t->position = glms_vec2_add(amount, t->position);
     }
-    else if (isKeyPressed(inputs.down))
+    else if (windowIsKeyPressed(inputs.down))
     {
         vec2s amount;
         amount.x = 0;
@@ -44,7 +45,7 @@ void handleInput(EntityID movable, double timestep)
         t->position = glms_vec2_add(amount, t->position);
     }
 
-    if (isKeyPressed(inputs.left))
+    if (windowIsKeyPressed(inputs.left))
     {
         vec2s amount;
         amount.x = -1;
@@ -52,7 +53,7 @@ void handleInput(EntityID movable, double timestep)
         amount = glms_vec2_scale(amount, timestep);
         t->position = glms_vec2_add(amount, t->position);
     }
-    else if (isKeyPressed(inputs.right))
+    else if (windowIsKeyPressed(inputs.right))
     {
         vec2s amount;
         amount.x = 1;
@@ -60,4 +61,13 @@ void handleInput(EntityID movable, double timestep)
         amount = glms_vec2_scale(amount, timestep);
         t->position = glms_vec2_add(amount, t->position);
     }
+}
+
+int isKeyPressed(Keycode key)
+{
+    return windowIsKeyPressed(key);
+}
+int isMouseButtonPressed(ButtonCode button)
+{
+    return windowIsMouseButtonPressed(button);
 }

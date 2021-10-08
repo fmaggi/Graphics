@@ -1,7 +1,7 @@
 #include "camera.h"
 
 #include "log/log.h"
-#include "graphics/window.h"
+#include "input/input.h"
 
 #include "input/keys.h"
 
@@ -19,7 +19,7 @@ void orthoCamera(vec3s pos, float width, float height)
 
 int moveCamera(float xoffset, float yoffset)
 {
-    if (!isMouseButtonPressed(MOUSE_BUTTON_1))
+    if (!isMouseButtonPressed(MOUSE_BUTTON_LEFT))
         return 0;
         
     // glfw has its origin at the top left and I use the origin at the bottom left so I need to add one and substact the other

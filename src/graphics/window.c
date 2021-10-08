@@ -141,12 +141,12 @@ void destroyWindow()
     free(window);
 }
 
-int isKeyPressed(int key)
+int windowIsKeyPressed(int key)
 {
     return glfwGetKey(window->g_window, key) == GLFW_PRESS;
 }
 
-int isMouseButtonPressed(int button)
+int windowIsMouseButtonPressed(int button)
 {
     return glfwGetMouseButton(window->g_window, button) == GLFW_PRESS;
 }

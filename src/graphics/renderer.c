@@ -16,6 +16,9 @@
 
 void prepareRenderer();
 void rendererSetProjectionMatrix(mat4s proj);
+void OnTextureLoad(Texture* texture);
+
+TextureLoadCallback textureCallback;
 
 #define MAX_QUADS 16
 static const unsigned int maxVertices = MAX_QUADS * 4;
@@ -25,6 +28,7 @@ struct QuadVertex
     vec3s pos;
     vec3s color;
     vec2s uv;
+    float texIndex;
 };
 
 typedef struct _renderer
@@ -38,11 +42,11 @@ typedef struct _renderer
     Ibo ibo;
 
     vec3s vertexPositions[4];
-    vec2s textures[4];
+    vec2s texturesCoords[4];
     struct QuadVertex* vertices;
     struct QuadVertex* vertexPtrCurrent;
 
-    Texture texture;
+    Texture* textures[16];
 
     unsigned int indexCount;
     unsigned int quadCount;
@@ -54,8 +58,12 @@ static Renderer r;
 
 void createRenderer()
 {
+    LOG_TRACE("Starting the renderer\n");
     r.shaders[basicShader] = createShader("vertex.glsl", "fragment.glsl");
+
     r.shaders[uvShader]    = createShader("texV.glsl", "texF.glsl");
+    shaderSetTextureSlot(r.shaders[uvShader], "u_texture");
+
     r.currentShader = r.shaders[basicShader];
     r.type = basicShader;
 
@@ -74,6 +82,7 @@ void createRenderer()
     addAttribute(&(r.vao), 3, sizeof(struct QuadVertex)); // position
     addAttribute(&(r.vao), 3, sizeof(struct QuadVertex)); // color
     addAttribute(&(r.vao), 2, sizeof(struct QuadVertex)); // uv coords;
+    addAttribute(&(r.vao), 1, sizeof(struct QuadVertex)); // texIndex;
 
     unsigned int* indices = malloc(sizeof(unsigned int) * maxIndices);
     if (indices == NULL)
@@ -101,16 +110,14 @@ void createRenderer()
     r.vertexPositions[2] = (vec3s){0.5f, 0.5f, 0.0f}; // top left
     r.vertexPositions[3] = (vec3s){-0.5f, 0.5f, 0.0f}; // top right
 
-    r.textures[0] = (vec2s){0.0f, 0.0f};
-    r.textures[1] = (vec2s){1.0f, 0.0f};
-    r.textures[2] = (vec2s){1.0f, 1.0f};
-    r.textures[3] = (vec2s){0.0f, 1.0f};
+    r.texturesCoords[0] = (vec2s){0.0f, 0.0f};
+    r.texturesCoords[1] = (vec2s){1.0f, 0.0f};
+    r.texturesCoords[2] = (vec2s){1.0f, 1.0f};
+    r.texturesCoords[3] = (vec2s){0.0f, 1.0f};
 
     r.renderCalls = 0;
 
-    r.texture = loadTexture("test.png");
-    bindTexture(r.texture);
-    shaderSetTextureSlot(r.shaders[uvShader], r.texture.slot, "u_texture");
+    textureCallback = &OnTextureLoad;
 }
 
 void destroyRenderer()
@@ -121,12 +128,21 @@ void destroyRenderer()
     destroyBuffer(r.vbo);
     destroyBuffer(r.ibo);
     free(r.vertices);
+
+    for (int i = 0; i < 16; i++)
+    {
+        if (r.textures[i])
+            free(r.textures[i]);
+    }
 }
 
 void _renderBatch()
 {
     if (r.indexCount == 0)
         return;
+
+    for (int i = 0; i < 2; i++)
+        bindTexture(r.textures[i]);
 
     bindVao(r.vao);
     glDrawElements(GL_TRIANGLES, r.indexCount, GL_UNSIGNED_INT, 0);
@@ -173,7 +189,7 @@ void endFrame()
 //     glDrawElements(GL_TRIANGLES, indexBuffer.count, GL_UNSIGNED_INT, 0);
 // }
 
-void _drawQuad(mat4s transform, vec3s color)
+void _pushQuad(mat4s transform, vec3s color, float texIndex)
 {
     if(r.quadCount >= MAX_QUADS)
     {
@@ -186,18 +202,20 @@ void _drawQuad(mat4s transform, vec3s color)
         vec3s vertex = glms_mat4_mulv3(transform, r.vertexPositions[i], 1);
         r.vertexPtrCurrent->pos = vertex;
         r.vertexPtrCurrent->color = color;
-        r.vertexPtrCurrent->uv = r.textures[i];
+        r.vertexPtrCurrent->uv = r.texturesCoords[i];
+        r.vertexPtrCurrent->texIndex = texIndex;
         r.vertexPtrCurrent++;
     }
     r.indexCount += 6;
     r.quadCount  += 1;
 }
 
-void render(World* w)
+void render()
 {
     SpriteComponent* sprites = registerView(sprite);
     TransformComponent* transforms = registerView(transform);
-    for (int i = 0; i < w->count; i++)
+    unsigned int count = getEntityCount();
+    for (int i = 0; i < count; i++)
     {   
         if (sprites[i].render)
         {
@@ -208,7 +226,7 @@ void render(World* w)
             m = glms_scale(m, scale);
             m = glms_translate(m, position);
             m = glms_rotate(m, transforms[i].rotation, (vec3s){0, 0, 1});
-            _drawQuad(m, sprites[i].color);
+            _pushQuad(m, sprites[i].color, sprites[i].texIndex);
         }
     }
 }
@@ -219,9 +237,14 @@ void render(World* w)
  *      ----------------------------------------------
 */
 
-static int mode;
+void OnTextureLoad(Texture* texture)
+{
+    r.textures[texture->slot] = texture;
+}
+
 void rendererChangeMode()
 {
+    static int mode = 0;
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL * mode + GL_LINE * (1-mode));
     mode = !mode;
 }

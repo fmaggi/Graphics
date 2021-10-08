@@ -1,16 +1,19 @@
-#include "world/world.h"
-#include "log/log.h"
+#include "game/world.h"
+#include "graphics/texture.h"
+#include "input/input.h"
 
 #include "stdlib.h"
 #include "time.h"
 
-void init(World* w)
+void initWorld()
 {
-    LOG_TRACE("Creating World\n");
+    // World creation here
+
+    int texture = loadTexture("test.png");
+    int t2 = loadTexture("awesomeface.png");
 
     EntityID player = newEntity();
-    w->player = player;
-    w->count = 1;
+    world.player = player;
 
     TransformComponent t;
     t.position = (vec2s){0, 0};
@@ -19,13 +22,12 @@ void init(World* w)
 
     SpriteComponent s;
     s.color = (vec3s){0.2, 0.4, 0.96};
-    s.texIndex = 0;
+    s.texIndex = t2;
 
-    addComponent(player, sprite, (void*)&s);
-    addComponent(player, transform, (void*)&t);
+    addComponent(player, sprite, &s);
+    addComponent(player, transform, &t);
 
     srand(time(0));
-
 
     for (int i = 0; i < 3; i++)
     {
@@ -39,20 +41,26 @@ void init(World* w)
 
             SpriteComponent s2;
             s2.color = (vec3s){ (float) rand() / RAND_MAX, (float) rand() / RAND_MAX, (float) rand() / RAND_MAX};
-            s2.texIndex = 0;
+            s2.texIndex = texture;
 
-            addComponent(e, sprite, (void*)&s2);
-            addComponent(e, transform, (void*)&t2);
-            w->count++;
+            addComponent(e, sprite, &s2);
+            addComponent(e, transform, &t2);
         }
     }
 }
 
-
-void destroy(World* w)
+void onUpdateWorld(double ts)
 {
-  free(w);
+    // World update here
+
+    TransformComponent* t = getComponent(world.player, transform);
+    t->rotation += 1 * ts;
+    
+    handleInput(world.player, ts);
 }
 
-WorldFuncPtr initWorld = &init;
-WorldFuncPtr destroyWorld = &destroy;
+
+void destroyWorld()
+{
+    // World destruction here
+}

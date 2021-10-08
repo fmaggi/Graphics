@@ -7,10 +7,13 @@ typedef struct _texture
     unsigned int slot;
 } Texture;
 
-Texture loadTexture(const char* name);
+typedef void (*TextureLoadCallback)(Texture*);
+extern TextureLoadCallback textureCallback;
 
-void bindTexture(Texture t);
+int loadTexture(const char* name);
 
-void unloadTexture(Texture t);
+void bindTexture(Texture* t);
+
+void unloadTexture(Texture* t);
 
 #endif

@@ -24,6 +24,7 @@ DECL_COMPONENTS()
 
 static unsigned int getSize(enum ComponentType type);
 
+static unsigned int count = 0;
 static EntityID maxEntities = 16;
 struct Register registers;
 
@@ -50,7 +51,13 @@ void destroyECS()
 EntityID newEntity()
 {
     static EntityID id = 0;
+    count++;
     return id++;
+}
+
+unsigned int getEntityCount()
+{
+    return count;
 }
 
 int hasComponent(EntityID id, enum ComponentType type)

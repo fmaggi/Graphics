@@ -5,9 +5,15 @@
 
 #include "keys.h"
 
+typedef int Keycode;
+typedef int ButtonCode;
+
 void initInput();
 void changeInput(int keyUp, int keyDown, int keyLeft, int keyRight);
 
 void handleInput(EntityID movable, double timestep);
+
+int isKeyPressed(Keycode key);
+int isMouseButtonPressed(ButtonCode button);
 
 #endif

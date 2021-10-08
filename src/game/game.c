@@ -9,7 +9,7 @@
 #include "graphics/renderer.h"
 #include "graphics/camera.h"
 
-#include "world/world.h"
+#include "world.h"
 
 #include "input/input.h"
 
@@ -26,13 +26,10 @@ void onMouseMoved(MouseMovedEvent event);
 
 // -----------------------------
 
-typedef struct _game
-{
-    int running;
-    World* world;
-} Game; //state of the game
+typedef int GameState;
 
-static Game game;
+GameState running;
+World world;
 
 void onEvent(EventHolder* event)
 {
@@ -62,10 +59,10 @@ void setUpGame()
     initInput();
     initECS();
 
-    game.world = emptyWorld();
-    initWorld(game.world);
+    LOG_TRACE("World\n");
+    initWorld();
 
-    game.running = 1;
+    running = 1;
     LOG_TRACE("All done!\n");
 }
 
@@ -73,23 +70,20 @@ void onUpdate()
 {
     double ts = getTimestep();
     LOG_INFO_DEBUG("Frametime: %fms\n", ts);
-
-    TransformComponent* t = getComponent(game.world->player, transform);
-    t->rotation += 1 * ts;
-
-    handleInput(game.world->player, ts);
+    
+    onUpdateWorld(ts);
 }
 
 void onRender()
 {
     startFrame();
-    render(game.world);
+    render();
     endFrame();
 }
 
 void runGame()
 {
-    while (game.running)
+    while (running)
     {
         onUpdate();
         onRender();
@@ -108,7 +102,7 @@ void destroyGame()
 
 void onWindowClose()
 {
-    game.running = 0;
+    running = 0;
 }
 
 void onWindowResize(WindowResizeEvent event)
@@ -130,7 +124,7 @@ void onKeyPressed(KeyEvent event)
         case KEY_C:
         {
             if (event.mods == MOD_CONTROL)
-                game.running = 0;
+                running = 0;
             else
                 rendererSetShader(basicShader);
             break;

@@ -1,8 +1,6 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "world/world.h"
-
 #define MAX_SHADER 2
 enum ShaderType
 {
@@ -13,7 +11,7 @@ enum ShaderType
 void createRenderer();
 void destroyRenderer();
 
-void render(World* w);
+void render();
 
 void startFrame();
 void endFrame();

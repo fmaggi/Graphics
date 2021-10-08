@@ -101,11 +101,12 @@ void shaderSetUniformMat4(Shader shader, mat4s mat, const char* name)
 }
 
 
-void shaderSetTextureSlot(Shader shader, unsigned int slot, const char* name)
+void shaderSetTextureSlot(Shader shader,const char* name)
 {
     glUseProgram(shader.programID);
     int location = getUniformLocation(shader, name);
-    glUniform1i(location, slot);
+    GLint slots[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+    glUniform1iv(location, 16, slots);
 }
 
 void useShader(Shader shader)
