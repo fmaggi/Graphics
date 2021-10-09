@@ -9,6 +9,8 @@
 #include "graphics/renderer.h"
 #include "graphics/camera.h"
 
+#include "physics/physics.h"
+
 #include "world.h"
 
 #include "input/input.h"
@@ -60,6 +62,8 @@ void setUpGame()
     LOG_TRACE("World\n");
     initWorld();
 
+    initPhysics(800, 600);
+
     running = 1;
     LOG_TRACE("All done!\n");
 }
@@ -70,6 +74,7 @@ void onUpdate()
     LOG_INFO_DEBUG("Frametime: %fms\n", ts);
     
     onUpdateWorld(ts);
+    updatePhysics();
 }
 
 void onRender()

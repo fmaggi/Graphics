@@ -17,18 +17,19 @@ void initWorld()
     EntityID player = newEntity();
     world.player = player;
 
-    TransformComponent t;
-    t.position = (vec3s){0, 0, -1};
-    t.rotation = 0.785;
-    t.scale = (vec2s){200, 200};
+    TransformComponent* t = ECSaddComponent(player, Transform);
+    t->position = (vec3s){0, 0, -1};
+    t->rotation = 0.785;
+    t->scale = (vec2s){200, 200};
 
-    SpriteComponent s;
-    s.color = (vec3s){0.2, 0.4, 0.96};
-    s.texIndex = texture2;
-    s.render = 1;
+    SpriteComponent* s = ECSaddComponent(player, Sprite);
+    s->color = (vec3s){0.2, 0.4, 0.96};
+    s->texIndex = texture2;
+    s->render = 1;
 
-    ECSaddComponent(player, Transform, t);
-    ECSaddComponent(player, Sprite, s);
+    PhysicsComponent* p = ECSaddComponent(player, Physics);
+    p->bb = AABB;
+
 
     srand(time(0));
 
@@ -37,20 +38,21 @@ void initWorld()
         for (int j = 0; j < 3; j++)
         {
             EntityID e = newEntity();
-            TransformComponent t2;
-            t2.position = (vec3s){i, j, -20};
-            t2.rotation = 0;
-            t2.scale = (vec2s){200, 200};
+            TransformComponent* t2 = ECSaddComponent(e, Transform);
+            t2->position = (vec3s){i, j, -20};
+            t2->rotation = 0;
+            t2->scale = (vec2s){200, 200};
 
-            SpriteComponent s2;
-            s2.color = (vec3s){ (float) rand() / RAND_MAX, (float) rand() / RAND_MAX, (float) rand() / RAND_MAX};
-            s2.texIndex = texture;
-            s2.render = 1;
+            SpriteComponent* s2 = ECSaddComponent(e, Sprite);
+            s2->color = (vec3s){ (float) rand() / RAND_MAX, (float) rand() / RAND_MAX, (float) rand() / RAND_MAX};
+            s2->texIndex = texture;
+            s2->render = 1;
 
-            ECSaddComponent(e, Transform, t2);
-            ECSaddComponent(e, Sprite, s2);
         }
     }
+
+    PhysicsComponent* p2 = ECSaddComponent(1, Physics);
+    p2->active = 1;
 }
 
 void onUpdateWorld(double ts)

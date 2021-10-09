@@ -21,6 +21,8 @@ void initECS()
 {
     INIT_COMPONENT(Transform);
     INIT_COMPONENT(Sprite);
+    INIT_COMPONENT(Physics);
+    INIT_COMPONENT(Script);
     registers.used = malloc(sizeof(ComponentsUsed) * maxEntities);
     if (registers.used == NULL)
     {
@@ -40,6 +42,7 @@ void destroyECS()
 EntityID newEntity()
 {
     static EntityID id = 0;
+    registers.used[id] = 0;
     count++;
     return id++;
 }
@@ -59,15 +62,16 @@ void* registerView(enum ComponentType type)
     return registers.Components[type];
 }
 
-void ecs_add_component_internal(EntityID id, unsigned int size, enum ComponentType type, void* component)
+void* ecs_add_component_internal(EntityID id, enum ComponentType type, unsigned int size)
 {
-    unsigned int offset = size * id;
+    assert(!hasComponent(id, type));
     registers.used[id] |= ECS_TAG_VALUE(type);
-    memcpy(registers.Components[type] + offset, component, size);
+    return ecs_get_component_internal(id, type, size);
 }
 
 void* ecs_get_component_internal(EntityID id, enum ComponentType type, unsigned int size)
 {
+    assert(hasComponent(id, type));
     unsigned int offset = size * id;
     return (registers.Components[type] + offset);
 }
