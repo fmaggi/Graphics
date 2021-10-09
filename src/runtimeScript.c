@@ -25,10 +25,10 @@ void initWorld()
     SpriteComponent* s = ECSaddComponent(player, Sprite);
     s->color = (vec3s){0.2, 0.4, 0.96};
     s->texIndex = texture2;
-    s->render = 1;
 
     PhysicsComponent* p = ECSaddComponent(player, Physics);
     p->bb = AABB;
+    p->dynamic = 1;
 
 
     srand(time(0));
@@ -46,13 +46,11 @@ void initWorld()
             SpriteComponent* s2 = ECSaddComponent(e, Sprite);
             s2->color = (vec3s){ (float) rand() / RAND_MAX, (float) rand() / RAND_MAX, (float) rand() / RAND_MAX};
             s2->texIndex = texture;
-            s2->render = 1;
 
+            PhysicsComponent* p1 = ECSaddComponent(e, Physics);
+            p1->dynamic = 0;
         }
     }
-
-    PhysicsComponent* p2 = ECSaddComponent(1, Physics);
-    p2->active = 1;
 }
 
 void onUpdateWorld(double ts)

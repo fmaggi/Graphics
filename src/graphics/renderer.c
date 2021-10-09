@@ -215,7 +215,7 @@ void render()
     unsigned int count = getEntityCount();
     for (int i = 0; i < count; i++)
     {   
-        if (sprites[i].render)
+        if (hasComponent(i, Sprite))
         {
             mat4s m;
             vec3s scale = {transforms[i].scale.x, transforms[i].scale.y, 1};

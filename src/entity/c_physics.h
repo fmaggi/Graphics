@@ -14,7 +14,6 @@ typedef struct
     vec2s force;
     enum BoundingBox bb;
     int dynamic;
-    int active;
     int SpaceMask;
 } PhysicsComponent;
 

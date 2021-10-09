@@ -28,7 +28,7 @@ void broadPhase(TransformComponent* transforms, unsigned int count)
     {
         if (hasComponent(i, Physics))
         {
-            int div = transforms[i].position.x / widthPerDivision;
+            unsigned int div = transforms[i].position.x / widthPerDivision;
             if (div >= DIVISIONS)
                 continue;
             int index = currentId[div];
@@ -43,7 +43,7 @@ void checkCollision(EntityID e1, EntityID e2)
     TransformComponent* t1 = ECSgetComponent(e1, Transform);
     TransformComponent* t2 = ECSgetComponent(e2, Transform);
 
-    int left, right;
+    float left, right;
 
     if (t1->position.x >= t2->position.x)
     {
@@ -62,7 +62,7 @@ void checkCollision(EntityID e1, EntityID e2)
         return;
     }
 
-    int top, bottom;
+    float top, bottom;
     if (t1->position.y >= t2->position.y)
     {
         top = t1->position.y * t1->scale.y - 0.5 * t1->scale.y;
@@ -79,7 +79,7 @@ void checkCollision(EntityID e1, EntityID e2)
         LOG_INFO("No collision\n");
         return;
     }
-    LOG_INFO("Collision\n");
+    LOG_INFO("Collision %i %i\n", e1, e2);
 }
 
 void narrowPhase(TransformComponent* transforms, PhysicsComponent* physics, int count)
@@ -87,16 +87,16 @@ void narrowPhase(TransformComponent* transforms, PhysicsComponent* physics, int 
     int heightPerDivision = screenHeight/ DIVISIONS;
     for (int div = 0; div < DIVISIONS; div++)
     {
-        int girdElements[DIVISIONS] = {-1};
         for (int i = 0; i < currentId[div]; i++)
         {   
-            EntityID e = divisions_screen[div][i];
-            int ygrid = transforms[e].position.y / heightPerDivision;
-            if (girdElements[ygrid] != -1)
+            for (int j = i+1; j < currentId[div]; j++)
             {
-                checkCollision(e, girdElements[ygrid]);
+                EntityID e1 = divisions_screen[div][i];
+                EntityID e2 = divisions_screen[div][j];
+                if (!physics[e1].dynamic && !physics[e2].dynamic)
+                    continue;
+                checkCollision(e1, e2);
             }
-            girdElements[ygrid] = e;
         }
     }
 }
