@@ -8,8 +8,7 @@ typedef unsigned char ComponentsUsed; // just a bit map to mark used components 
 struct Register
 {
     ComponentsUsed* used;
-    TransformComponent* transforms;
-    SpriteComponent* sprites;
+    void* Components[MAX_COMPONENT];
 };
 
 extern struct Register registers;

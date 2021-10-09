@@ -4,13 +4,11 @@
 #include "c_transform.h"
 #include "c_sprite.h"
 
-
-#define MAX_COMPONENT 1
+#define MAX_COMPONENT 2
 enum ComponentType
 {
-    transform = 0,
-    sprite,
+    Transform = 0,
+    Sprite,
 };
-
 
 #endif

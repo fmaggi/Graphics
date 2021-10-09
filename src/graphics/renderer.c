@@ -28,11 +28,11 @@ struct QuadVertex
     float texIndex;
 };
 
-typedef struct _renderer
+typedef struct renderer
 {
     enum ShaderType type;
-    Shader currentShader;
-    Shader shaders[MAX_SHADER+1];
+    Shader* currentShader;
+    Shader* shaders[MAX_SHADER+1];
 
     Vao vao;
     Vbo vbo;
@@ -134,7 +134,7 @@ void destroyRenderer()
     }
 }
 
-void _renderBatch()
+void renderBatch()
 {
     if (r.indexCount == 0)
         return;
@@ -172,7 +172,7 @@ void flush()
     unsigned int size = (unsigned int)((unsigned char*) r.vertexPtrCurrent - (unsigned char*) r.vertices);
     pushBufferData(r.vbo, size, r.vertices);
 
-    _renderBatch();
+    renderBatch();
 }
 
 void endFrame()
@@ -187,7 +187,7 @@ void endFrame()
 //     glDrawElements(GL_TRIANGLES, indexBuffer.count, GL_UNSIGNED_INT, 0);
 // }
 
-void _pushQuad(mat4s transform, vec3s color, float texIndex)
+void pushQuad(mat4s transform, vec3s color, float texIndex)
 {
     if(r.quadCount >= MAX_QUADS)
     {
@@ -210,8 +210,8 @@ void _pushQuad(mat4s transform, vec3s color, float texIndex)
 
 void render()
 {
-    SpriteComponent* sprites = registerView(sprite);
-    TransformComponent* transforms = registerView(transform);
+    SpriteComponent* sprites = registerView(Sprite);
+    TransformComponent* transforms = registerView(Transform);
     unsigned int count = getEntityCount();
     for (int i = 0; i < count; i++)
     {   
@@ -223,7 +223,7 @@ void render()
             m = glms_scale(m, scale);
             m = glms_translate(m, transforms[i].position);
             m = glms_rotate(m, transforms[i].rotation, (vec3s){0, 0, 1});
-            _pushQuad(m, sprites[i].color, sprites[i].texIndex);
+            pushQuad(m, sprites[i].color, sprites[i].texIndex);
         }
     }
 }

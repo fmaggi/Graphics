@@ -10,7 +10,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-typedef struct _texture
+typedef struct texture
 {
     unsigned int id;
     unsigned int slot;

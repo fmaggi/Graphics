@@ -1,7 +1,9 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-typedef struct _texture Texture;
+#define NO_TEXTURE -1
+
+typedef struct texture Texture;
 
 int loadTexture(const char* name);
 

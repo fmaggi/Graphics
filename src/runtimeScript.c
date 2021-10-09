@@ -2,6 +2,8 @@
 #include "graphics/texture.h"
 #include "input/input.h"
 
+#include "log/log.h"
+
 #include "stdlib.h"
 #include "time.h"
 
@@ -10,7 +12,7 @@ void initWorld()
     // World creation here
 
     int texture = loadTexture("test.png");
-    int t2 = loadTexture("awesomeface.png");
+    int texture2 = loadTexture("awesomeface.png");
 
     EntityID player = newEntity();
     world.player = player;
@@ -22,10 +24,11 @@ void initWorld()
 
     SpriteComponent s;
     s.color = (vec3s){0.2, 0.4, 0.96};
-    s.texIndex = t2;
+    s.texIndex = texture2;
+    s.render = 1;
 
-    addComponent(player, sprite, &s);
-    addComponent(player, transform, &t);
+    ECSaddComponent(player, Transform, t);
+    ECSaddComponent(player, Sprite, s);
 
     srand(time(0));
 
@@ -42,9 +45,10 @@ void initWorld()
             SpriteComponent s2;
             s2.color = (vec3s){ (float) rand() / RAND_MAX, (float) rand() / RAND_MAX, (float) rand() / RAND_MAX};
             s2.texIndex = texture;
+            s2.render = 1;
 
-            addComponent(e, sprite, &s2);
-            addComponent(e, transform, &t2);
+            ECSaddComponent(e, Transform, t2);
+            ECSaddComponent(e, Sprite, s2);
         }
     }
 }
@@ -53,7 +57,7 @@ void onUpdateWorld(double ts)
 {
     // World update here
 
-    TransformComponent* t = getComponent(world.player, transform);
+    TransformComponent* t = ECSgetComponent(world.player, Transform);
     t->rotation += 1 * ts;
     
     handleInput(world.player, ts);

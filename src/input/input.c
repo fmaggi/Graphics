@@ -27,7 +27,7 @@ void initInput()
 
 void handleInput(EntityID movable, double timestep)
 {
-    TransformComponent* t = getComponent(movable, transform);
+    TransformComponent* t = ECSgetComponent(movable, Transform);
     if (windowIsKeyPressed(inputs.up))
     {
         vec3s amount;

@@ -6,6 +6,13 @@
 #include "stdlib.h"
 #include "string.h"
 
+typedef struct shader 
+{
+    unsigned int vertexID;
+    unsigned int fragmentID;
+    unsigned int programID;
+} Shader;
+
 unsigned int compileShader(const char* path, unsigned int type)
 {
     char buf[256] = {0};
@@ -69,48 +76,51 @@ unsigned int linkShader(unsigned int vertexID, unsigned int fragmentID)
     return shaderProgram;
 }
 
-Shader createShader(const char* vertexPath, const char* fragmentPath)
+Shader* createShader(const char* vertexPath, const char* fragmentPath)
 {
-    Shader shader;
-    shader.vertexID = compileShader(vertexPath, GL_VERTEX_SHADER);
-    shader.fragmentID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
-    shader.programID = linkShader(shader.vertexID, shader.fragmentID);
+    Shader* shader = malloc(sizeof(Shader));
+    if(shader == NULL)
+        LOG_WARN("Memory allocation failed: shader\n");
+    shader->vertexID = compileShader(vertexPath, GL_VERTEX_SHADER);
+    shader->fragmentID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
+    shader->programID = linkShader(shader->vertexID, shader->fragmentID);
     return shader;
 }
 
-void destroyShader(Shader shader)
+void destroyShader(Shader* shader)
 {
-    glDeleteShader(shader.vertexID);
-    glDeleteShader(shader.fragmentID);
-    glDeleteProgram(shader.fragmentID);
+    glDeleteShader(shader->vertexID);
+    glDeleteShader(shader->fragmentID);
+    glDeleteProgram(shader->fragmentID);
+    free(shader);
 }
 
-int getUniformLocation(Shader shader, const char* name)
+int getUniformLocation(Shader* shader, const char* name)
 {
-    int location = glGetUniformLocation(shader.programID, name);
+    int location = glGetUniformLocation(shader->programID, name);
     if (location == -1)
         LOG_WARN("Invalid uniform: %s\n", name);
     return location;
 }
 
-void shaderSetUniformMat4(Shader shader, mat4s mat, const char* name)
+void shaderSetUniformMat4(Shader* shader, mat4s mat, const char* name)
 {
-    glUseProgram(shader.programID);
+    glUseProgram(shader->programID);
     int location = getUniformLocation(shader, name);
     glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&mat.raw);
 }
 
 
-void shaderSetTextureSlot(Shader shader,const char* name)
+void shaderSetTextureSlot(Shader* shader,const char* name)
 {
-    glUseProgram(shader.programID);
+    glUseProgram(shader->programID);
     int location = getUniformLocation(shader, name);
     GLint slots[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
     glUniform1iv(location, 16, slots);
 }
 
-void useShader(Shader shader)
+void useShader(Shader* shader)
 {
-    glUseProgram(shader.programID);
+    glUseProgram(shader->programID);
 }
 

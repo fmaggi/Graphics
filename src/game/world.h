@@ -3,7 +3,7 @@
 
 #include "entity/entity.h"
 
-typedef struct _world
+typedef struct world
 {
     EntityID player;
 } World;

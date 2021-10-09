@@ -3,7 +3,7 @@
 
 #include "buffer.h"
 
-typedef struct _vao
+typedef struct vao
 {
     unsigned int id;
     unsigned int index;

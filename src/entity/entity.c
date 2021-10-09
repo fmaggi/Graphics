@@ -6,24 +6,12 @@
 #include "log/log.h"
 #include "string.h"
 
-// I know that because I have the switch and components are specified at compile time,
-// I could just use separate functions. I just wanted to experiment with macros (I still dont understand them well)
-// and more abstract functions. This are very simple macros. Ive seen ecs implementations in c
-// with much more complex macros that leads to more abstract functions but I didnt understand how 
-// they worked so I didnt want to use them
 
-#define DECL_COMPONENT(_name) \
-    extern void _name##_init(); \
-    extern void add##_name##Component(); \
-    extern void* get##_name##Component();
-
-#define INIT_COMPONENT(_name) \
-    _name##_init(maxEntities);
-
-DECL_COMPONENT(Transform)
-DECL_COMPONENT(Sprite)
+#define INIT_COMPONENT(type) init_component_internal((type), sizeof(type##Component), maxEntities)
 
 #define ECS_TAG_VALUE(x) (1 << x)
+
+void init_component_internal(enum ComponentType type, unsigned int size, unsigned int count);
 
 static unsigned int count = 0;
 static EntityID maxEntities = 16;
@@ -44,8 +32,8 @@ void initECS()
 
 void destroyECS()
 {
-    free(registers.transforms);
-    free(registers.sprites);
+    free(registers.Components[Transform]);
+    free(registers.Components[Sprite]);
     free(registers.used);
 }
 
@@ -66,40 +54,33 @@ int hasComponent(EntityID id, enum ComponentType type)
     return registers.used[id] & ECS_TAG_VALUE(type);
 }
 
-void addComponent(EntityID id, enum ComponentType type, void* component)
-{
-    if (hasComponent(id, type))
-        LOG_WARN("Entity %i already has component\n", id);
-    registers.used[id] |= ECS_TAG_VALUE(type);
-    switch (type)
-    {
-        case transform: return addTransformComponent(id, *(TransformComponent*) component);
-        case sprite:    return addSpriteComponent(id, *(SpriteComponent*) component);
-    }
-    LOG_WARN("Invalid component\n");
-}
-
-void* getComponent(EntityID id, enum ComponentType type)
-{
-    assert(hasComponent(id, type));
-    switch (type)
-    {
-        case transform: return getTransformComponent(id);
-        case sprite:    return getSpriteComponent(id);
-    }
-
-    LOG_WARN("Invalid component\n");
-    return 0;
-}
-
 void* registerView(enum ComponentType type)
 {
-    switch (type)
-    {
-        case transform: return registers.transforms;
-        case sprite:    return registers.sprites;
-    }
+    return registers.Components[type];
+}
 
-    LOG_WARN("Invalid component\n");
-    return 0;
+void ecs_add_component_internal(EntityID id, unsigned int size, enum ComponentType type, void* component)
+{
+    unsigned int offset = size * id;
+    registers.used[id] |= ECS_TAG_VALUE(type);
+    memcpy(registers.Components[type] + offset, component, size);
+}
+
+void* ecs_get_component_internal(EntityID id, enum ComponentType type, unsigned int size)
+{
+    unsigned int offset = size * id;
+    return (registers.Components[type] + offset);
+}
+
+
+void init_component_internal(enum ComponentType type, unsigned int size, unsigned int count)
+{
+    void* temp = malloc(size * count);
+    if (temp == NULL)
+    {
+        LOG_ERROR("Memory allocation error\n");
+        exit(-1);
+    }
+    memset(temp, 0, sizeof(temp));
+    registers.Components[type] = temp;
 }
