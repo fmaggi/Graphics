@@ -43,20 +43,38 @@ void checkCollision(EntityID e1, EntityID e2)
     TransformComponent* t1 = ECSgetComponent(e1, Transform);
     TransformComponent* t2 = ECSgetComponent(e2, Transform);
 
-    TransformComponent left, right;
+    int left, right;
 
     if (t1->position.x >= t2->position.x)
     {
-        right = *t1;
-        left = *t2;
+        right = t1->position.x * t1->scale.x - 0.5 * t1->scale.x;
+        left =  t2->position.x * t2->scale.x + 0.5 * t2->scale.x;
     }
     else
     {
-        right = *t2;
-        left = *t1;
+        right = t2->position.x * t2->scale.x - 0.5 * t2->scale.x;
+        left = t1->position.x * t2->scale.x + 0.5 * t1->scale.x;
     }
 
-    if (left.position.x * left.scale.x + 0.5 * left.scale.x < right.position.x * right.scale.x  - 0.5 * right.scale.x)
+    if (left < right)
+    {
+        LOG_INFO("No collision\n");
+        return;
+    }
+
+    int top, bottom;
+    if (t1->position.y >= t2->position.y)
+    {
+        top = t1->position.y * t1->scale.y - 0.5 * t1->scale.y;
+        bottom =  t2->position.y * t2->scale.y + 0.5 * t2->scale.y;
+    }
+    else
+    {
+        top = t2->position.y * t2->scale.y - 0.5 * t2->scale.y;
+        bottom = t1->position.y * t2->scale.y + 0.5 * t1->scale.y;
+    }
+
+    if (bottom < top)
     {
         LOG_INFO("No collision\n");
         return;
