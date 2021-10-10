@@ -22,7 +22,6 @@ void initECS()
     INIT_COMPONENT(Transform);
     INIT_COMPONENT(Sprite);
     INIT_COMPONENT(Physics);
-    INIT_COMPONENT(Script);
     registers.used = malloc(sizeof(ComponentsUsed) * maxEntities);
     if (registers.used == NULL)
     {
@@ -85,6 +84,6 @@ void init_component_internal(enum ComponentType type, unsigned int size, unsigne
         LOG_ERROR("Memory allocation error\n");
         exit(-1);
     }
-    memset(temp, 0, sizeof(temp));
+    memset(temp, 0, size * count);
     registers.Components[type] = temp;
 }

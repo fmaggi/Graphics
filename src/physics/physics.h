@@ -2,6 +2,8 @@
 #define PHYSICS_H
 
 void initPhysics(int width, int height);
-void updatePhysics();
+void setPhysicsWidthHeight(int width, int height);
+
+void updatePhysics(double ts);
 
 #endif

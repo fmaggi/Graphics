@@ -3,18 +3,16 @@
 
 #include "cglm/struct.h"
 
-enum BoundingBox
-{
-    sphere = 0,
-    AABB = 1,
-};
+#define ACTIVE 0b1
+#define INACTIVE 0
+#define DYNAMIC 0b10
+#define STATIC 0
 
 typedef struct
 {
     vec2s force;
-    enum BoundingBox bb;
-    int dynamic;
-    int SpaceMask;
+    vec2s speed;
+    char flags;  
 } PhysicsComponent;
 
 #endif

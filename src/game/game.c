@@ -52,8 +52,8 @@ void onEvent(EventHolder* event)
 void setUpGame()
 {
     LOG_INFO_DEBUG("DEBUG\n");
-    createWindow(800, 600, "LearnOpenGL", &onEvent);
-    orthoCamera((vec3s){0, 0, 0}, 800, 600);
+    createWindow(1200, 800, "LearnOpenGL", &onEvent);
+    orthoCamera((vec3s){0, 0, 0}, 1200, 800);
 
     createRenderer();
     initInput();
@@ -62,7 +62,7 @@ void setUpGame()
     LOG_TRACE("World\n");
     initWorld();
 
-    initPhysics(800, 600);
+    initPhysics(1200, 800);
 
     running = 1;
     LOG_TRACE("All done!\n");
@@ -74,7 +74,7 @@ void onUpdate()
     LOG_INFO_DEBUG("Frametime: %fms\n", ts);
     
     onUpdateWorld(ts);
-    updatePhysics();
+    updatePhysics(ts);
 }
 
 void onRender()
@@ -111,6 +111,7 @@ void onWindowClose()
 void onWindowResize(WindowResizeEvent event)
 {
     updateProjectionMatrix(event.width, event.height);
+    setPhysicsWidthHeight(event.width, event.height);
 }
 
 void onKeyPressed(KeyEvent event)
