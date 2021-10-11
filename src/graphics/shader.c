@@ -65,7 +65,7 @@ uint32t linkShader(uint32t vertexID, uint32t fragmentID)
     glAttachShader(shaderProgram, fragmentID);
     glLinkProgram(shaderProgram);
     // check for linking errors
-    bool success;
+    int32t success;
     char infoLog[512];
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success) 
@@ -108,7 +108,7 @@ int32t getUniformLocation(Shader* shader, const char* name)
 void shaderSetUniformMat4(Shader* shader, mat4s mat, const char* name)
 {
     glUseProgram(shader->programID);
-    int location = getUniformLocation(shader, name);
+    int32t location = getUniformLocation(shader, name);
     glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&mat.raw);
 }
 
@@ -116,7 +116,7 @@ void shaderSetUniformMat4(Shader* shader, mat4s mat, const char* name)
 void shaderSetTextureSlot(Shader* shader,const char* name)
 {
     glUseProgram(shader->programID);
-    int location = getUniformLocation(shader, name);
+    int32t location = getUniformLocation(shader, name);
     GLint slots[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
     glUniform1iv(location, 16, slots);
 }

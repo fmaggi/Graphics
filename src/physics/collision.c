@@ -23,7 +23,7 @@ struct AABB createAABB(EntityID e)
     return aabb;
 }
 
-int checkCollisionAABB(struct AABB a, struct AABB b)
+bool checkCollisionAABB(struct AABB a, struct AABB b)
 {
     return a.min.x < b.max.x && a.max.x > b.min.x
         && a.min.y < b.max.y && a.max.y > b.min.y;
@@ -79,12 +79,24 @@ void handleCollision(struct AABB a, struct AABB b)
     {
        if (pa->flags & DYNAMIC)
         {
-            pa->speed = glms_vec2_add(pa->speed, pb->speed);
-            pa->speed = glms_vec2_scale(pa->speed, 0.5);
+            
+
             if (ta->position.y < tb->position.y)
                 ta->position.y -= depth.y / ta->scale.y;
             else
                 ta->position.y += depth.y / ta->scale.y;
+
+            float dir = glms_vec2_dot(pa->speed, (vec2s){0, 1});
+            pa->force = glms_vec2_add(pa->force, (vec2s){0, -dir});
+
+            if (fabs(pa->speed.x*0.3) > 0.000001 && fabs(pa->speed.y*0.3) > 0.00000001)
+            {
+                pa->speed = (vec2s){pa->speed.x *0.8, -pa->speed.y*0.8};
+            }
+            else
+            {
+                pa->speed = (vec2s){0, 0};
+            }
         }
         if (pb->flags & DYNAMIC)
         {
@@ -136,7 +148,6 @@ void screenVerticalDivisionsCollision(TransformComponent* transforms, PhysicsCom
     }
 
     // -----------------------------------------------------------------------
-
     // -------------------------- Narrow Phase -------------------------------
 
     for (int div = 0; div < DIVISIONS; div++)

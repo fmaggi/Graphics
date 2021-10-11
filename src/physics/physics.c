@@ -31,6 +31,8 @@ void updateForces(TransformComponent* t, PhysicsComponent* p, double ts)
     p->speed = glms_vec2_add(speed, p->speed);
     vec2s movement = glms_vec2_scale(p->speed, ts);
 
+    log_vec2(p->speed);
+
     t->position = glms_vec3_add(t->position, (vec3s){movement.x, movement.y, 0});
     p->force = (vec2s){0, 0};
 }
