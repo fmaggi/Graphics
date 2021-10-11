@@ -14,18 +14,20 @@
 
 #include "cglm/struct.h"
 
+#include "util/types.h"
+
 void prepareRenderer();
 void rendererSetProjectionMatrix(mat4s proj);
 
 #define MAX_QUADS 16
-static const unsigned int maxVertices = MAX_QUADS * 4;
-static const unsigned int maxIndices  = MAX_QUADS * 6;
+static const uint32t maxVertices = MAX_QUADS * 4;
+static const uint32t maxIndices  = MAX_QUADS * 6;
 struct QuadVertex
 {
     vec3s pos;
     vec3s color;
     vec2s uv;
-    float texIndex;
+    f32t texIndex;
 };
 
 typedef struct renderer
@@ -44,12 +46,12 @@ typedef struct renderer
     struct QuadVertex* vertexPtrCurrent;
 
     Texture* textures[16];
-    unsigned int currentTexture;
+    uint32t currentTexture;
 
-    unsigned int indexCount;
-    unsigned int quadCount;
+    uint32t indexCount;
+    uint32t quadCount;
 
-    unsigned int renderCalls;
+    uint32t renderCalls;
 } Renderer;
 
 static Renderer r;
@@ -82,12 +84,12 @@ void createRenderer()
     addAttribute(&(r.vao), 2, sizeof(struct QuadVertex)); // uv coords;
     addAttribute(&(r.vao), 1, sizeof(struct QuadVertex)); // texIndex;
 
-    unsigned int* indices = malloc(sizeof(unsigned int) * maxIndices);
+    uint32t* indices = malloc(sizeof(uint32t) * maxIndices);
     if (indices == NULL)
         LOG_ERROR("Failed memory allocation\n");
 
-    unsigned int offset = 0;
-    int i;
+    uint32t offset = 0;
+    int32t i;
     for (i = 0; i < maxIndices; i += 6)
     {
         indices[i]   = 0 + offset;
@@ -127,7 +129,7 @@ void destroyRenderer()
     destroyBuffer(r.ibo);
     free(r.vertices);
 
-    for (int i = 0; i < r.currentTexture; i++)
+    for (int32t i = 0; i < r.currentTexture; i++)
     {
         if (r.textures[i])
             unloadTexture(r.textures[i]);
@@ -139,7 +141,7 @@ void renderBatch()
     if (r.indexCount == 0)
         return;
 
-    for (int i = 0; i < r.currentTexture; i++)
+    for (int32t i = 0; i < r.currentTexture; i++)
         bindTexture(r.textures[i]);
 
     bindVao(r.vao);
@@ -169,7 +171,7 @@ void startFrame()
 
 void flush()
 {
-    unsigned int size = (unsigned int)((unsigned char*) r.vertexPtrCurrent - (unsigned char*) r.vertices);
+    uint32t size = (uint32t)((unsigned char*) r.vertexPtrCurrent - (unsigned char*) r.vertices);
     pushBufferData(r.vbo, size, r.vertices);
 
     renderBatch();
@@ -184,10 +186,10 @@ void endFrame()
 // void _render(struct Vao vao, Ibo indexBuffer)
 // {
 //     bindVao(vao);
-//     glDrawElements(GL_TRIANGLES, indexBuffer.count, GL_UNSIGNED_INT, 0);
+//     glDrawElements(GL_TRIANGLES, indexBuffer.count, GL_UNSIGNED_int32t, 0);
 // }
 
-void pushQuad(mat4s transform, vec3s color, float texIndex)
+void pushQuad(mat4s transform, vec3s color, f32t texIndex)
 {
     if(r.quadCount >= MAX_QUADS)
     {
@@ -195,7 +197,7 @@ void pushQuad(mat4s transform, vec3s color, float texIndex)
         startBatch();
     }
 
-    for (int i = 0; i < 4; i++)
+    for (int32t i = 0; i < 4; i++)
     {
         vec3s vertex = glms_mat4_mulv3(transform, r.vertexPositions[i], 1);
         r.vertexPtrCurrent->pos = vertex;
@@ -210,22 +212,23 @@ void pushQuad(mat4s transform, vec3s color, float texIndex)
 
 void render()
 {
-    SpriteComponent* sprites = registerView(Sprite);
-    TransformComponent* transforms = registerView(Transform);
-    unsigned int count = getEntityCount();
-    for (int i = 0; i < count; i++)
+    struct registryView r = ECSgroupView(Sprite, Transform); 
+
+    uint32t count = getEntityCount();
+    for (int32t i = 0; i < r.count; i++)
     {   
-        if (hasComponent(i, Sprite))
-        {
-            mat4s m;
-            vec3s scale = {transforms[i].scale.x, transforms[i].scale.y, 1};
-            m = glms_mat4_identity();
-            m = glms_scale(m, scale);
-            m = glms_translate(m, transforms[i].position);
-            m = glms_rotate(m, transforms[i].rotation, (vec3s){0, 0, 1});
-            pushQuad(m, sprites[i].color, sprites[i].texIndex);
-        }
+        TransformComponent* t = ECSgetComponent(i, Transform);
+        SpriteComponent* s = ECSgetComponent(i, Sprite);  
+        mat4s m;
+        vec3s scale = {t->scale.x, t->scale.y, 1};
+        m = glms_mat4_identity();
+        m = glms_scale(m, scale);
+        m = glms_translate(m, t->position);
+        m = glms_rotate(m, t->rotation, (vec3s){0, 0, 1});
+        pushQuad(m, s->color, s->texIndex);
     }
+
+    closeView(r);
 }
 
 /**
@@ -241,7 +244,7 @@ void onTextureLoad(Texture* texture)
 
 void rendererChangeMode()
 {
-    static int mode = 0;
+    static int32t mode = 0;
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL * mode + GL_LINE * (1-mode));
     mode = !mode;
 }

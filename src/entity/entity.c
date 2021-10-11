@@ -61,6 +61,42 @@ void* registerView(enum ComponentType type)
     return registers.Components[type];
 }
 
+struct registryView ecs_registry_view(enum ComponentType type)
+{
+    struct registryView view;
+    view.view = malloc(sizeof(EntityID) * count);
+    view.count = 0;
+    for (int i = 0; i < count; i++)
+    {
+        if (hasComponent(i, type))
+        {
+            view.view[view.count++] = i;
+        }
+    }
+    return view;
+}
+
+
+struct registryView ECSgroupView(enum ComponentType t1, enum ComponentType t2)
+{
+    struct registryView view;
+    view.view = malloc(sizeof(EntityID) * count);
+    view.count = 0;
+    for (int i = 0; i < count; i++)
+    {
+        if (hasComponent(i, t1) && hasComponent(i, t2))
+        {
+            view.view[view.count++] = i;
+        }
+    }
+    return view;
+}
+
+void closeView(struct registryView view)
+{
+    free(view.view);
+}
+
 void* ecs_add_component_internal(EntityID id, enum ComponentType type, unsigned int size)
 {
     assert(!hasComponent(id, type));

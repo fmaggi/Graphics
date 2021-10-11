@@ -7,7 +7,7 @@
 
 Camera camera;
 
-void orthoCamera(vec3s pos, float width, float height)
+void orthoCamera(vec3s pos, f32t width, f32t height)
 {
     camera.zoom = 1;
     camera.pos = pos;
@@ -16,7 +16,7 @@ void orthoCamera(vec3s pos, float width, float height)
     calculateViewProj();
 }
 
-int moveCamera(float xoffset, float yoffset)
+int32t moveCamera(f32t xoffset, f32t yoffset)
 {
     if (!isMouseButtonPressed(MOUSE_BUTTON_LEFT))
         return 0;
@@ -37,14 +37,14 @@ void calculateViewProj()
     camera.projview = glms_mat4_mul(proj, view);
 }
 
-void updateZoom(float zoom)
+void updateZoom(f32t zoom)
 {
     camera.zoom -= zoom * 0.25f;
     camera.zoom = camera.zoom > 0.25f ? camera.zoom : 0.25f;
     calculateViewProj();
 }
 
-void updateProjectionMatrix(float width, float height)
+void updateProjectionMatrix(f32t width, f32t height)
 {
     camera.width = width;
     camera.height = height;

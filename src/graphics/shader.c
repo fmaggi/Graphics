@@ -6,14 +6,16 @@
 #include "stdlib.h"
 #include "string.h"
 
+#include "util/types.h"
+
 typedef struct shader 
 {
-    unsigned int vertexID;
-    unsigned int fragmentID;
-    unsigned int programID;
+    uint32t vertexID;
+    uint32t fragmentID;
+    uint32t programID;
 } Shader;
 
-unsigned int compileShader(const char* path, unsigned int type)
+uint32t compileShader(const char* path, uint32t type)
 {
     char buf[256] = {0};
     strcpy(buf, "res/shaders/");
@@ -36,13 +38,13 @@ unsigned int compileShader(const char* path, unsigned int type)
     
     const char** srcAddress = (const char**) &src;
 
-    unsigned int shader = glCreateShader(type);
+    uint32t shader = glCreateShader(type);
     glShaderSource(shader, 1, srcAddress, NULL);
     glCompileShader(shader);
 
     free(src);
 
-    int success;
+    int32t success;
     char infoLog[512];
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success)
@@ -56,14 +58,14 @@ unsigned int compileShader(const char* path, unsigned int type)
     return shader;
 }
 
-unsigned int linkShader(unsigned int vertexID, unsigned int fragmentID)
+uint32t linkShader(uint32t vertexID, uint32t fragmentID)
 {
-    unsigned int shaderProgram = glCreateProgram();
+    uint32t shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexID);
     glAttachShader(shaderProgram, fragmentID);
     glLinkProgram(shaderProgram);
     // check for linking errors
-    int success;
+    bool success;
     char infoLog[512];
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success) 
@@ -95,9 +97,9 @@ void destroyShader(Shader* shader)
     free(shader);
 }
 
-int getUniformLocation(Shader* shader, const char* name)
+int32t getUniformLocation(Shader* shader, const char* name)
 {
-    int location = glGetUniformLocation(shader->programID, name);
+    int32t location = glGetUniformLocation(shader->programID, name);
     if (location == -1)
         LOG_WARN("Invalid uniform: %s\n", name);
     return location;

@@ -1,4 +1,5 @@
 #include "collision.h"
+#include "physics.h"
 
 #include "cglm/struct.h"
 #include "log/log.h"
@@ -7,12 +8,6 @@
 
 #define DIVISIONS 4
 
-struct AABB
-{
-    vec2s min, max;
-    vec3s center;
-    EntityID e;
-};
 
 struct AABB createAABB(EntityID e)
 {
@@ -30,31 +25,8 @@ struct AABB createAABB(EntityID e)
 
 int checkCollisionAABB(struct AABB a, struct AABB b)
 {
-    float leftAABB, rightAABB;
-    if (a.min.x < b.min.x)
-    {
-        rightAABB= b.min.x;
-        leftAABB =  a.max.x;
-    }
-    else
-    {
-        rightAABB = a.min.x;
-        leftAABB =  b.max.x;
-    }  
-
-    float topAABB, bottomAABB;
-    if (a.min.y < b.min.y)
-    {
-        topAABB = b.min.y;
-        bottomAABB = a.max.y;
-    }
-    else
-    {
-        topAABB = a.min.y;
-        bottomAABB = b.max.y;
-    }
-
-    return leftAABB > rightAABB && bottomAABB > topAABB;
+    return a.min.x < b.max.x && a.max.x > b.min.x
+        && a.min.y < b.max.y && a.max.y > b.min.y;
 }
 
 vec2s getDepth(TransformComponent* ta, TransformComponent* tb)
@@ -107,7 +79,8 @@ void handleCollision(struct AABB a, struct AABB b)
     {
        if (pa->flags & DYNAMIC)
         {
-            pa->speed = (vec2s){pa->speed.x, -pa->speed.y};
+            pa->speed = glms_vec2_add(pa->speed, pb->speed);
+            pa->speed = glms_vec2_scale(pa->speed, 0.5);
             if (ta->position.y < tb->position.y)
                 ta->position.y -= depth.y / ta->scale.y;
             else
@@ -115,7 +88,8 @@ void handleCollision(struct AABB a, struct AABB b)
         }
         if (pb->flags & DYNAMIC)
         {
-            pb->speed = (vec2s){pb->speed.x, -pb->speed.y};
+            pb->speed = glms_vec2_add(pa->speed, pb->speed);
+            pb->speed = glms_vec2_scale(pa->speed, 0.5);
             if (tb->position.y < ta->position.y)
                 tb->position.y -= depth.y / tb->scale.y;
             else
@@ -151,16 +125,13 @@ void screenVerticalDivisionsCollision(TransformComponent* transforms, PhysicsCom
             int divX2 = rightEdge / widthPerDivision; // right edge
             divX2 = (divX2 + DIVISIONS/2)-1; 
 
-            int index = currentDivisionIndex[divX1];
-            verticalDivisions[divX1][index] = i;
-            currentDivisionIndex[divX1]++;
-
-            if (divX1 != divX2)
+            for (int d = divX1; d < divX2+1; d++)
             {
-                int index = currentDivisionIndex[divX2];
-                verticalDivisions[divX2][index] = i;
-                currentDivisionIndex[divX2]++;
+                int index = currentDivisionIndex[d];
+                verticalDivisions[d][index] = i;
+                currentDivisionIndex[d]++;
             }
+
         }
     }
 
@@ -177,12 +148,14 @@ void screenVerticalDivisionsCollision(TransformComponent* transforms, PhysicsCom
                 EntityID e1 = verticalDivisions[div][i];
                 EntityID e2 = verticalDivisions[div][j];
 
+
                 if (!(physics[e1].flags & DYNAMIC) && !(physics[e2].flags & DYNAMIC))
                     continue;
 
                 struct AABB a = createAABB(e1);
                 struct AABB b = createAABB(e2);
                 int c = checkCollisionAABB(a, b);
+
                 if (c)
                 {   
                     handleCollision(a, b);

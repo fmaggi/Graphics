@@ -54,7 +54,7 @@ void initWorld()
     TransformComponent* tf = ECSaddComponent(floor, Transform);
     tf->position = (vec3s){0, -4, -1};
     tf->rotation = 0;
-    tf->scale = (vec2s){1200, 50};
+    tf->scale = (vec2s){800, 50};
 
     SpriteComponent* sf = ECSaddComponent(floor, Sprite);
     sf->color = (vec3s){0.2, 0.4, 0.96};
@@ -62,6 +62,19 @@ void initWorld()
 
     PhysicsComponent* pf = ECSaddComponent(floor, Physics);
     pf->flags = ACTIVE | STATIC;
+
+    EntityID roof = newEntity();
+    TransformComponent* tr = ECSaddComponent(roof, Transform);
+    tr->position = (vec3s){0, 4, -1};
+    tr->rotation = 0;
+    tr->scale = (vec2s){800, 50};
+
+    SpriteComponent* sr = ECSaddComponent(roof, Sprite);
+    sr->color = (vec3s){0.2, 0.4, 0.96};
+    sr->texIndex = texture2;
+
+    PhysicsComponent* pr = ECSaddComponent(roof, Physics);
+    pr->flags = ACTIVE | STATIC;
 }
 
 void onUpdateWorld(double ts)
@@ -70,6 +83,8 @@ void onUpdateWorld(double ts)
 
     PhysicsComponent* p = ECSgetComponent(world.player, Physics);
     //t->rotation += 1 * ts;
+    if (isKeyPressed(KEY_SPACE))
+        p->force = glms_vec2_add(p->force, (vec2s){0, 15});
 
     if (isKeyPressed(KEY_W))
         p->force = glms_vec2_add(p->force, (vec2s){0, 1});

@@ -25,9 +25,9 @@ void bindVao(Vao vao)
     glBindVertexArray(vao.id);
 }
 
-void addAttribute(Vao* vao,  int size, unsigned int stride)
+void addAttribute(Vao* vao,  int32t size, uint32t stride)
 {
-    unsigned int index = vao->index;
+    uint32t index = vao->index;
     unsigned long int offset = vao->offset; // the long is just to remove some warngins
 
     glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)offset);
