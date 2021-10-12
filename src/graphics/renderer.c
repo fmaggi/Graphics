@@ -222,9 +222,9 @@ void render()
         mat4s m;
         vec3s scale = {t->scale.x, t->scale.y, 1};
         m = glms_mat4_identity();
-        m = glms_scale(m, scale);
         m = glms_translate(m, t->position);
         m = glms_rotate(m, t->rotation, (vec3s){0, 0, 1});
+        m = glms_scale(m, scale);
         pushQuad(m, s->color, s->texIndex);
     }
 

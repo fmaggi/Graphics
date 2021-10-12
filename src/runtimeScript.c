@@ -21,7 +21,7 @@ void initWorld()
     world.player = player;
 
     TransformComponent* t = ECSaddComponent(player, Transform);
-    t->position = (vec3s){-2, 0, -1};
+    t->position = (vec3s){-200, 0, -1};
     t->rotation = 0;
     t->scale = (vec2s){200, 200};
 
@@ -32,7 +32,7 @@ void initWorld()
     PhysicsComponent* p = ECSaddComponent(player, Physics);
     p->flags = ACTIVE | DYNAMIC;
 
-    v = createBody(glms_vec3_scale(t->position, 200), Dynamic, 0);
+    v = createBody(t->position, Dynamic, 0);
     addAABB(v, 100, 100);
 
     // srand(time(0));
@@ -58,7 +58,7 @@ void initWorld()
 
     EntityID floor = newEntity();
     TransformComponent* tf = ECSaddComponent(floor, Transform);
-    tf->position = (vec3s){0, -4, -1};
+    tf->position = (vec3s){0, -400, -1};
     tf->rotation = 0;
     tf->scale = (vec2s){800, 50};
 
@@ -69,16 +69,13 @@ void initWorld()
     PhysicsComponent* pf = ECSaddComponent(floor, Physics);
     pf->flags = ACTIVE | STATIC;
 
-    vec3s position;
-    position.x = tf->position.x * 800;
-    position.y = tf->position.y * 50;
 
-    Body* v1 = createBody(position, Dynamic, 0);
+    Body* v1 = createBody(tf->position, Dynamic, 0);
     addAABB(v1, 400, 25);
 
     EntityID roof = newEntity();
     TransformComponent* tr = ECSaddComponent(roof, Transform);
-    tr->position = (vec3s){0, 4, -1};
+    tr->position = (vec3s){0, 400, -1};
     tr->rotation = 0;
     tr->scale = (vec2s){800, 50};
 
@@ -94,8 +91,8 @@ void onUpdateWorld(double ts)
 {
     // World update here
 
-    // PhysicsComponent* p = ECSgetComponent(world.player, Physics);
-    // //t->rotation += 1 * ts;
+    TransformComponent* t = ECSgetComponent(world.player, Transform);
+    t->rotation += 1 * ts;
     // if (isKeyPressed(KEY_SPACE))
     //     p->force = glms_vec2_add(p->force, (vec2s){0, 15});
 
@@ -115,16 +112,16 @@ void onUpdateWorld(double ts)
     TransformComponent* p = ECSgetComponent(world.player, Transform);
 
     if (isKeyPressed(KEY_W))
-        p->position.y += 1 * ts;
+        p->position.y += 100 * ts;
     if (isKeyPressed(KEY_S))
-        p->position.y -= 1 * ts;
+        p->position.y -= 100 * ts;
 
     if (isKeyPressed(KEY_D))
-        p->position.x += 1 * ts;
+        p->position.x += 100 * ts;
     if (isKeyPressed(KEY_A))
-        p->position.x -= 1 * ts;
+        p->position.x -= 100 * ts;
 
-    v->position = glms_vec3_scale(p->position, 200);
+    v->position = p->position;
     update(ts);
     
    // handleInput(world.player, ts);
