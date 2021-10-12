@@ -20,7 +20,10 @@ typedef struct
     int32t aabbID;
 } Body;
 
-void createBody(vec3s position, enum BodyType type, int32t flags);
+Body* createBody(vec3s position, enum BodyType type, int32t flags);
 void addAABB(Body* body, float halfWidth, float halfHeight);
+
+//temporary
+void update(double ts);
 
 #endif

@@ -48,7 +48,12 @@ void windowResizeCallback(GLFWwindow* window, int width, int height)
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     Window* userWindow = (Window*) glfwGetWindowUserPointer(window);
-    KeyEvent e = createKeyEvent(key, scancode, action, mods);
+    KeyEvent e;
+    e.key = key;
+    e.scancode = scancode;
+    e.action = action;
+    e.mods = mods;
+    e.repeat = action == GLFW_REPEAT ? 1 : 0;
     EventHolder holder;
     holder.instance = &e;
     holder.type = action == GLFW_RELEASE ? KeyReleased : KeyPressed;

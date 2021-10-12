@@ -18,19 +18,16 @@ typedef struct keyEvent
 {
     int key, scancode, action, mods, repeat;
 } KeyEvent;
-KeyEvent createKeyEvent(int key, int scancode, int action, int mods);
 
 typedef struct mouseButton
 {
     int button, action, mods;
 } MouseButtonEvent;
-MouseButtonEvent createMouseButtonEvent(int button, int action, int mods);
 
 typedef struct mouseMoved
 {
     float x, y;
 } MouseMovedEvent;
-MouseMovedEvent createMouseMovedEvent();
 
 typedef struct scroll
 {
