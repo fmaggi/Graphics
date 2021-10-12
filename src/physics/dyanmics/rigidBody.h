@@ -11,11 +11,6 @@ enum BodyType
 
 typedef struct
 {
-    vec2s min, max;
-} AABB;
-
-typedef struct
-{
     vec3s position;
     vec2s speed, forces;
     int32t flags;
@@ -25,6 +20,7 @@ typedef struct
     int32t aabbID;
 } Body;
 
-int32t createBody(vec3s position, enum BodyType type, AABB aabb, int32t flags);
+void createBody(vec3s position, enum BodyType type, int32t flags);
+void addAABB(Body* body, float halfWidth, float halfHeight);
 
 #endif

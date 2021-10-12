@@ -180,7 +180,7 @@ void flush()
 void endFrame()
 {   
     flush();
-    LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
+    //LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
 }
 
 // void _render(struct Vao vao, Ibo indexBuffer)

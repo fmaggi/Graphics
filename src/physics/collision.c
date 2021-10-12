@@ -58,7 +58,7 @@ void handleCollision(struct AABB a, struct AABB b)
     vec2s depth = getDepth(ta, tb);
     if (depth.x < depth.y)
     {
-        if (pa->flags & DYNAMIC)
+        if (pa->flags & DYNAMIC && glms_vec2_dot(pa->speed, pa->speed) > 0.001)
         {
             pa->speed = (vec2s){-pa->speed.x, pa->speed.y};
             if (ta->position.x < tb->position.x)
@@ -77,10 +77,9 @@ void handleCollision(struct AABB a, struct AABB b)
     }
     else
     {
-       if (pa->flags & DYNAMIC)
+       if (pa->flags & DYNAMIC && glms_vec2_dot(pa->speed, pa->speed) > 0.001)
         {
             
-
             if (ta->position.y < tb->position.y)
                 ta->position.y -= depth.y / ta->scale.y;
             else

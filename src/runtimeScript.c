@@ -58,7 +58,7 @@ void initWorld()
 
     SpriteComponent* sf = ECSaddComponent(floor, Sprite);
     sf->color = (vec3s){0.2, 0.4, 0.96};
-    sf->texIndex = texture2;
+    sf->texIndex = texture;
 
     PhysicsComponent* pf = ECSaddComponent(floor, Physics);
     pf->flags = ACTIVE | STATIC;
@@ -71,7 +71,7 @@ void initWorld()
 
     SpriteComponent* sr = ECSaddComponent(roof, Sprite);
     sr->color = (vec3s){0.2, 0.4, 0.96};
-    sr->texIndex = texture2;
+    sr->texIndex = texture;
 
     PhysicsComponent* pr = ECSaddComponent(roof, Physics);
     pr->flags = ACTIVE | STATIC;
