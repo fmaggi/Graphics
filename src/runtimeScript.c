@@ -1,4 +1,5 @@
 #include "game/world.h"
+#include "physics/dyanmics/rigidBody.h"
 #include "graphics/texture.h"
 #include "input/input.h"
 
@@ -6,6 +7,8 @@
 
 #include "stdlib.h"
 #include "time.h"
+
+Body* v = NULL;
 
 void initWorld()
 {
@@ -28,6 +31,9 @@ void initWorld()
 
     PhysicsComponent* p = ECSaddComponent(player, Physics);
     p->flags = ACTIVE | DYNAMIC;
+
+    v = createBody(glms_vec3_scale(t->position, 200), Dynamic, 0);
+    addAABB(v, 100, 100);
 
     // srand(time(0));
 
@@ -57,11 +63,18 @@ void initWorld()
     tf->scale = (vec2s){800, 50};
 
     SpriteComponent* sf = ECSaddComponent(floor, Sprite);
-    sf->color = (vec3s){0.2, 0.4, 0.96};
+    sf->color = (vec3s){0, 0.4, 0.96};
     sf->texIndex = texture;
 
     PhysicsComponent* pf = ECSaddComponent(floor, Physics);
     pf->flags = ACTIVE | STATIC;
+
+    vec3s position;
+    position.x = tf->position.x * 800;
+    position.y = tf->position.y * 50;
+
+    Body* v1 = createBody(position, Dynamic, 0);
+    addAABB(v1, 400, 25);
 
     EntityID roof = newEntity();
     TransformComponent* tr = ECSaddComponent(roof, Transform);
@@ -81,25 +94,40 @@ void onUpdateWorld(double ts)
 {
     // World update here
 
-    PhysicsComponent* p = ECSgetComponent(world.player, Physics);
-    //t->rotation += 1 * ts;
-    if (isKeyPressed(KEY_SPACE))
-        p->force = glms_vec2_add(p->force, (vec2s){0, 15});
+    // PhysicsComponent* p = ECSgetComponent(world.player, Physics);
+    // //t->rotation += 1 * ts;
+    // if (isKeyPressed(KEY_SPACE))
+    //     p->force = glms_vec2_add(p->force, (vec2s){0, 15});
+
+    // if (isKeyPressed(KEY_W))
+    //     p->force = glms_vec2_add(p->force, (vec2s){0, 1});
+    // if (isKeyPressed(KEY_S))
+    //     p->force = glms_vec2_add(p->force, (vec2s){0, -1});
+
+    // if (isKeyPressed(KEY_D))
+    //     p->force = glms_vec2_add(p->force, (vec2s){1, 0});
+    // if (isKeyPressed(KEY_A))
+    //     p->force = glms_vec2_add(p->force, (vec2s){-1, 0});
+
+    // if (isKeyPressed(KEY_P))
+    //     p->speed = (vec2s){0, 0};
+
+    TransformComponent* p = ECSgetComponent(world.player, Transform);
 
     if (isKeyPressed(KEY_W))
-        p->force = glms_vec2_add(p->force, (vec2s){0, 1});
+        p->position.y += 1 * ts;
     if (isKeyPressed(KEY_S))
-        p->force = glms_vec2_add(p->force, (vec2s){0, -1});
+        p->position.y -= 1 * ts;
 
     if (isKeyPressed(KEY_D))
-        p->force = glms_vec2_add(p->force, (vec2s){1, 0});
+        p->position.x += 1 * ts;
     if (isKeyPressed(KEY_A))
-        p->force = glms_vec2_add(p->force, (vec2s){-1, 0});
+        p->position.x -= 1 * ts;
 
-    if (isKeyPressed(KEY_P))
-        p->speed = (vec2s){0, 0};
+    v->position = glms_vec3_scale(p->position, 200);
+    update(ts);
     
-    //handleInput(world.player, ts);
+   // handleInput(world.player, ts);
 }
 
 

@@ -74,7 +74,7 @@ void onUpdate()
     LOG_INFO_DEBUG("Frametime: %fms\n", ts);
     
     onUpdateWorld(ts);
-    updatePhysics(ts);
+    //updatePhysics(ts);
 }
 
 void onRender()

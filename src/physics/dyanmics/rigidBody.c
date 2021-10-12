@@ -4,7 +4,6 @@
 
 #include "log/log.h"
 
-
 Body bodies[32];
 static int32t current = 0;
 
@@ -13,6 +12,11 @@ void update(double ts)
     struct CollisionStack c;
     c.collisions = malloc(sizeof(void*) * current * current); // worst case
     c.count = 0;
+
+    for (int i = 0; i < current; i++)
+    {
+        updateAABB(bodies[i].aabbID, bodies[i].position);
+    }
 
     sweepAndPrune(&c);
 
@@ -39,6 +43,7 @@ Body* createBody(vec3s position, enum BodyType type, int32t flags)
     body->flags = flags;
     body->forces = GLMS_VEC2_ZERO;
     body->speed = GLMS_VEC2_ZERO;
+    body->aabbID = -1;
 
     return body;
 }
