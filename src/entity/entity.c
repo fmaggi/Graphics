@@ -35,13 +35,13 @@ void destroyECS()
 {
     free(registers.Components[Transform]);
     free(registers.Components[Sprite]);
+    free(registers.Components[Physics]);
     free(registers.used);
 }
 
 EntityID newEntity()
 {
     static EntityID id = 0;
-    registers.used[id] = 0;
     count++;
     return id++;
 }
@@ -56,12 +56,7 @@ int hasComponent(EntityID id, enum ComponentType type)
     return registers.used[id] & ECS_TAG_VALUE(type);
 }
 
-void* registerView(enum ComponentType type)
-{
-    return registers.Components[type];
-}
-
-struct registryView ecs_registry_view(enum ComponentType type)
+struct registryView ECSviewRegistry(enum ComponentType type)
 {
     struct registryView view;
     view.view = malloc(sizeof(EntityID) * count);

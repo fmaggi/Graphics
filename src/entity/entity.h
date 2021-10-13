@@ -24,8 +24,6 @@ int hasComponent(EntityID id, enum ComponentType type);
 void* ecs_add_component_internal(EntityID id, enum ComponentType type, unsigned int size);
 void* ecs_get_component_internal(EntityID id, enum ComponentType type, unsigned int size);
 
-void* registerView(enum ComponentType type);
-
 struct registryView ECSviewRegistry(enum ComponentType type);
 struct registryView ECSgroupView(enum ComponentType t1, enum ComponentType t2);
 void closeView(struct registryView view);

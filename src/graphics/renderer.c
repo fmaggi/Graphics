@@ -27,7 +27,7 @@ struct QuadVertex
     vec3s pos;
     vec3s color;
     vec2s uv;
-    f32t texIndex;
+    float texIndex;
 };
 
 typedef struct renderer
@@ -189,7 +189,7 @@ void endFrame()
 //     glDrawElements(GL_TRIANGLES, indexBuffer.count, GL_UNSIGNED_int32t, 0);
 // }
 
-void pushQuad(mat4s transform, vec3s color, f32t texIndex)
+void pushQuad(mat4s transform, vec3s color, float texIndex)
 {
     if(r.quadCount >= MAX_QUADS)
     {
@@ -218,9 +218,7 @@ void render()
     {   
         TransformComponent* t = ECSgetComponent(i, Transform);
         SpriteComponent* s = ECSgetComponent(i, Sprite);  
-        mat4s m;
-        m = glms_mat4_identity();
-        m = glms_translate(m, t->position);
+        mat4s m = glms_translate(glms_mat4_identity(), t->position);
         m = glms_rotate(m, t->rotation, (vec3s){0, 0, 1});
         vec3s scale = {t->scale.x, t->scale.y, 1};
         m = glms_scale(m, scale);

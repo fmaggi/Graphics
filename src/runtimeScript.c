@@ -89,22 +89,6 @@ void onUpdateWorld(double ts)
     // World update here
 
     TransformComponent* p = ECSgetComponent(world.player, Transform);
-    p->rotation += 1 * ts;
-    // if (isKeyPressed(KEY_SPACE))
-    //     p->force = glms_vec2_add(p->force, (vec2s){0, 15});
-
-    // if (isKeyPressed(KEY_W))
-    //     p->force = glms_vec2_add(p->force, (vec2s){0, 1});
-    // if (isKeyPressed(KEY_S))
-    //     p->force = glms_vec2_add(p->force, (vec2s){0, -1});
-
-    // if (isKeyPressed(KEY_D))
-    //     p->force = glms_vec2_add(p->force, (vec2s){1, 0});
-    // if (isKeyPressed(KEY_A))
-    //     p->force = glms_vec2_add(p->force, (vec2s){-1, 0});
-
-    // if (isKeyPressed(KEY_P))
-    //     p->speed = (vec2s){0, 0};
 
     if (isKeyPressed(KEY_W))
         p->position.y += 100 * ts;
