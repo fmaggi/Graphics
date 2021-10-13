@@ -28,7 +28,7 @@ void initECS()
         LOG_ERROR("Memory allocation error\n");
         exit(-1);
     }
-    memset(registers.used, 0, sizeof(registers.used));
+    memset(registers.used, 0, sizeof(ComponentsUsed) * maxEntities);
 }
 
 void destroyECS()

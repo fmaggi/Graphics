@@ -29,8 +29,10 @@ void update(double ts)
         if (didCollide)
             LOG_INFO("Collision\n");
         else
-            LOG_INFO("Not\n");
+            LOG_INFO("Not %i %i\n", a->aabbID, b->aabbID);
     }
+
+    free(c.collisions);
 }
 
 Body* createBody(vec3s position, enum BodyType type, int32t flags)

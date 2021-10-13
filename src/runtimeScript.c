@@ -8,8 +8,6 @@
 #include "stdlib.h"
 #include "time.h"
 
-Body* v = NULL;
-
 void initWorld()
 {
     // World creation here
@@ -29,11 +27,11 @@ void initWorld()
     s->color = (vec3s){0.2, 0.4, 0.96};
     s->texIndex = texture2;
 
-    PhysicsComponent* p = ECSaddComponent(player, Physics);
-    p->flags = ACTIVE | DYNAMIC;
-
-    v = createBody(t->position, Dynamic, 0);
+    Body* v = createBody(t->position, Dynamic, 0);
     addAABB(v, 100, 100);
+
+    PhysicsComponent* p = ECSaddComponent(player, Physics);
+    p->physicsBody = v;
 
     // srand(time(0));
 
@@ -43,56 +41,55 @@ void initWorld()
     //     {
     //         EntityID e = newEntity();
     //         TransformComponent* t2 = ECSaddComponent(e, Transform);
-    //         t2->position = (vec3s){i, j, -20};
+    //         t2->position = (vec3s){i * 200, j * 200, -20};
     //         t2->rotation = 0;
     //         t2->scale = (vec2s){200, 200};
 
     //         SpriteComponent* s2 = ECSaddComponent(e, Sprite);
     //         s2->color = (vec3s){ (float) rand() / RAND_MAX, (float) rand() / RAND_MAX, (float) rand() / RAND_MAX};
     //         s2->texIndex = texture;
-
-    //         PhysicsComponent* p1 = ECSaddComponent(e, Physics);
-    //         p1->flags = ACTIVE | STATIC;
     //     }
     // }
 
     EntityID floor = newEntity();
     TransformComponent* tf = ECSaddComponent(floor, Transform);
-    tf->position = (vec3s){0, -400, -1};
+    tf->position = (vec3s){200, -200, -1};
     tf->rotation = 0;
-    tf->scale = (vec2s){800, 50};
+    tf->scale = (vec2s){200, 200};
 
     SpriteComponent* sf = ECSaddComponent(floor, Sprite);
     sf->color = (vec3s){0, 0.4, 0.96};
     sf->texIndex = texture;
 
-    PhysicsComponent* pf = ECSaddComponent(floor, Physics);
-    pf->flags = ACTIVE | STATIC;
+    Body* v1 = createBody(tf->position, Static, 0);
+    addAABB(v1, 100, 100);
 
-
-    Body* v1 = createBody(tf->position, Dynamic, 0);
-    addAABB(v1, 400, 25);
+    PhysicsComponent* p1 = ECSaddComponent(floor, Physics);
+    p1->physicsBody = v1;
 
     EntityID roof = newEntity();
     TransformComponent* tr = ECSaddComponent(roof, Transform);
-    tr->position = (vec3s){0, 400, -1};
+    tr->position = (vec3s){-100, 200, -1};
     tr->rotation = 0;
-    tr->scale = (vec2s){800, 50};
+    tr->scale = (vec2s){200, 200};
 
     SpriteComponent* sr = ECSaddComponent(roof, Sprite);
     sr->color = (vec3s){0.2, 0.4, 0.96};
     sr->texIndex = texture;
 
-    PhysicsComponent* pr = ECSaddComponent(roof, Physics);
-    pr->flags = ACTIVE | STATIC;
+    Body* v2 = createBody(tr->position, Static, 0);
+    addAABB(v2, 100, 100);
+
+    PhysicsComponent* p2 = ECSaddComponent(roof, Physics);
+    p2->physicsBody = v2;
 }
 
 void onUpdateWorld(double ts)
 {
     // World update here
 
-    TransformComponent* t = ECSgetComponent(world.player, Transform);
-    t->rotation += 1 * ts;
+    TransformComponent* p = ECSgetComponent(world.player, Transform);
+    p->rotation += 1 * ts;
     // if (isKeyPressed(KEY_SPACE))
     //     p->force = glms_vec2_add(p->force, (vec2s){0, 15});
 
@@ -109,8 +106,6 @@ void onUpdateWorld(double ts)
     // if (isKeyPressed(KEY_P))
     //     p->speed = (vec2s){0, 0};
 
-    TransformComponent* p = ECSgetComponent(world.player, Transform);
-
     if (isKeyPressed(KEY_W))
         p->position.y += 100 * ts;
     if (isKeyPressed(KEY_S))
@@ -121,7 +116,10 @@ void onUpdateWorld(double ts)
     if (isKeyPressed(KEY_A))
         p->position.x -= 100 * ts;
 
-    v->position = p->position;
+    PhysicsComponent* ph = ECSgetComponent(world.player, Physics);
+
+    Body* b = ph->physicsBody;
+    b->position = p->position;
     update(ts);
     
    // handleInput(world.player, ts);

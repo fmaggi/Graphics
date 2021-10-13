@@ -43,7 +43,7 @@ void sweepAndPrune(struct CollisionStack* results)
         AABB aabb = aabbs[sorted[i]];
         if (aabb.min.x < active.max.x)
         {
-            struct Collision* c = &results->collisions[results->count++];
+            struct Collision* c = &results->collisions[results->count++]; // should change this to an active interval
             c->a = active.body;
             c->b = aabb.body;
         }

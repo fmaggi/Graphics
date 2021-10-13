@@ -9,11 +9,10 @@
 typedef struct window
 {
     GLFWwindow* g_window;
-    int width, height;
     EventDispatchFunc eventCallback;
 } Window;
 
-Window* window = NULL;
+static Window* window = NULL;
 
 void errorCallback(int error, const char* description)
 {
@@ -108,8 +107,6 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
         exit(-1);
     }
     window->eventCallback = callbackFunc;
-    window->width  = width;
-    window->height = height;
 
     GLFWwindow* g_window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (g_window == NULL)

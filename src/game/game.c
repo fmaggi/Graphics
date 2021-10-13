@@ -9,8 +9,6 @@
 #include "graphics/renderer.h"
 #include "graphics/camera.h"
 
-#include "physics/physics.h"
-
 #include "world.h"
 
 #include "input/input.h"
@@ -56,13 +54,10 @@ void setUpGame()
     orthoCamera((vec3s){0, 0, 0}, 1200, 800);
 
     createRenderer();
-    initInput();
     initECS();
 
     LOG_TRACE("World\n");
     initWorld();
-
-    initPhysics(1200, 800);
 
     running = 1;
     LOG_TRACE("All done!\n");
@@ -74,7 +69,6 @@ void onUpdate()
     LOG_INFO_DEBUG("Frametime: %fms\n", ts);
     
     onUpdateWorld(ts);
-    //updatePhysics(ts);
 }
 
 void onRender()
@@ -111,7 +105,6 @@ void onWindowClose()
 void onWindowResize(WindowResizeEvent event)
 {
     updateProjectionMatrix(event.width, event.height);
-    setPhysicsWidthHeight(event.width, event.height);
 }
 
 void onKeyPressed(KeyEvent event)

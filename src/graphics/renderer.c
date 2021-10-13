@@ -214,16 +214,15 @@ void render()
 {
     struct registryView r = ECSgroupView(Sprite, Transform); 
 
-    uint32t count = getEntityCount();
     for (int32t i = 0; i < r.count; i++)
     {   
         TransformComponent* t = ECSgetComponent(i, Transform);
         SpriteComponent* s = ECSgetComponent(i, Sprite);  
         mat4s m;
-        vec3s scale = {t->scale.x, t->scale.y, 1};
         m = glms_mat4_identity();
         m = glms_translate(m, t->position);
         m = glms_rotate(m, t->rotation, (vec3s){0, 0, 1});
+        vec3s scale = {t->scale.x, t->scale.y, 1};
         m = glms_scale(m, scale);
         pushQuad(m, s->color, s->texIndex);
     }
