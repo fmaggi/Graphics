@@ -6,7 +6,7 @@
 
 struct Collision
 {
-    void *a, *b;
+    void *left, *right;
 };
 
 struct CollisionStack

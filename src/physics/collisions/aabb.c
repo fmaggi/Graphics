@@ -37,19 +37,27 @@ void sort()
 void sweepAndPrune(struct CollisionStack* results)
 {
     sort();
-    AABB active = aabbs[sorted[0]];
-    for (int i = 1; i < current; i++)
+    AABB active[32];
+    int index = 0;
+    for (int i = 0; i < current; i++)
     {
-        AABB aabb = aabbs[sorted[i]];
-        if (aabb.min.x < active.max.x)
+        active[index++] = aabbs[sorted[i]];
+        for (int j = index-2; j >= 0; j--) // check from right to left if it intersects anything in the interval.
         {
-            struct Collision* c = &results->collisions[results->count++];
-            c->a = active.body;
-            c->b = aabb.body;
-        }
-        else
-        {
-            active = aabb;
+            AABB b = active[index-1];
+            AABB a = active[j];
+            if (b.min.x < a.max.x)
+            {
+                struct Collision* c = &results->collisions[results->count++];
+                c->left = a.body;
+                c->right = b.body;
+            }
+            else
+            {
+                active[0] = b;
+                index = 1;
+                break;
+            }
         }
     }
 }

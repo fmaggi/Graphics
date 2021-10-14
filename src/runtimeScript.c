@@ -69,7 +69,7 @@ void initWorld()
 
     EntityID roof = newEntity();
     TransformComponent* tr = ECSaddComponent(roof, Transform);
-    tr->position = (vec3s){-100, 200, -1};
+    tr->position = (vec3s){-200, 200, -1};
     tr->rotation = 0;
     tr->scale = (vec2s){200, 200};
 
@@ -82,6 +82,22 @@ void initWorld()
 
     PhysicsComponent* p2 = ECSaddComponent(roof, Physics);
     p2->physicsBody = v2;
+
+    EntityID roof2 = newEntity();
+    TransformComponent* tr2 = ECSaddComponent(roof2, Transform);
+    tr2->position = (vec3s){300, 250, -1};
+    tr2->rotation = 0;
+    tr2->scale = (vec2s){200, 200};
+
+    SpriteComponent* sr2 = ECSaddComponent(roof2, Sprite);
+    sr2->color = (vec3s){0.2, 0.4, 0.96};
+    sr2->texIndex = texture;
+
+    Body* v22 = createBody(tr2->position, Static, 0);
+    addAABB(v22, 100, 100);
+
+    PhysicsComponent* p22 = ECSaddComponent(roof2, Physics);
+    p22->physicsBody = v22;
 }
 
 void onUpdateWorld(double ts)

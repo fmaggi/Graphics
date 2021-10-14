@@ -10,7 +10,7 @@ static int32t current = 0;
 void update(double ts)
 {
     struct CollisionStack c;
-    c.collisions = malloc(sizeof(void*) * current * current); // worst case
+    c.collisions = malloc(sizeof(struct Collision) * current * current); // worst case
     c.count = 0;
 
     for (int i = 0; i < current; i++)
@@ -19,18 +19,20 @@ void update(double ts)
     }
 
     sweepAndPrune(&c);
-
+    int calls = 0;
     for (int i = 0; i < c.count; i++)
     {
-        Body* a = c.collisions[i].a;
-        Body* b = c.collisions[i].b;
+        Body* a = c.collisions[i].left;
+        Body* b = c.collisions[i].right;
+        if (b->type == Static && a->type == Static)
+            continue;
         int didCollide = collide(a->aabbID, b->aabbID);
-
-        // if (didCollide)
-        //     LOG_INFO("Collision\n");
-        // else
-        //     LOG_INFO("Not %i %i\n", a->aabbID, b->aabbID);
+        calls++;
+        if (didCollide)
+            LOG_INFO("Collision %i %i\n", a->aabbID, b->aabbID);
     }
+    //LOG_INFO("%i\n", calls);
+    free(c.collisions);
 }
 
 Body* createBody(vec3s position, enum BodyType type, int32t flags)
