@@ -1,16 +1,14 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-typedef struct _texture
-{
-    unsigned int id;
-    unsigned int slot;
-} Texture;
+#define NO_TEXTURE -1
 
-Texture loadTexture(const char* name);
+typedef struct texture Texture;
 
-void bindTexture(Texture t);
+int loadTexture(const char* name);
 
-void unloadTexture(Texture t);
+void bindTexture(Texture* t);
+
+void unloadTexture(Texture* t);
 
 #endif

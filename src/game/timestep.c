@@ -2,7 +2,6 @@
 
 #include "graphics/gfx.h"
 
-
 double getTimestep()
 {
     static double lastFrame = 0;

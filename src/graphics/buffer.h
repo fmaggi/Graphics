@@ -1,23 +1,25 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
+#include "util/types.h"
+
 struct Buffer
 {
-    unsigned int type;
-    unsigned int id;
-    unsigned int count;
+    uint32t type;
+    uint32t id;
+    uint32t count;
 };
 
 typedef struct Buffer Vbo;
 typedef struct Buffer Ibo;
 
-Vbo createVbo(unsigned int size);
-Vbo createStaticVbo(unsigned int size, const void* data);
-Ibo createIbo(unsigned int count, unsigned int* data);
+Vbo createVbo(uint32t size);
+Vbo createStaticVbo(uint32t size, const void* data);
+Ibo createIbo(uint32t count, uint32t* data);
 
 void destroyBuffer(struct Buffer b);
 
-void pushBufferData(struct Buffer b, int size, const void* data);
+void pushBufferData(struct Buffer b, int32t size, const void* data);
 void bindBuffer(struct Buffer b);
 
 #endif

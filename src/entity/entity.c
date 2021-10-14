@@ -6,24 +6,14 @@
 #include "log/log.h"
 #include "string.h"
 
-#define DECL_COMPONENT(_name) \
-    extern void _name##_init(); \
-    extern void add##_name##Component(); \
-    extern void* get##_name##Component();
 
-#define DECL_COMPONENTS() \
-    DECL_COMPONENT(Transform) \
-    DECL_COMPONENT(Sprite) \
-
-#define INIT_COMPONENT(_name) \
-    _name##_init(maxEntities);
-
-DECL_COMPONENTS()
+#define INIT_COMPONENT(type) init_component_internal((type), sizeof(type##Component), maxEntities)
 
 #define ECS_TAG_VALUE(x) (1 << x)
 
-static unsigned int getSize(enum ComponentType type);
+void init_component_internal(enum ComponentType type, unsigned int size, unsigned int count);
 
+static unsigned int count = 0;
 static EntityID maxEntities = 16;
 struct Register registers;
 
@@ -31,26 +21,34 @@ void initECS()
 {
     INIT_COMPONENT(Transform);
     INIT_COMPONENT(Sprite);
+    INIT_COMPONENT(Physics);
     registers.used = malloc(sizeof(ComponentsUsed) * maxEntities);
     if (registers.used == NULL)
     {
         LOG_ERROR("Memory allocation error\n");
         exit(-1);
     }
-    memset(registers.used, 0, sizeof(registers.used));
+    memset(registers.used, 0, sizeof(ComponentsUsed) * maxEntities);
 }
 
 void destroyECS()
 {
-    free(registers.transforms);
-    free(registers.sprites);
+    free(registers.Components[Transform]);
+    free(registers.Components[Sprite]);
+    free(registers.Components[Physics]);
     free(registers.used);
 }
 
 EntityID newEntity()
 {
     static EntityID id = 0;
+    count++;
     return id++;
+}
+
+unsigned int getEntityCount()
+{
+    return count;
 }
 
 int hasComponent(EntityID id, enum ComponentType type)
@@ -58,50 +56,65 @@ int hasComponent(EntityID id, enum ComponentType type)
     return registers.used[id] & ECS_TAG_VALUE(type);
 }
 
-void addComponent(EntityID id, enum ComponentType type, void* component)
+struct registryView ECSviewRegistry(enum ComponentType type)
 {
-    if (hasComponent(id, type))
-        LOG_WARN("Entity %i already has component\n", id);
-    registers.used[id] |= ECS_TAG_VALUE(type);
-    unsigned int size = getSize(type);
-    switch (type)
+    struct registryView view;
+    view.view = malloc(sizeof(EntityID) * count);
+    view.count = 0;
+    for (int i = 0; i < count; i++)
     {
-        case transform: return addTransformComponent(id, *(TransformComponent*) component);
-        case sprite:    return addSpriteComponent(id, *(SpriteComponent*) component);
+        if (hasComponent(i, type))
+        {
+            view.view[view.count++] = i;
+        }
     }
-    LOG_WARN("Invalid component\n");
+    return view;
 }
 
-void* getComponent(EntityID id, enum ComponentType type)
+
+struct registryView ECSgroupView(enum ComponentType t1, enum ComponentType t2)
+{
+    struct registryView view;
+    view.view = malloc(sizeof(EntityID) * count);
+    view.count = 0;
+    for (int i = 0; i < count; i++)
+    {
+        if (hasComponent(i, t1) && hasComponent(i, t2))
+        {
+            view.view[view.count++] = i;
+        }
+    }
+    return view;
+}
+
+void closeView(struct registryView view)
+{
+    free(view.view);
+}
+
+void* ecs_add_component_internal(EntityID id, enum ComponentType type, unsigned int size)
+{
+    assert(!hasComponent(id, type));
+    registers.used[id] |= ECS_TAG_VALUE(type);
+    return ecs_get_component_internal(id, type, size);
+}
+
+void* ecs_get_component_internal(EntityID id, enum ComponentType type, unsigned int size)
 {
     assert(hasComponent(id, type));
-    switch (type)
-    {
-        case transform: return getTransformComponent(id);
-        case sprite:    return getSpriteComponent(id);
-    }
-
-    LOG_WARN("Invalid component\n");
-    return 0;
+    unsigned int offset = size * id;
+    return (registers.Components[type] + offset);
 }
 
-void* registerView(enum ComponentType type)
-{
-    switch (type)
-    {
-        case transform: return registers.transforms;
-        case sprite:    return registers.sprites;
-    }
 
-    LOG_WARN("Invalid component\n");
-    return 0;
-}
-
-static unsigned int getSize(enum ComponentType type)
+void init_component_internal(enum ComponentType type, unsigned int size, unsigned int count)
 {
-    switch (type)
+    void* temp = malloc(size * count);
+    if (temp == NULL)
     {
-        case transform: return sizeof(TransformComponent);
-        case sprite:    return sizeof(SpriteComponent);
+        LOG_ERROR("Memory allocation error\n");
+        exit(-1);
     }
+    memset(temp, 0, size * count);
+    registers.Components[type] = temp;
 }

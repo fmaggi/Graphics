@@ -3,11 +3,11 @@
 
 #include "buffer.h"
 
-typedef struct _vao
+typedef struct vao
 {
-    unsigned int id;
-    unsigned int index;
-    unsigned int offset;
+    uint32t id;
+    uint32t index;
+    uint32t offset;
 } Vao;
 
 Vao createVao();
@@ -15,6 +15,6 @@ void destroyVao(Vao vao);
 
 void bindVao(Vao vao);
 
-void addAttribute(Vao* vao, int size, unsigned int stride);
+void addAttribute(Vao* vao, int32t size, uint32t stride);
 
 #endif

@@ -9,13 +9,13 @@
 #include "graphics/renderer.h"
 #include "graphics/camera.h"
 
-#include "world/world.h"
+#include "world.h"
 
 #include "input/input.h"
 
 #include "log/log.h"
 
-// On event function definitions
+// On event function prototypes
 
 void onWindowClose();
 void onWindowResize(WindowResizeEvent event);
@@ -23,16 +23,12 @@ void onKeyPressed(KeyEvent event);
 void onMouseScrolled(MouseScrollEvent event);
 void onMouseMoved(MouseMovedEvent event);
 
-
 // -----------------------------
 
-typedef struct _game
-{
-    int running;
-    World* world;
-} Game; //state of the game
+typedef int GameState;
 
-static Game game;
+GameState running;
+World world;
 
 void onEvent(EventHolder* event)
 {
@@ -54,18 +50,16 @@ void onEvent(EventHolder* event)
 void setUpGame()
 {
     LOG_INFO_DEBUG("DEBUG\n");
-    createWindow(800, 600, "LearnOpenGL", &onEvent);
-
-    orthoCamera((vec3s){0, 0, 0}, 800, 600);
+    createWindow(1200, 800, "LearnOpenGL", &onEvent);
+    orthoCamera((vec3s){0, 0, 0}, 1200, 800);
 
     createRenderer();
-    initInput();
     initECS();
 
-    game.world = emptyWorld();
-    initWorld(game.world);
+    LOG_TRACE("World\n");
+    initWorld();
 
-    game.running = 1;
+    running = 1;
     LOG_TRACE("All done!\n");
 }
 
@@ -73,23 +67,20 @@ void onUpdate()
 {
     double ts = getTimestep();
     LOG_INFO_DEBUG("Frametime: %fms\n", ts);
-
-    TransformComponent* t = getComponent(game.world->player, transform);
-    t->rotation += 1 * ts;
-
-    handleInput(game.world->player, ts);
+    
+    onUpdateWorld(ts);
 }
 
 void onRender()
 {
     startFrame();
-    render(game.world);
+    render();
     endFrame();
 }
 
 void runGame()
 {
-    while (game.running)
+    while (running)
     {
         onUpdate();
         onRender();
@@ -99,8 +90,8 @@ void runGame()
 
 void destroyGame()
 {  
+    destroyWorld();
     destroyECS();
-    destroyWorld(0);
     destroyRenderer();
     destroyWindow();
     LOG_TRACE("Good bye\n");
@@ -108,7 +99,7 @@ void destroyGame()
 
 void onWindowClose()
 {
-    game.running = 0;
+    running = 0;
 }
 
 void onWindowResize(WindowResizeEvent event)
@@ -130,7 +121,7 @@ void onKeyPressed(KeyEvent event)
         case KEY_C:
         {
             if (event.mods == MOD_CONTROL)
-                game.running = 0;
+                running = 0;
             else
                 rendererSetShader(basicShader);
             break;

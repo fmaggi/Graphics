@@ -3,13 +3,12 @@
 
 #include "ECScomponents.h"
 
-typedef unsigned char ComponentsUsed; // just a bit map to mark used components by entities. with unsigned char = 256 components per entity
+typedef unsigned char ComponentsUsed; // just a bit map to mark used components by entities. with unsigned char = 8 components per entity
 
 struct Register
 {
     ComponentsUsed* used;
-    TransformComponent* transforms;
-    SpriteComponent* sprites;
+    void* Components[MAX_COMPONENT];
 };
 
 extern struct Register registers;

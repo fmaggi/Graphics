@@ -8,8 +8,8 @@ typedef void (*EventDispatchFunc)(EventHolder* event);
 void createWindow(int width, int height, const char* title, EventDispatchFunc callbackFunc);
 void destroyWindow();
 
-int isKeyPressed(int key);
-int isMouseButtonPressed(int button);
+int windowIsKeyPressed(int key);
+int windowIsMouseButtonPressed(int button);
 
 void updateWindow();
 

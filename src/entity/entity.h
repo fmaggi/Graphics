@@ -5,21 +5,27 @@
 
 typedef int EntityID;
 
-typedef struct 
+struct registryView
 {
-    vec3s color;
-    vec3s pos;
-    vec3s speed;
-}Entity;
+    EntityID* view;
+    int count;
+};
 
 void initECS();
 void destroyECS();
+
 EntityID newEntity();
+unsigned int getEntityCount();
+
+#define ECSaddComponent(id, type) ecs_add_component_internal((id), (type), sizeof(type##Component))
+#define ECSgetComponent(id, type) ecs_get_component_internal((id), (type), sizeof(type##Component))
 
 int hasComponent(EntityID id, enum ComponentType type);
-void addComponent(EntityID id, enum ComponentType type, void* component);
-void* getComponent(EntityID id, enum ComponentType type);
+void* ecs_add_component_internal(EntityID id, enum ComponentType type, unsigned int size);
+void* ecs_get_component_internal(EntityID id, enum ComponentType type, unsigned int size);
 
-void* registerView(enum ComponentType type);
+struct registryView ECSviewRegistry(enum ComponentType type);
+struct registryView ECSgroupView(enum ComponentType t1, enum ComponentType t2);
+void closeView(struct registryView view);
 
 #endif

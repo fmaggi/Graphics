@@ -2,11 +2,23 @@
 
 in vec2 v_uv;
 in vec3 vColor;
-uniform sampler2D u_texture;
+in float v_texIndex;
+
+uniform sampler2D u_texture[16];
 
 out vec4 FragColor;
 
 void main()
 {
-    FragColor = texture(u_texture, v_uv);
+    vec4 texColor;
+    switch (int(v_texIndex))
+    {
+        case -1: texColor = vec4(vColor, 1.0f); break;
+        case  0: texColor = texture(u_texture[0], v_uv); break;
+        case  1: texColor = texture(u_texture[1], v_uv); break;
+    }
+
+    if (texColor.w < 0.1f)
+        discard;
+    FragColor = texColor;
 };

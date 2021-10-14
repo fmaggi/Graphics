@@ -14,48 +14,56 @@
 
 #include "cglm/struct.h"
 
+#include "util/types.h"
+
 void prepareRenderer();
 void rendererSetProjectionMatrix(mat4s proj);
 
 #define MAX_QUADS 16
-static const unsigned int maxVertices = MAX_QUADS * 4;
-static const unsigned int maxIndices  = MAX_QUADS * 6;
+static const uint32t maxVertices = MAX_QUADS * 4;
+static const uint32t maxIndices  = MAX_QUADS * 6;
 struct QuadVertex
 {
     vec3s pos;
     vec3s color;
     vec2s uv;
+    float texIndex;
 };
 
-typedef struct _renderer
+typedef struct renderer
 {
     enum ShaderType type;
-    Shader currentShader;
-    Shader shaders[MAX_SHADER+1];
+    Shader* currentShader;
+    Shader* shaders[MAX_SHADER+1];
 
     Vao vao;
     Vbo vbo;
     Ibo ibo;
 
     vec3s vertexPositions[4];
-    vec2s textures[4];
+    vec2s texturesCoords[4];
     struct QuadVertex* vertices;
     struct QuadVertex* vertexPtrCurrent;
 
-    Texture texture;
+    Texture* textures[16];
+    uint32t currentTexture;
 
-    unsigned int indexCount;
-    unsigned int quadCount;
+    uint32t indexCount;
+    uint32t quadCount;
 
-    unsigned int renderCalls;
+    uint32t renderCalls;
 } Renderer;
 
 static Renderer r;
 
 void createRenderer()
 {
+    LOG_TRACE("Starting the renderer\n");
     r.shaders[basicShader] = createShader("vertex.glsl", "fragment.glsl");
+
     r.shaders[uvShader]    = createShader("texV.glsl", "texF.glsl");
+    shaderSetTextureSlot(r.shaders[uvShader], "u_texture");
+
     r.currentShader = r.shaders[basicShader];
     r.type = basicShader;
 
@@ -74,13 +82,14 @@ void createRenderer()
     addAttribute(&(r.vao), 3, sizeof(struct QuadVertex)); // position
     addAttribute(&(r.vao), 3, sizeof(struct QuadVertex)); // color
     addAttribute(&(r.vao), 2, sizeof(struct QuadVertex)); // uv coords;
+    addAttribute(&(r.vao), 1, sizeof(struct QuadVertex)); // texIndex;
 
-    unsigned int* indices = malloc(sizeof(unsigned int) * maxIndices);
+    uint32t* indices = malloc(sizeof(uint32t) * maxIndices);
     if (indices == NULL)
         LOG_ERROR("Failed memory allocation\n");
 
-    unsigned int offset = 0;
-    int i;
+    uint32t offset = 0;
+    int32t i;
     for (i = 0; i < maxIndices; i += 6)
     {
         indices[i]   = 0 + offset;
@@ -97,20 +106,18 @@ void createRenderer()
     free(indices);
 
     r.vertexPositions[0] = (vec3s){-0.5f, -0.5f, 0.0f}; // bottom left
-    r.vertexPositions[1] = (vec3s){0.5f, -0.5f, 0.0f}; // bottom right
-    r.vertexPositions[2] = (vec3s){0.5f, 0.5f, 0.0f}; // top left
-    r.vertexPositions[3] = (vec3s){-0.5f, 0.5f, 0.0f}; // top right
+    r.vertexPositions[1] = (vec3s){ 0.5f, -0.5f, 0.0f}; // bottom right
+    r.vertexPositions[2] = (vec3s){ 0.5f,  0.5f, 0.0f}; // top left
+    r.vertexPositions[3] = (vec3s){-0.5f,  0.5f, 0.0f}; // top right
 
-    r.textures[0] = (vec2s){0.0f, 0.0f};
-    r.textures[1] = (vec2s){1.0f, 0.0f};
-    r.textures[2] = (vec2s){1.0f, 1.0f};
-    r.textures[3] = (vec2s){0.0f, 1.0f};
+    r.texturesCoords[0] = (vec2s){0.0f, 0.0f};
+    r.texturesCoords[1] = (vec2s){1.0f, 0.0f};
+    r.texturesCoords[2] = (vec2s){1.0f, 1.0f};
+    r.texturesCoords[3] = (vec2s){0.0f, 1.0f};
 
     r.renderCalls = 0;
 
-    r.texture = loadTexture("test.png");
-    bindTexture(r.texture);
-    shaderSetTextureSlot(r.shaders[uvShader], r.texture.slot, "u_texture");
+    r.currentTexture = 0;
 }
 
 void destroyRenderer()
@@ -121,12 +128,21 @@ void destroyRenderer()
     destroyBuffer(r.vbo);
     destroyBuffer(r.ibo);
     free(r.vertices);
+
+    for (int32t i = 0; i < r.currentTexture; i++)
+    {
+        if (r.textures[i])
+            unloadTexture(r.textures[i]);
+    }
 }
 
-void _renderBatch()
+void renderBatch()
 {
     if (r.indexCount == 0)
         return;
+
+    for (int32t i = 0; i < r.currentTexture; i++)
+        bindTexture(r.textures[i]);
 
     bindVao(r.vao);
     glDrawElements(GL_TRIANGLES, r.indexCount, GL_UNSIGNED_INT, 0);
@@ -146,7 +162,7 @@ void startFrame()
     r.renderCalls = 0;
 
     shaderSetUniformMat4(r.shaders[basicShader], camera.projview, "projview");
-    shaderSetUniformMat4(r.shaders[uvShader], camera.projview, "projview");
+    shaderSetUniformMat4(r.shaders[uvShader],    camera.projview, "projview");
 
     useShader(r.currentShader);
 
@@ -155,25 +171,25 @@ void startFrame()
 
 void flush()
 {
-    unsigned int size = (unsigned int)((unsigned char*) r.vertexPtrCurrent - (unsigned char*) r.vertices);
+    uint32t size = (uint32t)((unsigned char*) r.vertexPtrCurrent - (unsigned char*) r.vertices);
     pushBufferData(r.vbo, size, r.vertices);
 
-    _renderBatch();
+    renderBatch();
 }
 
 void endFrame()
 {   
     flush();
-    LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
+    //LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
 }
 
 // void _render(struct Vao vao, Ibo indexBuffer)
 // {
 //     bindVao(vao);
-//     glDrawElements(GL_TRIANGLES, indexBuffer.count, GL_UNSIGNED_INT, 0);
+//     glDrawElements(GL_TRIANGLES, indexBuffer.count, GL_UNSIGNED_int32t, 0);
 // }
 
-void _drawQuad(mat4s transform, vec3s color)
+void pushQuad(mat4s transform, vec3s color, float texIndex)
 {
     if(r.quadCount >= MAX_QUADS)
     {
@@ -181,36 +197,35 @@ void _drawQuad(mat4s transform, vec3s color)
         startBatch();
     }
 
-    for (int i = 0; i < 4; i++)
+    for (int32t i = 0; i < 4; i++)
     {
         vec3s vertex = glms_mat4_mulv3(transform, r.vertexPositions[i], 1);
         r.vertexPtrCurrent->pos = vertex;
         r.vertexPtrCurrent->color = color;
-        r.vertexPtrCurrent->uv = r.textures[i];
+        r.vertexPtrCurrent->uv = r.texturesCoords[i];
+        r.vertexPtrCurrent->texIndex = texIndex;
         r.vertexPtrCurrent++;
     }
     r.indexCount += 6;
     r.quadCount  += 1;
 }
 
-void render(World* w)
+void render()
 {
-    SpriteComponent* sprites = registerView(sprite);
-    TransformComponent* transforms = registerView(transform);
-    for (int i = 0; i < w->count; i++)
+    struct registryView r = ECSgroupView(Sprite, Transform); 
+
+    for (int32t i = 0; i < r.count; i++)
     {   
-        if (sprites[i].render)
-        {
-            mat4s m;
-            vec3s scale = {transforms[i].scale.x, transforms[i].scale.y, 0};
-            vec3s position = {transforms[i].position.x, transforms[i].position.y, 0};
-            m = glms_mat4_identity();
-            m = glms_scale(m, scale);
-            m = glms_translate(m, position);
-            m = glms_rotate(m, transforms[i].rotation, (vec3s){0, 0, 1});
-            _drawQuad(m, sprites[i].color);
-        }
+        TransformComponent* t = ECSgetComponent(i, Transform);
+        SpriteComponent* s = ECSgetComponent(i, Sprite);  
+        mat4s m = glms_translate(glms_mat4_identity(), t->position);
+        m = glms_rotate(m, t->rotation, (vec3s){0, 0, 1});
+        vec3s scale = {t->scale.x, t->scale.y, 1};
+        m = glms_scale(m, scale);
+        pushQuad(m, s->color, s->texIndex);
     }
+
+    closeView(r);
 }
 
 /**
@@ -219,9 +234,14 @@ void render(World* w)
  *      ----------------------------------------------
 */
 
-static int mode;
+void onTextureLoad(Texture* texture)
+{
+    r.textures[r.currentTexture++] = texture;
+}
+
 void rendererChangeMode()
 {
+    static int32t mode = 0;
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL * mode + GL_LINE * (1-mode));
     mode = !mode;
 }
@@ -237,7 +257,7 @@ void rendererSetShader(enum ShaderType type)
 void prepareRenderer()
 {
     glEnable(GL_DEPTH_TEST);
-    glEnable( GL_BLEND );
+    glEnable(GL_BLEND);
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

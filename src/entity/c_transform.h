@@ -5,7 +5,7 @@
 
 typedef struct
 {
-    vec2s position;
+    vec3s position;
     float rotation;
     vec2s scale;
 }TransformComponent;
