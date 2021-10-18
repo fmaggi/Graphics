@@ -211,12 +211,13 @@ void pushQuad(mat4s transform, vec3s color, float texIndex)
 
 void render()
 {
-    struct registryView r = ECSgroupView(Sprite, Transform); 
+    struct registryView r = ECSgroupView(SpriteComponent, TransformComponent); 
 
     for (int i = 0; i < r.count; i++)
     {   
-        TransformComponent* t = ECSgetComponent(i, Transform);
-        SpriteComponent* s = ECSgetComponent(i, Sprite);  
+        EntityID id = r.view[i];
+        TransformComponent* t = ECSgetComponent(id, TransformComponent);
+        SpriteComponent* s = ECSgetComponent(id, SpriteComponent);  
         mat4s m = glms_translate(glms_mat4_identity(), t->position);
         m = glms_rotate(m, t->rotation, (vec3s){{0, 0, 1}});
         vec3s scale = (vec3s){{t->scale.x, t->scale.y, 1}};

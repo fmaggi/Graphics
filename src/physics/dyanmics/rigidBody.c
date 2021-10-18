@@ -9,25 +9,28 @@ static uint32_t current = 0;
 
 void collide(Body* a, Body* b, vec2s minSeparation)
 {
-    vec2s dir;
-    dir.x = a->position.x - b->position.x;
-    dir.y = a->position.y - b->position.y;
-    
-    vec2s normal;
-    normal.x = fabs(dir.x) > fabs(dir.y);
-    normal.y = fabs(dir.x) < fabs(dir.y);
-    vec2s offset;
-    offset.x = normal.x * (minSeparation.x - fabs(dir.x));
-    offset.y = normal.y * (minSeparation.y - fabs(dir.y));
+    vec2s separation = (vec2s){
+        {fabs(a->position.x - b->position.x), fabs(a->position.y - b->position.y)}
+    };
+    //normal to contact surface
+    vec2s normal = (vec2s){
+        {separation.x > separation.y, separation.x < separation.y}
+    };
+    // offset = normal * (minSeparation - separation)
+    vec2s offset = glms_vec2_mul(normal,
+                   glms_vec2_add(minSeparation, 
+                   glms_vec2_negate(separation)));
+
+    int aOnTop = a->position.y - b->position.y > 0;
     if (a->type == Dynamic) // a is always left but dont know if top or bottom
     {
         a->position.x -= offset.x;
-        a->position.y += offset.y * (dir.y>0) - offset.y * (dir.y<0);
+        a->position.y += offset.y * (aOnTop) - offset.y * (!aOnTop);
     }
     if (b->type == Dynamic)
     {
         b->position.x += offset.x;
-        b->position.y -= offset.y * (dir.y>0) - offset.y * (dir.y<0);
+        b->position.y -= offset.y * (aOnTop) - offset.y * (!aOnTop);
     }
 }
 
@@ -53,8 +56,10 @@ void update(double ts)
         if (b->type == Static && a->type == Static)
             continue;
         if (testOverlap(a->aabbID, b->aabbID))
+        {
             collide(a, b, minSeparation);
-        calls++;
+            calls++;
+        }
     }
     LOG_INFO_DEBUG("collide calls: %i\n", calls);
 }
@@ -82,6 +87,5 @@ void addAABB(Body* body, float halfWidth, float halfHeight)
     vec2s center = (vec2s){{body->position.x, body->position.y}};
     vec2s halfExtents = (vec2s){{halfWidth, halfHeight}};
 
-    int aabbID = createAABB2(center, halfExtents, body);
-    body->aabbID = aabbID;
+    body->aabbID = createAABB2(center, halfExtents, body);
 }
