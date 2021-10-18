@@ -1,16 +1,32 @@
 #ifndef ECS_C_H
 #define ECS_C_H
 
-#include "c_transform.h"
-#include "c_sprite.h"
-#include "c_physics.h"
-
 #define MAX_COMPONENT 3
 enum ComponentType
 {
-    Transform = 0,
-    Sprite,
-    Physics,
+    TransformComponent_E = 0,
+    SpriteComponent_E,
+    PhysicsComponent_E,
 };
+
+#include "cglm/struct.h"
+
+typedef struct
+{
+    vec3s position;
+    float rotation;
+    vec2s scale;
+} TransformComponent;
+
+typedef struct
+{
+    vec3s color;
+    float texIndex;
+} SpriteComponent;
+
+typedef struct
+{
+    void* physicsBody;
+} PhysicsComponent;
 
 #endif

@@ -1,9 +1,7 @@
 #include "camera.h"
 
 #include "log/log.h"
-#include "input/input.h"
-
-#include "input/keys.h"
+#include "game/input.h"
 
 Camera camera;
 

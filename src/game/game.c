@@ -1,5 +1,6 @@
 #include "game.h"
 #include "timestep.h"
+#include "input.h"
 
 #include "cglm/struct.h"
 
@@ -10,8 +11,7 @@
 #include "graphics/camera.h"
 
 #include "world.h"
-
-#include "input/input.h"
+#include "entity/entity.h"
 
 #include "log/log.h"
 
@@ -26,14 +26,19 @@ void onMouseMoved(MouseMovedEvent event);
 // -----------------------------
 
 int running;
-World world;
 
 void onEvent(EventHolder* event)
 {
+    if (event->type == WindowClose)
+        return onWindowClose();
+    if (event->type == WindowResize)
+        return onWindowResize(*(WindowResizeEvent*) event->instance);
+
+    if (onEventWorld(event))
+        return;
+
     switch (event->type)
     {   
-        case WindowClose:   return onWindowClose();
-        case WindowResize:  return onWindowResize(*(WindowResizeEvent*) event->instance);
         case KeyPressed:    return onKeyPressed(*(KeyEvent*) event->instance);
         case KeyReleased:   return;
         case MouseScrolled: return onMouseScrolled(*(MouseScrollEvent*) event->instance);
@@ -54,7 +59,7 @@ void setUpGame()
     createRenderer();
     initECS();
 
-    LOG_TRACE("World\n");
+    LOG_TRACE("Initializing client World\n");
     initWorld();
 
     running = 1;
