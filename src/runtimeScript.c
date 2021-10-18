@@ -1,19 +1,12 @@
 #include "game/world.h"
-#include "physics/dyanmics/rigidBody.h"
-#include "graphics/texture.h"
-#include "input/input.h"
+#include "engine.h"
 
-#include "log/log.h"
-
-#include "stdlib.h"
-#include "time.h"
+World world;
 
 void initWorld()
 {
     // World creation here
 
-    int texture = loadTexture("test.png");
-    int texture2 = loadTexture("awesomeface.png");
 
     EntityID player = newEntity();
     world.player = player;
@@ -24,8 +17,8 @@ void initWorld()
     t->scale = (vec2s){{200, 200}};
 
     SpriteComponent* s = ECSaddComponent(player, SpriteComponent);
-    s->color = (vec3s){{0.2, 0.4, 0.96}};
-    s->texIndex = texture2;
+    s->color = (vec3s){{0.92, 0.45, 0.35}};
+    s->texIndex = NO_TEXTURE;
 
     Body* v = createBody(t->position, Dynamic, 0);
     addAABB(v, 100, 100);
@@ -39,8 +32,9 @@ void initWorld()
     tf->rotation = 0;
     tf->scale = (vec2s){{200, 200}};
 
+    int texture = loadTexture("test.png");
     SpriteComponent* sf = ECSaddComponent(floor, SpriteComponent);
-    sf->color = (vec3s){{0, 0.4, 0.96}};
+    sf->color = (vec3s){{0.3, 0.45, 0.96}};
     sf->texIndex = texture;
 
     Body* v1 = createBody(tf->position, Static, 0);
@@ -56,7 +50,7 @@ void initWorld()
     tr->scale = (vec2s){{200, 200}};
 
     SpriteComponent* sr = ECSaddComponent(roof, SpriteComponent);
-    sr->color = (vec3s){{0.2, 0.4, 0.96}};
+    sr->color = (vec3s){{0.92, 0.75, 0.4}};
     sr->texIndex = texture;
 
     Body* v2 = createBody(tr->position, Static, 0);
@@ -72,7 +66,7 @@ void initWorld()
     tr2->scale = (vec2s){{200, 200}};
 
     SpriteComponent* sr2 = ECSaddComponent(roof2, SpriteComponent);
-    sr2->color = (vec3s){{0.2, 0.4, 0.96}};
+    sr2->color = (vec3s){{0.2, 0.92, 0.7}};
     sr2->texIndex = texture;
 
     Body* v22 = createBody(tr2->position, Dynamic, 0);
@@ -86,17 +80,17 @@ void onUpdateWorld(double ts)
 {
     // World update here
 
-    struct registryView view = ECSgroupView(PhysicsComponent, TransformComponent);
-
-    for (int i = 0; i < view.count; i++)
+    struct registryView r = ECSgroupView(PhysicsComponent, TransformComponent);
+    for (int i = 0; i < r.count; i++)
     {
-        EntityID id = view.view[i];
+        EntityID id = r.view[i];
         TransformComponent* t = ECSgetComponent(id, TransformComponent);
         PhysicsComponent* p1 = ECSgetComponent(id, PhysicsComponent);
         Body* body = p1->physicsBody;
-        if (body->type == Dynamic)
+        if (body->type == Dynamic) // probably dont need to this as non dynamic bodies dont get updated but is clearer this way
             t->position = body->position;
     }
+    closeView(r);
 
     TransformComponent* p = ECSgetComponent(world.player, TransformComponent);
     if (isKeyPressed(KEY_W))
@@ -113,10 +107,12 @@ void onUpdateWorld(double ts)
     Body* b = ph->physicsBody;
     b->position = p->position;
     update(ts);
-    
-   // handleInput(world.player, ts);
 }
 
+bool onEventWorld(EventHolder* event)
+{
+    return false;
+}
 
 void destroyWorld()
 {

@@ -16,7 +16,7 @@ typedef struct
     vec3s position;
     float rotation;
     vec2s scale;
-}TransformComponent;
+} TransformComponent;
 
 typedef struct
 {
@@ -28,6 +28,5 @@ typedef struct
 {
     void* physicsBody;
 } PhysicsComponent;
-
 
 #endif

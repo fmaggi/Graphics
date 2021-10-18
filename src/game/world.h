@@ -2,6 +2,7 @@
 #define WORLD_H
 
 #include "entity/entity.h"
+#include "events/event.h"
 
 typedef struct world
 {
@@ -12,6 +13,7 @@ extern World world;
 
 void initWorld();
 void destroyWorld();
+bool onEventWorld(EventHolder* event);
 void onUpdateWorld(double ts);
 
 #endif
