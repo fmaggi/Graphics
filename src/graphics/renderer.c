@@ -9,19 +9,17 @@
 
 #include "entity/entity.h"
 
-#include "stdlib.h"
 #include "log/log.h"
 
+#include "stdlib.h"
 #include "cglm/struct.h"
-
-#include "util/types.h"
 
 void prepareRenderer();
 void rendererSetProjectionMatrix(mat4s proj);
 
 #define MAX_QUADS 16
-static const uint32t maxVertices = MAX_QUADS * 4;
-static const uint32t maxIndices  = MAX_QUADS * 6;
+static const uint32_t maxVertices = MAX_QUADS * 4;
+static const uint32_t maxIndices  = MAX_QUADS * 6;
 struct QuadVertex
 {
     vec3s pos;
@@ -34,7 +32,7 @@ typedef struct renderer
 {
     enum ShaderType type;
     Shader* currentShader;
-    Shader* shaders[MAX_SHADER+1];
+    Shader* shaders[MAX_SHADER];
 
     Vao vao;
     Vbo vbo;
@@ -46,12 +44,12 @@ typedef struct renderer
     struct QuadVertex* vertexPtrCurrent;
 
     Texture* textures[16];
-    uint32t currentTexture;
+    uint32_t currentTexture;
 
-    uint32t indexCount;
-    uint32t quadCount;
+    uint32_t indexCount;
+    uint32_t quadCount;
 
-    uint32t renderCalls;
+    uint32_t renderCalls;
 } Renderer;
 
 static Renderer r;
@@ -84,12 +82,12 @@ void createRenderer()
     addAttribute(&(r.vao), 2, sizeof(struct QuadVertex)); // uv coords;
     addAttribute(&(r.vao), 1, sizeof(struct QuadVertex)); // texIndex;
 
-    uint32t* indices = malloc(sizeof(uint32t) * maxIndices);
+    uint32_t* indices = malloc(sizeof(uint32_t) * maxIndices);
     if (indices == NULL)
         LOG_ERROR("Failed memory allocation\n");
 
-    uint32t offset = 0;
-    int32t i;
+    uint32_t offset = 0;
+    int i;
     for (i = 0; i < maxIndices; i += 6)
     {
         indices[i]   = 0 + offset;
@@ -105,15 +103,15 @@ void createRenderer()
     r.ibo = createIbo(maxIndices, indices);
     free(indices);
 
-    r.vertexPositions[0] = (vec3s){-0.5f, -0.5f, 0.0f}; // bottom left
-    r.vertexPositions[1] = (vec3s){ 0.5f, -0.5f, 0.0f}; // bottom right
-    r.vertexPositions[2] = (vec3s){ 0.5f,  0.5f, 0.0f}; // top left
-    r.vertexPositions[3] = (vec3s){-0.5f,  0.5f, 0.0f}; // top right
+    r.vertexPositions[0] = (vec3s){{-0.5f, -0.5f, 0.0f}}; // bottom left
+    r.vertexPositions[1] = (vec3s){{ 0.5f, -0.5f, 0.0f}}; // bottom right
+    r.vertexPositions[2] = (vec3s){{ 0.5f,  0.5f, 0.0f}}; // top left
+    r.vertexPositions[3] = (vec3s){{-0.5f,  0.5f, 0.0f}}; // top right
 
-    r.texturesCoords[0] = (vec2s){0.0f, 0.0f};
-    r.texturesCoords[1] = (vec2s){1.0f, 0.0f};
-    r.texturesCoords[2] = (vec2s){1.0f, 1.0f};
-    r.texturesCoords[3] = (vec2s){0.0f, 1.0f};
+    r.texturesCoords[0] = (vec2s){{0.0f, 0.0f}};
+    r.texturesCoords[1] = (vec2s){{1.0f, 0.0f}};
+    r.texturesCoords[2] = (vec2s){{1.0f, 1.0f}};
+    r.texturesCoords[3] = (vec2s){{0.0f, 1.0f}};
 
     r.renderCalls = 0;
 
@@ -129,7 +127,7 @@ void destroyRenderer()
     destroyBuffer(r.ibo);
     free(r.vertices);
 
-    for (int32t i = 0; i < r.currentTexture; i++)
+    for (int i = 0; i < r.currentTexture; i++)
     {
         if (r.textures[i])
             unloadTexture(r.textures[i]);
@@ -141,7 +139,7 @@ void renderBatch()
     if (r.indexCount == 0)
         return;
 
-    for (int32t i = 0; i < r.currentTexture; i++)
+    for (int i = 0; i < r.currentTexture; i++)
         bindTexture(r.textures[i]);
 
     bindVao(r.vao);
@@ -164,6 +162,7 @@ void startFrame()
     shaderSetUniformMat4(r.shaders[basicShader], camera.projview, "projview");
     shaderSetUniformMat4(r.shaders[uvShader],    camera.projview, "projview");
 
+    // shaderSet bind the shader. Restore the shader to the original one
     useShader(r.currentShader);
 
     startBatch();
@@ -171,7 +170,7 @@ void startFrame()
 
 void flush()
 {
-    uint32t size = (uint32t)((unsigned char*) r.vertexPtrCurrent - (unsigned char*) r.vertices);
+    uint32_t size = (uint32_t)((unsigned char*) r.vertexPtrCurrent - (unsigned char*) r.vertices);
     pushBufferData(r.vbo, size, r.vertices);
 
     renderBatch();
@@ -197,7 +196,7 @@ void pushQuad(mat4s transform, vec3s color, float texIndex)
         startBatch();
     }
 
-    for (int32t i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
         vec3s vertex = glms_mat4_mulv3(transform, r.vertexPositions[i], 1);
         r.vertexPtrCurrent->pos = vertex;
@@ -214,13 +213,13 @@ void render()
 {
     struct registryView r = ECSgroupView(Sprite, Transform); 
 
-    for (int32t i = 0; i < r.count; i++)
+    for (int i = 0; i < r.count; i++)
     {   
         TransformComponent* t = ECSgetComponent(i, Transform);
         SpriteComponent* s = ECSgetComponent(i, Sprite);  
         mat4s m = glms_translate(glms_mat4_identity(), t->position);
-        m = glms_rotate(m, t->rotation, (vec3s){0, 0, 1});
-        vec3s scale = {t->scale.x, t->scale.y, 1};
+        m = glms_rotate(m, t->rotation, (vec3s){{0, 0, 1}});
+        vec3s scale = (vec3s){{t->scale.x, t->scale.y, 1}};
         m = glms_scale(m, scale);
         pushQuad(m, s->color, s->texIndex);
     }
@@ -241,7 +240,7 @@ void onTextureLoad(Texture* texture)
 
 void rendererChangeMode()
 {
-    static int32t mode = 0;
+    static int mode = 0;
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL * mode + GL_LINE * (1-mode));
     mode = !mode;
 }

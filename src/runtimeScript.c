@@ -19,12 +19,12 @@ void initWorld()
     world.player = player;
 
     TransformComponent* t = ECSaddComponent(player, Transform);
-    t->position = (vec3s){-200, 0, -1};
+    t->position = (vec3s){{-200, -200, -1}};
     t->rotation = 0;
-    t->scale = (vec2s){200, 200};
+    t->scale = (vec2s){{200, 200}};
 
     SpriteComponent* s = ECSaddComponent(player, Sprite);
-    s->color = (vec3s){0.2, 0.4, 0.96};
+    s->color = (vec3s){{0.2, 0.4, 0.96}};
     s->texIndex = texture2;
 
     Body* v = createBody(t->position, Dynamic, 0);
@@ -53,12 +53,12 @@ void initWorld()
 
     EntityID floor = newEntity();
     TransformComponent* tf = ECSaddComponent(floor, Transform);
-    tf->position = (vec3s){200, -200, -1};
+    tf->position = (vec3s){{200, -200, -1}};
     tf->rotation = 0;
-    tf->scale = (vec2s){200, 200};
+    tf->scale = (vec2s){{200, 200}};
 
     SpriteComponent* sf = ECSaddComponent(floor, Sprite);
-    sf->color = (vec3s){0, 0.4, 0.96};
+    sf->color = (vec3s){{0, 0.4, 0.96}};
     sf->texIndex = texture;
 
     Body* v1 = createBody(tf->position, Static, 0);
@@ -69,12 +69,12 @@ void initWorld()
 
     EntityID roof = newEntity();
     TransformComponent* tr = ECSaddComponent(roof, Transform);
-    tr->position = (vec3s){-200, 200, -1};
+    tr->position = (vec3s){{-200, 200, -1}};
     tr->rotation = 0;
-    tr->scale = (vec2s){200, 200};
+    tr->scale = (vec2s){{200, 200}};
 
     SpriteComponent* sr = ECSaddComponent(roof, Sprite);
-    sr->color = (vec3s){0.2, 0.4, 0.96};
+    sr->color = (vec3s){{0.2, 0.4, 0.96}};
     sr->texIndex = texture;
 
     Body* v2 = createBody(tr->position, Static, 0);
@@ -85,12 +85,12 @@ void initWorld()
 
     EntityID roof2 = newEntity();
     TransformComponent* tr2 = ECSaddComponent(roof2, Transform);
-    tr2->position = (vec3s){300, 250, -1};
+    tr2->position = (vec3s){{300, 250, -1}};
     tr2->rotation = 0;
-    tr2->scale = (vec2s){200, 200};
+    tr2->scale = (vec2s){{200, 200}};
 
     SpriteComponent* sr2 = ECSaddComponent(roof2, Sprite);
-    sr2->color = (vec3s){0.2, 0.4, 0.96};
+    sr2->color = (vec3s){{0.2, 0.4, 0.96}};
     sr2->texIndex = texture;
 
     Body* v22 = createBody(tr2->position, Static, 0);
@@ -104,7 +104,11 @@ void onUpdateWorld(double ts)
 {
     // World update here
 
+    PhysicsComponent* ph = ECSgetComponent(world.player, Physics);
+    Body* b = ph->physicsBody;
+
     TransformComponent* p = ECSgetComponent(world.player, Transform);
+    p->position = b->position;
 
     if (isKeyPressed(KEY_W))
         p->position.y += 100 * ts;
@@ -116,9 +120,6 @@ void onUpdateWorld(double ts)
     if (isKeyPressed(KEY_A))
         p->position.x -= 100 * ts;
 
-    PhysicsComponent* ph = ECSgetComponent(world.player, Physics);
-
-    Body* b = ph->physicsBody;
     b->position = p->position;
     update(ts);
     

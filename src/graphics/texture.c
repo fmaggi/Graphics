@@ -6,23 +6,20 @@
 #include "string.h"
 #include <unistd.h>
 
-#include "util/types.h"
-
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 typedef struct texture
 {
-    uint32t id;
-    uint32t slot;
+    uint32_t id;
+    uint32_t slot;
 } Texture;
 
 extern void onTextureLoad(Texture* texture);
 
 int loadTexture(const char* name)
 {
-    static uint32t usedSlot = 0;
+    static uint32_t usedSlot = 0;
     Texture* self = malloc(sizeof(Texture));
     if (self == NULL)
     {

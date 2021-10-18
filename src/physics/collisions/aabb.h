@@ -2,24 +2,24 @@
 #define AABB_H
 
 #include "cglm/struct.h"
-#include "util/types.h"
 
 struct Collision
 {
     void *left, *right;
+    vec2s minSepareation;
 };
 
 struct CollisionStack
 {
     struct Collision* collisions;
-    int32t count;
+    int count;
 };
 
-int32t createAABB2(vec2s min, vec2s max, void* bodyID);
-void updateAABB(int32t id, vec3s position);
+int createAABB2(vec2s min, vec2s max, void* bodyID);
+void updateAABB(int id, vec3s position);
 
 void sweepAndPrune(struct CollisionStack* results);
 
-int collide(int32t aID, int32t bID);
+int testOverlap(int aID, int bID);
 
 #endif

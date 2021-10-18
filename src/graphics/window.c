@@ -10,9 +10,10 @@ typedef struct window
 {
     GLFWwindow* g_window;
     EventDispatchFunc eventCallback;
+    bool created;
 } Window;
 
-static Window* window = NULL;
+static Window window = {0, 0, 0};
 
 void errorCallback(int error, const char* description)
 {
@@ -85,11 +86,12 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 
 void createWindow(int width, int height, const char* title, EventDispatchFunc callbackFunc)
 {
-    if (window != NULL)
+    if (window.created)
     {
         LOG_WARN("Window already created\n");
         return;
     }
+    window.created = true;
 
     LOG_TRACE("Initializing GLFW and Glad\n");   
 
@@ -100,24 +102,17 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         
-    window = malloc(sizeof(Window));
-    if (window == NULL)
-    {
-        LOG_ERROR("Failed to create Game Window");
-        exit(-1);
-    }
-    window->eventCallback = callbackFunc;
+    window.eventCallback = callbackFunc;
 
     GLFWwindow* g_window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (g_window == NULL)
     {
         LOG_ERROR("Failed to create GLFW window\n");
-        free(window);
         exit(-1);
     }
     glfwMakeContextCurrent(g_window);
 
-    glfwSetWindowUserPointer(g_window, window);
+    glfwSetWindowUserPointer(g_window, &window);
 
     glfwSetWindowCloseCallback(g_window, windowCloseCallback);
     glfwSetWindowSizeCallback(g_window, windowResizeCallback);
@@ -125,7 +120,7 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
     glfwSetScrollCallback(g_window, scrollCallback);
     glfwSetCursorPosCallback(g_window, mouseMovedCallback);
 
-    window->g_window = g_window;
+    window.g_window = g_window;
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -140,21 +135,20 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
 void destroyWindow()
 {
     glfwTerminate();
-    free(window);
 }
 
 int windowIsKeyPressed(int key)
 {
-    return glfwGetKey(window->g_window, key) == GLFW_PRESS;
+    return glfwGetKey(window.g_window, key) == GLFW_PRESS;
 }
 
 int windowIsMouseButtonPressed(int button)
 {
-    return glfwGetMouseButton(window->g_window, button) == GLFW_PRESS;
+    return glfwGetMouseButton(window.g_window, button) == GLFW_PRESS;
 }
 
 void updateWindow()
 {
-    glfwSwapBuffers(window->g_window);
+    glfwSwapBuffers(window.g_window);
     glfwPollEvents();
 }

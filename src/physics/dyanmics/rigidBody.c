@@ -5,12 +5,53 @@
 #include "log/log.h"
 
 Body bodies[32];
-static int32t current = 0;
+static uint32_t current = 0;
+
+void collide(Body* a, Body* b, vec2s minSeparation)
+{
+    vec2s dir;
+    dir.x = a->position.x - b->position.x;
+    dir.y = a->position.y - b->position.y;
+    
+    //vec2s normal;
+    if (fabs(dir.x) > fabs(dir.y))
+    {
+        //normal = (vec2s){{1, 0}};
+        LOG_INFO("SIDE\n");
+        if (a->type == Dynamic)
+        {
+            float offset = minSeparation.x - fabs(dir.x);
+            a->position.x -= offset;
+        }
+        if (b->type == Dynamic)
+        {
+            float offset = minSeparation.x - fabs(dir.x);
+            b->position.x += offset;
+        }
+    }
+    else
+    {
+        //normal = (vec2s){{0, 1}};
+        LOG_INFO("TOP\n");
+        if (a->type == Dynamic)
+        {
+            float offset = minSeparation.y - fabs(dir.y);
+            a->position.y += offset * (dir.y>0) - offset * (dir.y<0);
+        }
+        if (b->type == Dynamic)
+        {
+            float offset = minSeparation.y - fabs(dir.y);
+            b->position.y -= offset * (dir.y>0) - offset * (dir.y<0);
+        }
+    }
+    //log_vec2("", normal);
+}
 
 void update(double ts)
 {
     struct CollisionStack c;
-    c.collisions = malloc(sizeof(struct Collision) * current * current); // worst case
+    struct Collision collisions[32];
+    c.collisions = collisions;
     c.count = 0;
 
     for (int i = 0; i < current; i++)
@@ -24,18 +65,18 @@ void update(double ts)
     {
         Body* a = c.collisions[i].left;
         Body* b = c.collisions[i].right;
+        vec2s minSeparation = c.collisions[i].minSepareation;
         if (b->type == Static && a->type == Static)
             continue;
-        int didCollide = collide(a->aabbID, b->aabbID);
+        int didOveralp = testOverlap(a->aabbID, b->aabbID);
         calls++;
-        if (didCollide)
-            LOG_INFO("Collision %i %i\n", a->aabbID, b->aabbID);
+        if (didOveralp)
+            collide(a, b, minSeparation);
     }
-    //LOG_INFO("%i\n", calls);
-    free(c.collisions);
+    LOG_INFO_DEBUG("collide calls: %i\n", calls);
 }
 
-Body* createBody(vec3s position, enum BodyType type, int32t flags)
+Body* createBody(vec3s position, enum BodyType type, int flags)
 {
     Body* body= &bodies[current++];
 
@@ -64,6 +105,6 @@ void addAABB(Body* body, float halfWidth, float halfHeight)
     max.x = body->position.x + halfWidth;
     max.y = body->position.y + halfHeight;
 
-    int32t aabbID = createAABB2(min, max, body);
+    int aabbID = createAABB2(min, max, body);
     body->aabbID = aabbID;
 }
