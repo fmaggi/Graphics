@@ -13,38 +13,22 @@ void collide(Body* a, Body* b, vec2s minSeparation)
     dir.x = a->position.x - b->position.x;
     dir.y = a->position.y - b->position.y;
     
-    //vec2s normal;
-    if (fabs(dir.x) > fabs(dir.y))
+    vec2s normal;
+    normal.x = fabs(dir.x) > fabs(dir.y);
+    normal.y = fabs(dir.x) < fabs(dir.y);
+    vec2s offset;
+    offset.x = normal.x * (minSeparation.x - fabs(dir.x));
+    offset.y = normal.y * (minSeparation.y - fabs(dir.y));
+    if (a->type == Dynamic) // a is always left but dont know if top or bottom
     {
-        //normal = (vec2s){{1, 0}};
-        LOG_INFO("SIDE\n");
-        if (a->type == Dynamic)
-        {
-            float offset = minSeparation.x - fabs(dir.x);
-            a->position.x -= offset;
-        }
-        if (b->type == Dynamic)
-        {
-            float offset = minSeparation.x - fabs(dir.x);
-            b->position.x += offset;
-        }
+        a->position.x -= offset.x;
+        a->position.y += offset.y * (dir.y>0) - offset.y * (dir.y<0);
     }
-    else
+    if (b->type == Dynamic)
     {
-        //normal = (vec2s){{0, 1}};
-        LOG_INFO("TOP\n");
-        if (a->type == Dynamic)
-        {
-            float offset = minSeparation.y - fabs(dir.y);
-            a->position.y += offset * (dir.y>0) - offset * (dir.y<0);
-        }
-        if (b->type == Dynamic)
-        {
-            float offset = minSeparation.y - fabs(dir.y);
-            b->position.y -= offset * (dir.y>0) - offset * (dir.y<0);
-        }
+        b->position.x += offset.x;
+        b->position.y -= offset.y * (dir.y>0) - offset.y * (dir.y<0);
     }
-    //log_vec2("", normal);
 }
 
 void update(double ts)
@@ -68,10 +52,9 @@ void update(double ts)
         vec2s minSeparation = c.collisions[i].minSepareation;
         if (b->type == Static && a->type == Static)
             continue;
-        int didOveralp = testOverlap(a->aabbID, b->aabbID);
-        calls++;
-        if (didOveralp)
+        if (testOverlap(a->aabbID, b->aabbID))
             collide(a, b, minSeparation);
+        calls++;
     }
     LOG_INFO_DEBUG("collide calls: %i\n", calls);
 }
