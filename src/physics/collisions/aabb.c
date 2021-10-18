@@ -41,10 +41,10 @@ void sweepAndPrune(struct CollisionStack* results)
     int index = 0;
     for (int i = 0; i < current; i++)
     {
-        active[index++] = aabbs[sorted[i]];
-        for (int j = index-2; j >= 0; j--) // check from right to left if it intersects anything in the interval.
+        active[index] = aabbs[sorted[i]];
+        for (int j = index-1; j >= 0; j--) // check from right to left if it intersects anything in the interval.
         {
-            AABB b = active[index-1];
+            AABB b = active[index];
             AABB a = active[j];
             if (b.min.x < a.max.x)
             {
@@ -56,11 +56,12 @@ void sweepAndPrune(struct CollisionStack* results)
             }
             else
             {
-                active[0] = b;
-                index = 1;
+                index = 0;
+                active[index] = b;
                 break;
             }
         }
+        index++;
     }
 }
 
@@ -72,16 +73,17 @@ int testOverlap(int aID, int bID)
         && a.min.y < b.max.y && a.max.y > b.min.y;
 }
 
-int createAABB2(vec2s min, vec2s max, void* body)
+int createAABB2(vec2s center, vec2s halfExtents, void* body)
 {
     AABB* aabb = &aabbs[current];
     aabb->body = body;
-    aabb->min = min;
-    aabb->max = max;
+    
+    aabb->min.x = center.x - halfExtents.x;
+    aabb->min.y = center.y - halfExtents.y;
+    aabb->max.x = center.x + halfExtents.x;
+    aabb->max.y = center.y + halfExtents.y;
+    aabb->radius = halfExtents;
 
-    float hWidth = (max.x - min.x) / 2;
-    float hHeihgt = (max.y - min.y) / 2;
-    aabb->radius = (vec2s){{hWidth, hHeihgt}};
     sorted[current] = current;
     return current++;
 }
@@ -89,8 +91,9 @@ int createAABB2(vec2s min, vec2s max, void* body)
 void updateAABB(int id, vec3s position)
 {
     AABB* a = &aabbs[id];
-    float hWidth = (a->max.x - a->min.x) / 2;
-    float hHeihgt = (a->max.y - a->min.y) / 2;
+
+    float hWidth = a->radius.x;
+    float hHeihgt = a->radius.y;
 
     a->min = (vec2s){{position.x - hWidth, position.y - hHeihgt}};
     a->max = (vec2s){{position.x + hWidth, position.y + hHeihgt}};

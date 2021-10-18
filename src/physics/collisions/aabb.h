@@ -15,7 +15,7 @@ struct CollisionStack
     int count;
 };
 
-int createAABB2(vec2s min, vec2s max, void* bodyID);
+int createAABB2(vec2s center, vec2s halfExtents, void* bodyID);
 void updateAABB(int id, vec3s position);
 
 void sweepAndPrune(struct CollisionStack* results);

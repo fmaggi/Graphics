@@ -79,15 +79,9 @@ void addAABB(Body* body, float halfWidth, float halfHeight)
     if (body->aabbID != -1)
         LOG_WARN("Body already has an AABB\n");
 
-    vec2s min;
-    vec2s max;
+    vec2s center = (vec2s){{body->position.x, body->position.y}};
+    vec2s halfExtents = (vec2s){{halfWidth, halfHeight}};
 
-    min.x = body->position.x - halfWidth;
-    min.y = body->position.y - halfHeight;
-
-    max.x = body->position.x + halfWidth;
-    max.y = body->position.y + halfHeight;
-
-    int aabbID = createAABB2(min, max, body);
+    int aabbID = createAABB2(center, halfExtents, body);
     body->aabbID = aabbID;
 }
