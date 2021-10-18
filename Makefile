@@ -1,8 +1,10 @@
 CC = gcc
 TARGET_PREFIX = graphicsExe
 
-CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/cglm/include -I$(DEPS)/stb -Isrc
-LFLAGS = $(LIBSOBJ)/glad.o $(LIBSOBJ)/libglfw3.a $(LIBSOBJ)/libcglm.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
+DEPS = dependencies
+
+CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/cglm/include -I$(DEPS)/stb -Isrc -Wall -Werror -std=c99 -D_FORTIFY_SOURCE=2
+LFLAGS = $(DEPS)/glad/glad.o $(DEPS)/GLFW/src/libglfw3.a $(DEPS)/cglm/libcglm.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
 
 SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
 
@@ -11,7 +13,7 @@ ifndef config
 endif
 
 ifeq ($(config), debug)
-	CFLAGS += -DDEBUG
+	CFLAGS += -DDEBUG -g
 
 	TARGET = $(TARGET_PREFIX)_debug
 	OBJ = obj/debug
@@ -22,10 +24,6 @@ endif
 
 OBJECTS  = $(SRC:src/%.c=$(OBJ)/%.o)
 OBJDIRS = $(dir $(OBJECTS))
-
-DEPS = dependencies
-LIBSOBJ = bin
-BIN = bin
 
 all: $(TARGET)
 
@@ -48,22 +46,20 @@ libs:
 	@echo
 	@echo ================= Building libs ===============
 	@echo [LIB] GLFW
-	@cd $(DEPS)/GLFW && cmake . && make -s --no-print-directory && cp ./src/libglfw3.a ../../$(LIBSOBJ)
+	@cd $(DEPS)/GLFW && cmake . -D GLFW_BUILD_EXAMPLES=OFF -D GLFW_BUILD_TESTS=OFF -D GLFW_BUILD_DOCS=OFF && make -s --no-print-directory
 	@echo [LIB] Glad
-	@cd $(DEPS)/glad && $(CC) -o src/glad.o -Iinclude -c src/glad.c && mv src/glad.o ../../$(LIBSOBJ)
+	@cd $(DEPS)/glad && $(CC) -o glad.o -Iinclude -c src/glad.c
 	@echo [LIB] cglm
-	@cd $(DEPS)/cglm && cmake . -DCGLM_STATIC=ON && make -s --no-print-directory && cp ./libcglm.a ../../$(LIBSOBJ)
+	@cd $(DEPS)/cglm && cmake . -DCGLM_STATIC=ON && make -s --no-print-directory
 	@echo ===================== Done! ===================
 	@echo
 
 dirs:
 	@mkdir -p ./$(OBJ)
-	@mkdir -p ./$(LIBSOBJ)
-	@mkdir -p ./$(BIN)
 	@mkdir -p ./$(OBJDIRS)
 
 clean:
-	@rm -rf ./obj $(BIN)
+	@rm -rf ./obj $(TARGET)
 
 run:
 	@ ./$(TARGET)

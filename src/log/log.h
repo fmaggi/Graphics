@@ -7,7 +7,7 @@
 #include <time.h>
 
 // Returns the local date/time formatted as 2014-03-19 11:11:52. Not my function. Got it from stackoverflow
-static inline char* getFormattedTime(void) 
+static inline char* getFormattedTime() 
 {
 
     time_t rawtime;

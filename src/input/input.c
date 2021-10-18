@@ -2,8 +2,6 @@
 
 #include "graphics/window.h"
 
-#include "log/log.h"
-
 int isKeyPressed(Keycode key)
 {
     return windowIsKeyPressed(key);

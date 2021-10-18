@@ -4,6 +4,7 @@
 #include "assert.h"
 
 #include "log/log.h"
+#include "stdint.h"
 #include "string.h"
 
 
@@ -61,7 +62,7 @@ struct registryView ECSviewRegistry(enum ComponentType type)
     struct registryView view;
     view.view = malloc(sizeof(EntityID) * count);
     view.count = 0;
-    for (int i = 0; i < count; i++)
+    for (uint32_t i = 0; i < count; i++)
     {
         if (hasComponent(i, type))
         {
@@ -77,7 +78,7 @@ struct registryView ECSgroupView(enum ComponentType t1, enum ComponentType t2)
     struct registryView view;
     view.view = malloc(sizeof(EntityID) * count);
     view.count = 0;
-    for (int i = 0; i < count; i++)
+    for (uint32_t i = 0; i < count; i++)
     {
         if (hasComponent(i, t1) && hasComponent(i, t2))
         {

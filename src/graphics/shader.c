@@ -6,16 +6,14 @@
 #include "stdlib.h"
 #include "string.h"
 
-#include "util/types.h"
-
 typedef struct shader 
 {
-    uint32t vertexID;
-    uint32t fragmentID;
-    uint32t programID;
+    uint32_t vertexID;
+    uint32_t fragmentID;
+    uint32_t programID;
 } Shader;
 
-uint32t compileShader(const char* path, uint32t type)
+uint32_t compileShader(const char* path, uint32_t type)
 {
     char buf[256] = {0};
     strcpy(buf, "res/shaders/");
@@ -38,13 +36,13 @@ uint32t compileShader(const char* path, uint32t type)
     
     const char** srcAddress = (const char**) &src;
 
-    uint32t shader = glCreateShader(type);
+    uint32_t shader = glCreateShader(type);
     glShaderSource(shader, 1, srcAddress, NULL);
     glCompileShader(shader);
 
     free(src);
 
-    int32t success;
+    int success;
     char infoLog[512];
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success)
@@ -58,14 +56,14 @@ uint32t compileShader(const char* path, uint32t type)
     return shader;
 }
 
-uint32t linkShader(uint32t vertexID, uint32t fragmentID)
+uint32_t linkShader(uint32_t vertexID, uint32_t fragmentID)
 {
-    uint32t shaderProgram = glCreateProgram();
+    uint32_t shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexID);
     glAttachShader(shaderProgram, fragmentID);
     glLinkProgram(shaderProgram);
     // check for linking errors
-    int32t success;
+    int success;
     char infoLog[512];
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success) 
@@ -97,9 +95,9 @@ void destroyShader(Shader* shader)
     free(shader);
 }
 
-int32t getUniformLocation(Shader* shader, const char* name)
+int getUniformLocation(Shader* shader, const char* name)
 {
-    int32t location = glGetUniformLocation(shader->programID, name);
+    int location = glGetUniformLocation(shader->programID, name);
     if (location == -1)
         LOG_WARN("Invalid uniform: %s\n", name);
     return location;
@@ -108,7 +106,7 @@ int32t getUniformLocation(Shader* shader, const char* name)
 void shaderSetUniformMat4(Shader* shader, mat4s mat, const char* name)
 {
     glUseProgram(shader->programID);
-    int32t location = getUniformLocation(shader, name);
+    int location = getUniformLocation(shader, name);
     glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&mat.raw);
 }
 
@@ -116,7 +114,7 @@ void shaderSetUniformMat4(Shader* shader, mat4s mat, const char* name)
 void shaderSetTextureSlot(Shader* shader,const char* name)
 {
     glUseProgram(shader->programID);
-    int32t location = getUniformLocation(shader, name);
+    int location = getUniformLocation(shader, name);
     GLint slots[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
     glUniform1iv(location, 16, slots);
 }

@@ -25,9 +25,7 @@ void onMouseMoved(MouseMovedEvent event);
 
 // -----------------------------
 
-typedef int GameState;
-
-GameState running;
+int running;
 World world;
 
 void onEvent(EventHolder* event)
@@ -51,7 +49,7 @@ void setUpGame()
 {
     LOG_INFO_DEBUG("DEBUG\n");
     createWindow(1200, 800, "LearnOpenGL", &onEvent);
-    orthoCamera((vec3s){0, 0, 0}, 1200, 800);
+    orthoCamera((vec3s){{0, 0, 0}}, 1200, 800);
 
     createRenderer();
     initECS();
@@ -65,7 +63,7 @@ void setUpGame()
 
 void onUpdate()
 {
-    double ts = getTimestep();
+    double ts = getTimestep(); // I did this to abstract this file of anything GLFW / OpenGL related
     LOG_INFO_DEBUG("Frametime: %fms\n", ts);
     
     onUpdateWorld(ts);

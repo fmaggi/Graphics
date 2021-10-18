@@ -5,7 +5,7 @@
 #include "stdlib.h"
 #include "string.h"
 
-Vbo createVbo(uint32t size)
+Vbo createVbo(uint32_t size)
 {
     struct Buffer self;
     glGenBuffers(1, &self.id);
@@ -18,7 +18,7 @@ Vbo createVbo(uint32t size)
     return self;
 }
 
-Vbo createStaticVbo(uint32t size, const void* data)
+Vbo createStaticVbo(uint32_t size, const void* data)
 {
     struct Buffer self;
     glGenBuffers(1, &self.id);
@@ -31,13 +31,13 @@ Vbo createStaticVbo(uint32t size, const void* data)
     return self;
 }
 
-Ibo createIbo(uint32t count, uint32t * data)
+Ibo createIbo(uint32_t count, uint32_t * data)
 {
     struct Buffer self;
     glGenBuffers(1, &self.id);
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.id);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32t), data, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), data, GL_STATIC_DRAW);
 
     self.type = GL_ELEMENT_ARRAY_BUFFER;
     self.count = count;
@@ -50,7 +50,7 @@ void destroyBuffer(struct Buffer b)
     glDeleteBuffers(1, &b.id);
 }
 
-void pushBufferData(struct Buffer b, int32t size, const void* data)
+void pushBufferData(struct Buffer b, int32_t size, const void* data)
 {
     glBindBuffer(b.type, b.id);
     glBufferSubData(b.type, 0, size, data);

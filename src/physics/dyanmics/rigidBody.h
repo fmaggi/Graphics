@@ -2,7 +2,6 @@
 #define BODY_H
 
 #include "cglm/struct.h"
-#include "util/types.h"
 
 enum BodyType
 {
@@ -13,14 +12,14 @@ typedef struct
 {
     vec3s position;
     vec2s speed, forces;
-    int32t flags;
+    int flags;
 
     enum BodyType type;
 
-    int32t aabbID;
+    int aabbID;
 } Body;
 
-Body* createBody(vec3s position, enum BodyType type, int32t flags);
+Body* createBody(vec3s position, enum BodyType type, int flags);
 void addAABB(Body* body, float halfWidth, float halfHeight);
 
 //temporary

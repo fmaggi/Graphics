@@ -6,22 +6,22 @@ typedef struct body Body;
 
 typedef struct
 {
-    vec2s min, max;
+    vec2s min, max, radius;
     Body* body;
 } AABB;
 
 AABB aabbs[32];
-static int32t current = 0;
+static int current = 0;
 
-int32t sorted[32] = {0};
+int sorted[32] = {0};
 
 void sort()
 {
-    for (int32t i = 1; i < current; i++)
+    for (int i = 1; i < current; i++)
     {
-        int32t index = sorted[i];
-        int32t j = i-1;
-        int32t jndex = sorted[j];
+        int index = sorted[i];
+        int j = i-1;
+        int jndex = sorted[j];
         float min = aabbs[index].min.x;
 
         while (j >= 0 && aabbs[jndex].min.x > min)
@@ -41,28 +41,31 @@ void sweepAndPrune(struct CollisionStack* results)
     int index = 0;
     for (int i = 0; i < current; i++)
     {
-        active[index++] = aabbs[sorted[i]];
-        for (int j = index-2; j >= 0; j--) // check from right to left if it intersects anything in the interval.
+        active[index] = aabbs[sorted[i]];
+        for (int j = index-1; j >= 0; j--) // check from right to left if it intersects anything in the interval.
         {
-            AABB b = active[index-1];
+            AABB b = active[index];
             AABB a = active[j];
             if (b.min.x < a.max.x)
             {
                 struct Collision* c = &results->collisions[results->count++];
                 c->left = a.body;
                 c->right = b.body;
+                c->minSepareation.x = fabs(a.radius.x + b.radius.x);
+                c->minSepareation.y = fabs(a.radius.y + b.radius.y);
             }
             else
             {
-                active[0] = b;
-                index = 1;
+                index = 0;
+                active[index] = b;
                 break;
             }
         }
+        index++;
     }
 }
 
-int collide(int32t aID, int32t bID)
+int testOverlap(int aID, int bID)
 {
     AABB a = aabbs[aID];
     AABB b = aabbs[bID];
@@ -70,22 +73,28 @@ int collide(int32t aID, int32t bID)
         && a.min.y < b.max.y && a.max.y > b.min.y;
 }
 
-int32t createAABB2(vec2s min, vec2s max, void* body)
+int createAABB2(vec2s center, vec2s halfExtents, void* body)
 {
     AABB* aabb = &aabbs[current];
     aabb->body = body;
-    aabb->min = min;
-    aabb->max = max;
+    
+    aabb->min.x = center.x - halfExtents.x;
+    aabb->min.y = center.y - halfExtents.y;
+    aabb->max.x = center.x + halfExtents.x;
+    aabb->max.y = center.y + halfExtents.y;
+    aabb->radius = halfExtents;
+
     sorted[current] = current;
     return current++;
 }
 
-void updateAABB(int32t id, vec3s position)
+void updateAABB(int id, vec3s position)
 {
     AABB* a = &aabbs[id];
-    float hWidth = (a->max.x - a->min.x) / 2;
-    float hHeihgt = (a->max.y - a->min.y) / 2;
 
-    a->min = (vec2s){position.x - hWidth, position.y - hHeihgt};
-    a->max = (vec2s){position.x + hWidth, position.y + hHeihgt};
+    float hWidth = a->radius.x;
+    float hHeihgt = a->radius.y;
+
+    a->min = (vec2s){{position.x - hWidth, position.y - hHeihgt}};
+    a->max = (vec2s){{position.x + hWidth, position.y + hHeihgt}};
 }
