@@ -7,8 +7,9 @@
 Body bodies[32];
 static uint32_t current = 0;
 
-void collide(Body* a, Body* b, vec2s minSeparation, float ts)
+void collide(Body* a, Body* b, vec2s minSeparation, double ts)
 {
+
     vec2s separation = (vec2s){
         {fabs(a->position.x - b->position.x), fabs(a->position.y - b->position.y)}
     };
@@ -20,18 +21,18 @@ void collide(Body* a, Body* b, vec2s minSeparation, float ts)
     };
 
     offset = glms_vec2_mul(offset, normal);
-    //offset = glms_vec2_scale(offset, 1/ts);
+    int aOnTop = (a->position.y - b->position.y) > 0 ? -1 : 1;
+    offset.y *= aOnTop;
 
-    int aOnTop = a->position.y - b->position.y > 0;
-    if (a->type == Dynamic) // a is always left but dont know if top or bottom
+    if (a->type == Dynamic)
     {
-        a->position.x -= offset.x;
-        a->position.y -= (offset.y * (!aOnTop) - offset.y * (aOnTop));
+        a->impulse.x -= offset.x / ts;
+        a->impulse.y -= offset.y/ ts;
     }
     if (b->type == Dynamic)
     {
-        b->position.x += offset.x;
-        b->position.y += (offset.y * (!aOnTop) - offset.y * (aOnTop));
+        b->impulse.x += offset.x / ts;
+        b->impulse.y += offset.y / ts;
     }
 }
 
@@ -48,7 +49,7 @@ void update(double ts)
     }
 
     sweepAndPrune(&c);
-    // TODO: fix sweepAndPrune bug
+
     int calls = 0;
     for (int i = 0; i < c.count; i++)
     {
@@ -60,9 +61,10 @@ void update(double ts)
         if (testOverlap(a->aabbID, b->aabbID))
         {
             collide(a, b, minSeparation, ts);
-            calls++;
         }
+        calls++;
     }
+    LOG_INFO_DEBUG("collide calls: %i\n", calls);
 
     for (int i = 0; i < current; i++)
     {
@@ -72,11 +74,12 @@ void update(double ts)
         vec2s impulse = bodies[i].impulse;
         vec2s speed = glms_vec2_scale(impulse, ts);
         speed = glms_vec2_add(bodies[i].speed, speed);
+        speed.y -= 100*ts;
+        bodies[i].speed = speed;
         vec2s dx = glms_vec2_scale(speed, ts);
         bodies[i].position = glms_vec3_add(bodies[i].position, (vec3s){{dx.x, dx.y, 0}});
+        bodies[i].impulse = GLMS_VEC2_ZERO;
     }
-
-    LOG_INFO_DEBUG("collide calls: %i\n", calls);
 }
 
 Body* createBody(vec3s position, enum BodyType type, int flags)
