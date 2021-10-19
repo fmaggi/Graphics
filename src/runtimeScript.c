@@ -98,14 +98,14 @@ void onUpdateWorld(double ts)
     PhysicsComponent* p = ECSgetComponent(world.player, PhysicsComponent);
     Body* b = p->physicsBody;
     if (isKeyPressed(KEY_W))
-        b->speed.y += 100 * ts;
+        b->impulse.y += 100;
     if (isKeyPressed(KEY_S))
-        b->speed.y -= 100 * ts;
+        b->impulse.y -= 100;
 
     if (isKeyPressed(KEY_D))
-        b->speed.x += 100 * ts;
+        b->impulse.x += 100;
     if (isKeyPressed(KEY_A))
-        b->speed.x -= 100 * ts;
+        b->impulse.x -= 100;
     update(ts);
 }
 
