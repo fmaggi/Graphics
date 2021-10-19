@@ -15,11 +15,18 @@ struct CollisionStack
     int count;
 };
 
+struct ContactPoint
+{
+    vec2s normal, point, minSeparation;
+};
+
 int createAABB2(vec2s center, vec2s halfExtents, void* bodyID);
 void updateAABB(int id, vec3s position);
 
 void sweepAndPrune(struct CollisionStack* results);
 
 int testOverlap(int aID, int bID);
+
+//collideAABB(int aID, int bID, vec2s centerDistance, struct ContactPoint* cp);
 
 #endif

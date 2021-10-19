@@ -1,7 +1,7 @@
 #ifndef ECS_C_H
 #define ECS_C_H
 
-#define MAX_COMPONENT 3
+#define MAX_COMPONENT PhysicsComponent_E + 1
 enum ComponentType
 {
     TransformComponent_E = 0,

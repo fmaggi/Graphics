@@ -56,7 +56,7 @@ void setUpGame()
     createWindow(1200, 800, "LearnOpenGL", &onEvent);
     orthoCamera((vec3s){{0, 0, 0}}, 1200, 800);
 
-    createRenderer();
+    initRenderer();
     initECS();
 
     LOG_TRACE("Initializing client World\n");
@@ -77,7 +77,7 @@ void onUpdate()
 void onRender()
 {
     startFrame();
-    render();
+    onRenderWorld();
     endFrame();
 }
 

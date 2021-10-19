@@ -1,18 +1,21 @@
 #include "game/world.h"
 #include "engine.h"
 
+typedef struct world
+{
+    EntityID player;
+} World;
+
 World world;
 
 void initWorld()
 {
     // World creation here
-
-
     EntityID player = newEntity();
     world.player = player;
 
     TransformComponent* t = ECSaddComponent(player, TransformComponent);
-    t->position = (vec3s){{-200, -200, -1}};
+    t->position = (vec3s){{-300, 0, -1}};
     t->rotation = 0;
     t->scale = (vec2s){{200, 200}};
 
@@ -28,9 +31,9 @@ void initWorld()
 
     EntityID floor = newEntity();
     TransformComponent* tf = ECSaddComponent(floor, TransformComponent);
-    tf->position = (vec3s){{200, -200, -1}};
+    tf->position = (vec3s){{0, -200, -1}};
     tf->rotation = 0;
-    tf->scale = (vec2s){{200, 200}};
+    tf->scale = (vec2s){{800, 100}};
 
     int texture = loadTexture("test.png");
     SpriteComponent* sf = ECSaddComponent(floor, SpriteComponent);
@@ -38,14 +41,14 @@ void initWorld()
     sf->texIndex = texture;
 
     Body* v1 = createBody(tf->position, Static, 0);
-    addAABB(v1, 100, 100);
+    addAABB(v1, 400, 50);
 
     PhysicsComponent* p1 = ECSaddComponent(floor, PhysicsComponent);
     p1->physicsBody = v1;
 
     EntityID roof = newEntity();
     TransformComponent* tr = ECSaddComponent(roof, TransformComponent);
-    tr->position = (vec3s){{-200, 200, -1}};
+    tr->position = (vec3s){{-200, 400, -1}};
     tr->rotation = 0;
     tr->scale = (vec2s){{200, 200}};
 
@@ -92,26 +95,41 @@ void onUpdateWorld(double ts)
     }
     closeView(r);
 
-    TransformComponent* p = ECSgetComponent(world.player, TransformComponent);
+    PhysicsComponent* p = ECSgetComponent(world.player, PhysicsComponent);
+    Body* b = p->physicsBody;
     if (isKeyPressed(KEY_W))
-        p->position.y += 100 * ts;
+        b->impulse.y += 100;
     if (isKeyPressed(KEY_S))
-        p->position.y -= 100 * ts;
+        b->impulse.y -= 100;
 
     if (isKeyPressed(KEY_D))
-        p->position.x += 100 * ts;
+        b->impulse.x += 100;
     if (isKeyPressed(KEY_A))
-        p->position.x -= 100 * ts;
-
-    PhysicsComponent* ph = ECSgetComponent(world.player, PhysicsComponent);
-    Body* b = ph->physicsBody;
-    b->position = p->position;
+        b->impulse.x -= 100;
     update(ts);
 }
 
-bool onEventWorld(EventHolder* event)
+void onRenderWorld()
 {
-    return false;
+    struct registryView r = ECSgroupView(SpriteComponent, TransformComponent); 
+
+    for (int i = 0; i < r.count; i++)
+    {   
+        EntityID id = r.view[i];
+        TransformComponent* t = ECSgetComponent(id, TransformComponent);
+        SpriteComponent* s = ECSgetComponent(id, SpriteComponent);
+          
+        mat4s m = getTransform(t->position, t->rotation, t->scale);
+
+        rendererSubmit(m, s->color, s->texIndex);
+    }
+
+    closeView(r);
+}
+
+int onEventWorld(EventHolder* event)
+{
+    return 0;
 }
 
 void destroyWorld()

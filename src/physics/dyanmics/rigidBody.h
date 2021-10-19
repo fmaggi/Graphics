@@ -11,7 +11,7 @@ enum BodyType
 typedef struct
 {
     vec3s position;
-    vec2s speed, forces;
+    vec2s speed, impulse;
     int flags;
 
     enum BodyType type;

@@ -54,7 +54,7 @@ typedef struct renderer
 
 static Renderer r;
 
-void createRenderer()
+void initRenderer()
 {
     LOG_TRACE("Starting the renderer\n");
     r.shaders[basicShader] = createShader("vertex.glsl", "fragment.glsl");
@@ -179,16 +179,10 @@ void flush()
 void endFrame()
 {   
     flush();
-    //LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
+    LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
 }
 
-// void _render(struct Vao vao, Ibo indexBuffer)
-// {
-//     bindVao(vao);
-//     glDrawElements(GL_TRIANGLES, indexBuffer.count, GL_UNSIGNED_int32t, 0);
-// }
-
-void pushQuad(mat4s transform, vec3s color, float texIndex)
+void rendererSubmit(mat4s transform, vec3s color, float texIndex)
 {
     if(r.quadCount >= MAX_QUADS)
     {
@@ -207,25 +201,6 @@ void pushQuad(mat4s transform, vec3s color, float texIndex)
     }
     r.indexCount += 6;
     r.quadCount  += 1;
-}
-
-void render()
-{
-    struct registryView r = ECSgroupView(SpriteComponent, TransformComponent); 
-
-    for (int i = 0; i < r.count; i++)
-    {   
-        EntityID id = r.view[i];
-        TransformComponent* t = ECSgetComponent(id, TransformComponent);
-        SpriteComponent* s = ECSgetComponent(id, SpriteComponent);  
-        mat4s m = glms_translate(glms_mat4_identity(), t->position);
-        m = glms_rotate(m, t->rotation, (vec3s){{0, 0, 1}});
-        vec3s scale = (vec3s){{t->scale.x, t->scale.y, 1}};
-        m = glms_scale(m, scale);
-        pushQuad(m, s->color, s->texIndex);
-    }
-
-    closeView(r);
 }
 
 /**

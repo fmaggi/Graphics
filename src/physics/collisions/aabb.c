@@ -37,15 +37,17 @@ void sort()
 void sweepAndPrune(struct CollisionStack* results)
 {
     sort();
-    AABB active[32];
+    int active[32] = {-1};
     int index = 0;
     for (int i = 0; i < current; i++)
     {
-        active[index] = aabbs[sorted[i]];
-        for (int j = index-1; j >= 0; j--) // check from right to left if it intersects anything in the interval.
+        active[index] = sorted[i];
+        for (int j = 0; j < index; j++) // check from right to left if it intersects anything in the interval.
         {
-            AABB b = active[index];
-            AABB a = active[j];
+            if (active[j] == -1)
+                continue;
+            AABB b = aabbs[active[index]];
+            AABB a = aabbs[active[j]];
             if (b.min.x < a.max.x)
             {
                 struct Collision* c = &results->collisions[results->count++];
@@ -56,9 +58,7 @@ void sweepAndPrune(struct CollisionStack* results)
             }
             else
             {
-                index = 0;
-                active[index] = b;
-                break;
+                active[j] = -1;
             }
         }
         index++;
@@ -72,6 +72,24 @@ int testOverlap(int aID, int bID)
     return a.min.x < b.max.x && a.max.x > b.min.x
         && a.min.y < b.max.y && a.max.y > b.min.y;
 }
+
+// collideAABB(int aID, int bID, vec2s centerDistance, struct ContactPoint* cp)
+// {
+//     AABB a = aabbs[aID];
+//     AABB b = aabbs[bID];
+
+//     vec2s separation = (vec2s){{
+//         (a.max.x - a.radius.x) - (b.max.x - b.radius.x),
+//         (a.max.y - a.radius.y) - (b.max.y - b.radius.y),
+//     }};
+
+//     cp->minSeparation.x = fabs(a.radius.x + b.radius.x);
+//     cp->minSeparation.y = fabs(a.radius.y + b.radius.y);
+
+//     cp->normal = (vec2s){
+//         {separation.x > separation.y, separation.x < separation.y}
+//     };
+// }
 
 int createAABB2(vec2s center, vec2s halfExtents, void* body)
 {
