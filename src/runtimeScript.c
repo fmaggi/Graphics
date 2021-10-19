@@ -15,7 +15,7 @@ void initWorld()
     world.player = player;
 
     TransformComponent* t = ECSaddComponent(player, TransformComponent);
-    t->position = (vec3s){{-200, -200, -1}};
+    t->position = (vec3s){{-300, 0, -1}};
     t->rotation = 0;
     t->scale = (vec2s){{200, 200}};
 
@@ -31,9 +31,9 @@ void initWorld()
 
     EntityID floor = newEntity();
     TransformComponent* tf = ECSaddComponent(floor, TransformComponent);
-    tf->position = (vec3s){{200, -200, -1}};
+    tf->position = (vec3s){{0, -200, -1}};
     tf->rotation = 0;
-    tf->scale = (vec2s){{200, 200}};
+    tf->scale = (vec2s){{800, 100}};
 
     int texture = loadTexture("test.png");
     SpriteComponent* sf = ECSaddComponent(floor, SpriteComponent);
@@ -41,14 +41,14 @@ void initWorld()
     sf->texIndex = texture;
 
     Body* v1 = createBody(tf->position, Static, 0);
-    addAABB(v1, 100, 100);
+    addAABB(v1, 400, 50);
 
     PhysicsComponent* p1 = ECSaddComponent(floor, PhysicsComponent);
     p1->physicsBody = v1;
 
     EntityID roof = newEntity();
     TransformComponent* tr = ECSaddComponent(roof, TransformComponent);
-    tr->position = (vec3s){{-200, 200, -1}};
+    tr->position = (vec3s){{-200, 400, -1}};
     tr->rotation = 0;
     tr->scale = (vec2s){{200, 200}};
 
