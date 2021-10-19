@@ -1,13 +1,16 @@
 #include "game/world.h"
 #include "engine.h"
 
+typedef struct world
+{
+    EntityID player;
+} World;
+
 World world;
 
 void initWorld()
 {
     // World creation here
-
-
     EntityID player = newEntity();
     world.player = player;
 
@@ -92,26 +95,41 @@ void onUpdateWorld(double ts)
     }
     closeView(r);
 
-    TransformComponent* p = ECSgetComponent(world.player, TransformComponent);
+    PhysicsComponent* p = ECSgetComponent(world.player, PhysicsComponent);
+    Body* b = p->physicsBody;
     if (isKeyPressed(KEY_W))
-        p->position.y += 100 * ts;
+        b->speed.y += 100 * ts;
     if (isKeyPressed(KEY_S))
-        p->position.y -= 100 * ts;
+        b->speed.y -= 100 * ts;
 
     if (isKeyPressed(KEY_D))
-        p->position.x += 100 * ts;
+        b->speed.x += 100 * ts;
     if (isKeyPressed(KEY_A))
-        p->position.x -= 100 * ts;
-
-    PhysicsComponent* ph = ECSgetComponent(world.player, PhysicsComponent);
-    Body* b = ph->physicsBody;
-    b->position = p->position;
+        b->speed.x -= 100 * ts;
     update(ts);
 }
 
-bool onEventWorld(EventHolder* event)
+void onRenderWorld()
 {
-    return false;
+    struct registryView r = ECSgroupView(SpriteComponent, TransformComponent); 
+
+    for (int i = 0; i < r.count; i++)
+    {   
+        EntityID id = r.view[i];
+        TransformComponent* t = ECSgetComponent(id, TransformComponent);
+        SpriteComponent* s = ECSgetComponent(id, SpriteComponent);
+          
+        mat4s m = getTransform(t->position, t->rotation, t->scale);
+
+        rendererSubmit(m, s->color, s->texIndex);
+    }
+
+    closeView(r);
+}
+
+int onEventWorld(EventHolder* event)
+{
+    return 0;
 }
 
 void destroyWorld()

@@ -1,6 +1,8 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "cglm/struct.h"
+
 #define MAX_SHADER 2
 enum ShaderType
 {
@@ -8,15 +10,13 @@ enum ShaderType
     uvShader
 };
 
-void createRenderer();
+void initRenderer();
 void destroyRenderer();
 
-void render();
+void rendererSubmit(mat4s transform, vec3s color, float texIndex);
 
 void startFrame();
 void endFrame();
-
-//void drawIndexed();
 
 void rendererChangeMode();
 void rendererSetShader(enum ShaderType type);
