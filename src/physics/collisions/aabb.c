@@ -73,6 +73,24 @@ int testOverlap(int aID, int bID)
         && a.min.y < b.max.y && a.max.y > b.min.y;
 }
 
+// collideAABB(int aID, int bID, vec2s centerDistance, struct ContactPoint* cp)
+// {
+//     AABB a = aabbs[aID];
+//     AABB b = aabbs[bID];
+
+//     vec2s separation = (vec2s){{
+//         (a.max.x - a.radius.x) - (b.max.x - b.radius.x),
+//         (a.max.y - a.radius.y) - (b.max.y - b.radius.y),
+//     }};
+
+//     cp->minSeparation.x = fabs(a.radius.x + b.radius.x);
+//     cp->minSeparation.y = fabs(a.radius.y + b.radius.y);
+
+//     cp->normal = (vec2s){
+//         {separation.x > separation.y, separation.x < separation.y}
+//     };
+// }
+
 int createAABB2(vec2s center, vec2s halfExtents, void* body)
 {
     AABB* aabb = &aabbs[current];

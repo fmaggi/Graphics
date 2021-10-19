@@ -12,27 +12,26 @@ void collide(Body* a, Body* b, vec2s minSeparation, float ts)
     vec2s separation = (vec2s){
         {fabs(a->position.x - b->position.x), fabs(a->position.y - b->position.y)}
     };
-    //normal to contact surface
-    vec2s normal = (vec2s){
-        {separation.x > separation.y, separation.x < separation.y}
-    };
-    // offset = normal * (minSeparation - separation)
-    vec2s offset = glms_vec2_mul(normal,
-                   glms_vec2_add(minSeparation, 
-                   glms_vec2_negate(separation)));
+    // offset = (minSeparation - separation)
+    vec2s offset = glms_vec2_add(minSeparation, glms_vec2_negate(separation));
 
-    // I need the contact point to do this properly
+    vec2s normal = (vec2s){
+        {offset.x < offset.y, offset.x > offset.y}
+    };
+
+    offset = glms_vec2_mul(offset, normal);
+    //offset = glms_vec2_scale(offset, 1/ts);
 
     int aOnTop = a->position.y - b->position.y > 0;
     if (a->type == Dynamic) // a is always left but dont know if top or bottom
     {
-        a->impulse.x -= offset.x;
-        a->impulse.y -= (offset.y * (!aOnTop) - offset.y * (aOnTop));
+        a->position.x -= offset.x;
+        a->position.y -= (offset.y * (!aOnTop) - offset.y * (aOnTop));
     }
     if (b->type == Dynamic)
     {
-        b->impulse.x += offset.x;
-        b->impulse.y += (offset.y * (!aOnTop) - offset.y * (aOnTop));
+        b->position.x += offset.x;
+        b->position.y += (offset.y * (!aOnTop) - offset.y * (aOnTop));
     }
 }
 
@@ -49,6 +48,7 @@ void update(double ts)
     }
 
     sweepAndPrune(&c);
+    // TODO: fix sweepAndPrune bug
     int calls = 0;
     for (int i = 0; i < c.count; i++)
     {
