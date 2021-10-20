@@ -7,33 +7,50 @@
 Body bodies[32];
 static uint32_t current = 0;
 
-void collide(Body* a, Body* b, vec2s minSeparation, double ts)
+struct RestingContact
 {
-
+    Body *a, *b;
+    vec2s normal, minSeparation;
+};
+void collide(Body* a, Body* b, vec2s minSeparation, struct RestingContact* c)
+{
     vec2s separation = (vec2s){
         {fabs(a->position.x - b->position.x), fabs(a->position.y - b->position.y)}
     };
-    // offset = (minSeparation - separation)
-    vec2s offset = glms_vec2_add(minSeparation, glms_vec2_negate(separation));
+    // penetration = (minSeparation - separation)
+    vec2s penetration = glms_vec2_add(minSeparation, glms_vec2_negate(separation));
 
+    int aOnTop = (a->position.y - b->position.y) > 0 ? 1 : -1;
     vec2s normal = (vec2s){
-        {offset.x < offset.y, offset.x > offset.y}
+        {-(penetration.x < penetration.y), aOnTop*(penetration.x > penetration.y)}
     };
 
-    offset = glms_vec2_mul(offset, normal);
-    int aOnTop = (a->position.y - b->position.y) > 0 ? -1 : 1;
-    offset.y *= aOnTop;
+    c->a = a;
+    c->b = b;
+    c->normal = normal;
+    c->minSeparation = minSeparation;
 
-    offset = glms_vec2_scale(offset, 1/(ts*ts)); // im pretty sure this is a hack
+    vec2s vA = a->speed;
+    vec2s vB = b->speed;
 
+    vec2s dv = glms_vec2_add(vA, glms_vec2_negate(vB));
+
+    float sNormal = glms_vec2_dot(dv, normal);
+    if (-sNormal < 0.001) // at resting contact
+        return;
+
+    vec2s dvNormal = glms_vec2_scale(normal, sNormal);
+
+    vec2s vCorrection = glms_vec2_scale(normal, -sNormal*0.5);
+    vec2s dvCorrection = glms_vec2_add(vCorrection, glms_vec2_negate(dvNormal));
     if (a->type == Dynamic)
     {
-        a->impulse = glms_vec2_add(a->impulse, glms_vec2_negate(offset));
+        a->speed = glms_vec2_add(a->speed, dvCorrection);
     }
     if (b->type == Dynamic)
     {
-        b->impulse = glms_vec2_add(b->impulse, offset);
-    }
+        b->speed = glms_vec2_add(b->speed, glms_vec2_negate(dvCorrection));
+    }      
 }
 
 void update(double ts)
@@ -50,6 +67,9 @@ void update(double ts)
 
     sweepAndPrune(&c);
 
+    struct RestingContact contacts[32];
+    int cCount = 0;
+
     int calls = 0;
     for (int i = 0; i < c.count; i++)
     {
@@ -60,25 +80,59 @@ void update(double ts)
             continue;
         if (testOverlap(a->aabbID, b->aabbID))
         {
-            collide(a, b, minSeparation, ts);
+            collide(a, b, minSeparation, &contacts[cCount++]);
         }
         calls++;
     }
     LOG_INFO_DEBUG("collide calls: %i\n", calls);
 
+    // integrate position and speed
+    // should separate them and solve position constraints and vel constrains separetly
     for (int i = 0; i < current; i++)
     {
         if (bodies[i].type == Static)
             continue;
-
         vec2s impulse = bodies[i].impulse;
-        impulse.y -= 100; // gravity hack
-        vec2s speed = glms_vec2_scale(impulse, ts);
-        speed = glms_vec2_add(bodies[i].speed, speed);
-        bodies[i].speed = speed;
-        vec2s dx = glms_vec2_scale(speed, ts);
+        impulse.y -= 10/ts;
+        bodies[i].impulse = impulse;
+        vec2s speed = glms_vec2_scale(bodies[i].impulse, ts);
+        bodies[i].speed = glms_vec2_add(bodies[i].speed, speed);
+        vec2s dx = glms_vec2_scale(bodies[i].speed, ts);
         bodies[i].position = glms_vec3_add(bodies[i].position, (vec3s){{dx.x, dx.y, 0}});
         bodies[i].impulse = GLMS_VEC2_ZERO;
+    }
+
+
+    // solve contact at rest with floor. very hacky
+    for (int i = 0; i < cCount; i++)
+    {
+        vec2s normal = contacts[i].normal;
+        if (fabs(normal.y) != 1)
+            continue;
+
+        Body *a = contacts[i].a;
+        Body *b = contacts[i].b;
+
+        vec2s minSeparation = contacts[i].minSeparation;
+
+        vec2s separation = (vec2s){
+            {fabs(a->position.x - b->position.x), fabs(a->position.y - b->position.y)}
+        };
+
+        vec2s penetration = glms_vec2_add(minSeparation, glms_vec2_negate(separation));
+        log_vec2("actual", penetration);
+
+        vec2s offset = glms_vec2_mul(penetration, normal);
+        {
+            if (a->type == Dynamic)
+            {
+                a->position = glms_vec3_add(a->position, ((vec3s){{offset.x, offset.y, 0}}));
+            }
+            if (b->type == Dynamic)
+            {
+                b->position = glms_vec3_add(b->position, glms_vec3_negate((vec3s){{offset.x, offset.y, 0}}));
+            }
+        }
     }
 }
 
