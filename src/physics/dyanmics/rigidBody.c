@@ -10,7 +10,7 @@ static uint32_t current = 0;
 struct RestingContact
 {
     Body *a, *b;
-    vec2s normal;
+    vec2s normal, minSeparation, separation;
 };
 
 int collide(Body* a, Body* b, vec2s minSeparation, struct RestingContact* c)
@@ -32,11 +32,13 @@ int collide(Body* a, Body* b, vec2s minSeparation, struct RestingContact* c)
     vec2s dv = glms_vec2_add(vA, glms_vec2_negate(vB));
 
     float sNormal = glms_vec2_dot(dv, normal);
-    if (-sNormal < 0.00001) // at resting contact
+    if (-sNormal < 0.001) // at resting contact
     {
         c->a = a;
         c->b = b;
         c->normal = normal;
+        c->minSeparation = minSeparation;
+        c->separation = separation;
         return 1;
     }
 
@@ -97,43 +99,47 @@ void update(double ts)
             continue;
 
         vec2s impulse = bodies[i].impulse;
-        impulse.y -= 10/ts; // gravity hack
+        // impulse.y -= 10/ts;
         bodies[i].impulse = impulse;
-        vec2s speed = glms_vec2_scale( bodies[i].impulse, ts);
-        bodies[i].speed = glms_vec2_add(bodies[i].speed, speed);
     }
 
     // handle resting contacts. TODO correct this method. Doesnt really work
-    for (int i = 0; i < cCount; i++)
-    {
-        vec2s normal = contacts[i].normal;
-        Body *a = contacts[i].a;
-        Body *b = contacts[i].b;
-        
-        if (a->type == Dynamic)
-        {
-            vec2s iA = a->impulse;
-            float iAnormal = glms_vec2_dot(normal, iA);
+    // for (int i = 0; i < cCount; i++)
+    // {
+    //     vec2s normal = contacts[i].normal;
+    //     vec2s minSeparation = contacts[i].minSeparation;
+    //     vec2s separation = contacts[i].separation;
+    //     Body *a = contacts[i].a;
+    //     Body *b = contacts[i].b;
 
-            vec2s di = glms_vec2_scale(normal, -iAnormal);
-            a->impulse = glms_vec2_add(a->impulse, di);
-        }
+    //     log_vec2("impulse", b->impulse);
 
-        if (b->type == Dynamic)
-        {
-            vec2s iB = b->impulse;
-            float iBnormal = glms_vec2_dot(normal, iB);
+    //     //for (int j = 0; j < 5; j++)
+    //     {
+    //         vec2s penetration = glms_vec2_negate(separation);
+    //         penetration = glms_vec2_mul(penetration, normal);
+    //         vec2s impulse = glms_vec2_scale(penetration, 1/(ts)); // im pretty sure this is a hack
 
-            vec2s di = glms_vec2_scale(normal, -iBnormal);
-            b->impulse = glms_vec2_add(b->impulse, di);
-        }
-    }
+    //         if (a->type == Dynamic)
+    //         {
+    //             a->impulse = glms_vec2_add(a->impulse, impulse);
+    //         }
+    //         if (b->type == Dynamic)
+    //         {
+    //             b->impulse = glms_vec2_add(b->impulse, glms_vec2_negate(impulse));
+    //         }
+    //     }
+
+    //     log_vec2("after", b->impulse);
+    // }
 
     for (int i = 0; i < current; i++)
     {
         if (bodies[i].type == Static)
             continue;
 
+        vec2s speed = glms_vec2_scale(bodies[i].impulse, ts);
+        bodies[i].speed = glms_vec2_add(bodies[i].speed, speed);
         vec2s dx = glms_vec2_scale(bodies[i].speed, ts);
         bodies[i].position = glms_vec3_add(bodies[i].position, (vec3s){{dx.x, dx.y, 0}});
         bodies[i].impulse = GLMS_VEC2_ZERO;
