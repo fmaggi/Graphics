@@ -26,18 +26,6 @@ int collide(Body* a, Body* b, vec2s minSeparation, struct RestingContact* c)
         {-(offset.x < offset.y), aOnTop*(offset.x > offset.y)}
     };
 
-    // offset = glms_vec2_mul(offset, normal);
-    // offset = glms_vec2_scale(offset, 1/(ts*ts)); // im pretty sure this is a hack
-
-    // if (a->type == Dynamic)
-    // {
-    //     a->impulse = glms_vec2_add(a->impulse, offset);
-    // }
-    // if (b->type == Dynamic)
-    // {
-    //     b->impulse = glms_vec2_add(b->impulse, glms_vec2_negate(offset));
-    // }
-
     vec2s vA = a->speed;
     vec2s vB = b->speed;
 
