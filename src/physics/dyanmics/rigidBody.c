@@ -10,21 +10,25 @@ static uint32_t current = 0;
 struct RestingContact
 {
     Body *a, *b;
-    vec2s normal, minSeparation, separation;
+    vec2s normal, minSeparation;
 };
-
-int collide(Body* a, Body* b, vec2s minSeparation, struct RestingContact* c)
+void collide(Body* a, Body* b, vec2s minSeparation, struct RestingContact* c)
 {
     vec2s separation = (vec2s){
         {fabs(a->position.x - b->position.x), fabs(a->position.y - b->position.y)}
     };
-    // offset = (minSeparation - separation)
-    vec2s offset = glms_vec2_add(minSeparation, glms_vec2_negate(separation));
+    // penetration = (minSeparation - separation)
+    vec2s penetration = glms_vec2_add(minSeparation, glms_vec2_negate(separation));
 
     int aOnTop = (a->position.y - b->position.y) > 0 ? 1 : -1;
     vec2s normal = (vec2s){
-        {-(offset.x < offset.y), aOnTop*(offset.x > offset.y)}
+        {-(penetration.x < penetration.y), aOnTop*(penetration.x > penetration.y)}
     };
+
+    c->a = a;
+    c->b = b;
+    c->normal = normal;
+    c->minSeparation = minSeparation;
 
     vec2s vA = a->speed;
     vec2s vB = b->speed;
@@ -33,14 +37,7 @@ int collide(Body* a, Body* b, vec2s minSeparation, struct RestingContact* c)
 
     float sNormal = glms_vec2_dot(dv, normal);
     if (-sNormal < 0.001) // at resting contact
-    {
-        c->a = a;
-        c->b = b;
-        c->normal = normal;
-        c->minSeparation = minSeparation;
-        c->separation = separation;
-        return 1;
-    }
+        return;
 
     vec2s dvNormal = glms_vec2_scale(normal, sNormal);
 
@@ -53,8 +50,7 @@ int collide(Body* a, Body* b, vec2s minSeparation, struct RestingContact* c)
     if (b->type == Dynamic)
     {
         b->speed = glms_vec2_add(b->speed, glms_vec2_negate(dvCorrection));
-    }
-    return 0;       
+    }      
 }
 
 void update(double ts)
@@ -84,65 +80,59 @@ void update(double ts)
             continue;
         if (testOverlap(a->aabbID, b->aabbID))
         {
-            if (collide(a, b, minSeparation, &contacts[cCount]))
-            {
-                cCount++;
-            }
+            collide(a, b, minSeparation, &contacts[cCount++]);
         }
         calls++;
     }
     LOG_INFO_DEBUG("collide calls: %i\n", calls);
 
+    // integrate position and speed
+    // should separate them and solve position constraints and vel constrains separetly
     for (int i = 0; i < current; i++)
     {
         if (bodies[i].type == Static)
             continue;
-
         vec2s impulse = bodies[i].impulse;
-        // impulse.y -= 10/ts;
+        impulse.y -= 10/ts;
         bodies[i].impulse = impulse;
-    }
-
-    // handle resting contacts. TODO correct this method. Doesnt really work
-    // for (int i = 0; i < cCount; i++)
-    // {
-    //     vec2s normal = contacts[i].normal;
-    //     vec2s minSeparation = contacts[i].minSeparation;
-    //     vec2s separation = contacts[i].separation;
-    //     Body *a = contacts[i].a;
-    //     Body *b = contacts[i].b;
-
-    //     log_vec2("impulse", b->impulse);
-
-    //     //for (int j = 0; j < 5; j++)
-    //     {
-    //         vec2s penetration = glms_vec2_negate(separation);
-    //         penetration = glms_vec2_mul(penetration, normal);
-    //         vec2s impulse = glms_vec2_scale(penetration, 1/(ts)); // im pretty sure this is a hack
-
-    //         if (a->type == Dynamic)
-    //         {
-    //             a->impulse = glms_vec2_add(a->impulse, impulse);
-    //         }
-    //         if (b->type == Dynamic)
-    //         {
-    //             b->impulse = glms_vec2_add(b->impulse, glms_vec2_negate(impulse));
-    //         }
-    //     }
-
-    //     log_vec2("after", b->impulse);
-    // }
-
-    for (int i = 0; i < current; i++)
-    {
-        if (bodies[i].type == Static)
-            continue;
-
         vec2s speed = glms_vec2_scale(bodies[i].impulse, ts);
         bodies[i].speed = glms_vec2_add(bodies[i].speed, speed);
         vec2s dx = glms_vec2_scale(bodies[i].speed, ts);
         bodies[i].position = glms_vec3_add(bodies[i].position, (vec3s){{dx.x, dx.y, 0}});
         bodies[i].impulse = GLMS_VEC2_ZERO;
+    }
+
+
+    // solve contact at rest with floor. very hacky
+    for (int i = 0; i < cCount; i++)
+    {
+        vec2s normal = contacts[i].normal;
+        if (fabs(normal.y) != 1)
+            continue;
+
+        Body *a = contacts[i].a;
+        Body *b = contacts[i].b;
+
+        vec2s minSeparation = contacts[i].minSeparation;
+
+        vec2s separation = (vec2s){
+            {fabs(a->position.x - b->position.x), fabs(a->position.y - b->position.y)}
+        };
+
+        vec2s penetration = glms_vec2_add(minSeparation, glms_vec2_negate(separation));
+        log_vec2("actual", penetration);
+
+        vec2s offset = glms_vec2_mul(penetration, normal);
+        {
+            if (a->type == Dynamic)
+            {
+                a->position = glms_vec3_add(a->position, ((vec3s){{offset.x, offset.y, 0}}));
+            }
+            if (b->type == Dynamic)
+            {
+                b->position = glms_vec3_add(b->position, glms_vec3_negate((vec3s){{offset.x, offset.y, 0}}));
+            }
+        }
     }
 }
 

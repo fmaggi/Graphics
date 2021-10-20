@@ -98,18 +98,19 @@ void onUpdateWorld(double ts)
     PhysicsComponent* p = ECSgetComponent(world.player, PhysicsComponent);
     Body* b = p->physicsBody;
     if (isKeyPressed(KEY_W))
-        b->speed.y += 100;
+        b->impulse.y += 30 / ts;
+
     if (isKeyPressed(KEY_S))
-        b->speed.y -= 100;
+        b->impulse.y -= 30 / ts;
 
     if (isKeyPressed(KEY_D))
-        b->speed.x += 100;
+        b->impulse.x += 30 / ts;
     if (isKeyPressed(KEY_A))
-        b->speed.x -= 100;
+        b->impulse.x -= 30 / ts;
+
+    // log_vec2("", b->speed);
 
     update(ts);
-
-    b->speed = GLMS_VEC2_ZERO;
 }
 
 void onRenderWorld()
