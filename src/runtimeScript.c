@@ -99,7 +99,6 @@ void onUpdateWorld(double ts)
     Body* b = p->physicsBody;
     if (isKeyPressed(KEY_W))
         b->impulse.y += 30 / ts;
-
     if (isKeyPressed(KEY_S))
         b->impulse.y -= 30 / ts;
 
@@ -107,8 +106,6 @@ void onUpdateWorld(double ts)
         b->impulse.x += 30 / ts;
     if (isKeyPressed(KEY_A))
         b->impulse.x -= 30 / ts;
-
-    // log_vec2("", b->speed);
 
     update(ts);
 }

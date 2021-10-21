@@ -37,7 +37,9 @@ void collide(Body* a, Body* b, vec2s minSeparation, struct RestingContact* c)
 
     float sNormal = glms_vec2_dot(dv, normal);
     if (-sNormal < 0.001) // at resting contact
+    {
         return;
+    }
 
     vec2s dvNormal = glms_vec2_scale(normal, sNormal);
 
@@ -60,11 +62,13 @@ void update(double ts)
     c.collisions = collisions;
     c.count = 0;
 
+
     for (int i = 0; i < current; i++)
     {
         updateAABB(bodies[i].aabbID, bodies[i].position);
     }
 
+    
     sweepAndPrune(&c);
 
     struct RestingContact contacts[32];
@@ -86,8 +90,7 @@ void update(double ts)
     }
     LOG_INFO_DEBUG("collide calls: %i\n", calls);
 
-    // integrate position and speed
-    // should separate them and solve position constraints and vel constrains separetly
+    //integrate velocity
     for (int i = 0; i < current; i++)
     {
         if (bodies[i].type == Static)
@@ -97,21 +100,57 @@ void update(double ts)
         bodies[i].impulse = impulse;
         vec2s speed = glms_vec2_scale(bodies[i].impulse, ts);
         bodies[i].speed = glms_vec2_add(bodies[i].speed, speed);
-        vec2s dx = glms_vec2_scale(bodies[i].speed, ts);
-        bodies[i].position = glms_vec3_add(bodies[i].position, (vec3s){{dx.x, dx.y, 0}});
         bodies[i].impulse = GLMS_VEC2_ZERO;
     }
 
-
-    // solve contact at rest with floor. very hacky
+    // solve contact at rest velocity constraints
     for (int i = 0; i < cCount; i++)
     {
-        vec2s normal = contacts[i].normal;
-        if (fabs(normal.y) != 1)
-            continue;
-
         Body *a = contacts[i].a;
         Body *b = contacts[i].b;
+
+        vec2s normal = contacts[i].normal;
+        vec2s tangent = (vec2s){
+            {-normal.y, normal.x}
+        };
+
+        vec2s dv = glms_vec2_add(a->speed, glms_vec2_negate(b->speed));
+        float sNormal = glms_vec2_dot(dv, normal);
+        if (sNormal > 0.001)
+            break;
+
+        if (a->type == Dynamic)
+        {
+            a->speed = glms_vec2_mul(a->speed, tangent);
+        }
+        if (b->type == Dynamic)
+        {
+            b->speed = glms_vec2_mul(b->speed, tangent);
+        }
+    }
+
+    // integrate position
+    for (int i = 0; i < current; i ++)
+    {
+        if (bodies[i].type == Static)
+            continue;
+        vec2s dx = glms_vec2_scale(bodies[i].speed, ts);
+        bodies[i].position = glms_vec3_add(bodies[i].position, (vec3s){{dx.x, dx.y, 0}});
+    }
+
+
+    // solve contact at rest position constraints. very hacky probably
+    for (int i = 0; i < cCount; i++)
+    {
+        Body *a = contacts[i].a;
+        Body *b = contacts[i].b;
+
+        vec2s normal = contacts[i].normal;
+
+        vec2s dv = glms_vec2_add(a->speed, glms_vec2_negate(b->speed));
+        float sNormal = glms_vec2_dot(dv, normal);
+        if (sNormal > 0.001)
+            break;
 
         vec2s minSeparation = contacts[i].minSeparation;
 
@@ -120,19 +159,18 @@ void update(double ts)
         };
 
         vec2s penetration = glms_vec2_add(minSeparation, glms_vec2_negate(separation));
-        log_vec2("actual", penetration);
 
         vec2s offset = glms_vec2_mul(penetration, normal);
+
+        if (a->type == Dynamic)
         {
-            if (a->type == Dynamic)
-            {
-                a->position = glms_vec3_add(a->position, ((vec3s){{offset.x, offset.y, 0}}));
-            }
-            if (b->type == Dynamic)
-            {
-                b->position = glms_vec3_add(b->position, glms_vec3_negate((vec3s){{offset.x, offset.y, 0}}));
-            }
+            a->position = glms_vec3_add(a->position, ((vec3s){{offset.x, offset.y, 0}}));
         }
+        if (b->type == Dynamic)
+        {
+            b->position = glms_vec3_add(b->position, glms_vec3_negate((vec3s){{offset.x, offset.y, 0}}));
+        }
+
     }
 }
 
