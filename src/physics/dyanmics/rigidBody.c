@@ -30,29 +30,29 @@ void collide(Body* a, Body* b, vec2s minSeparation, struct RestingContact* c)
     c->normal = normal;
     c->minSeparation = minSeparation;
 
-    vec2s vA = a->speed;
-    vec2s vB = b->speed;
+    // vec2s vA = a->speed;
+    // vec2s vB = b->speed;
 
-    vec2s dv = glms_vec2_add(vA, glms_vec2_negate(vB));
+    // vec2s dv = glms_vec2_add(vA, glms_vec2_negate(vB));
 
-    float sNormal = glms_vec2_dot(dv, normal);
-    if (-sNormal < 0.001) // at resting contact
-    {
-        return;
-    }
+    // float sNormal = glms_vec2_dot(dv, normal);
+    // if (-sNormal < 0.001) // at resting contact
+    // {
+    //     return;
+    // }
 
-    vec2s dvNormal = glms_vec2_scale(normal, sNormal);
+    // vec2s dvNormal = glms_vec2_scale(normal, sNormal);
 
-    vec2s vCorrection = glms_vec2_scale(normal, -sNormal*0.5);
-    vec2s dvCorrection = glms_vec2_add(vCorrection, glms_vec2_negate(dvNormal));
-    if (a->type == Dynamic)
-    {
-        a->speed = glms_vec2_add(a->speed, dvCorrection);
-    }
-    if (b->type == Dynamic)
-    {
-        b->speed = glms_vec2_add(b->speed, glms_vec2_negate(dvCorrection));
-    }      
+    // vec2s vCorrection = glms_vec2_scale(normal, -sNormal*0.8);
+    // vec2s dvCorrection = glms_vec2_add(vCorrection, glms_vec2_negate(dvNormal));
+    // if (a->type == Dynamic)
+    // {
+    //     a->speed = glms_vec2_add(a->speed, dvCorrection);
+    // }
+    // if (b->type == Dynamic)
+    // {
+    //     b->speed = glms_vec2_add(b->speed, glms_vec2_negate(dvCorrection));
+    // }      
 }
 
 void update(double ts)
@@ -115,18 +115,23 @@ void update(double ts)
         };
 
         vec2s dv = glms_vec2_add(a->speed, glms_vec2_negate(b->speed));
-        float sNormal = glms_vec2_dot(dv, normal);
-        if (sNormal > 0.001)
-            break;
+
+        float lamdat = glms_vec2_dot(dv, tangent) * 0; // friction
+        vec2s pt = glms_vec2_scale(tangent, lamdat);
+
+        float lamdan = glms_vec2_dot(dv, normal) * 1.5; // restitution
+        vec2s pn = glms_vec2_scale(normal, lamdan);
+
+        vec2s p = glms_vec2_add(pt, pn);
 
         if (a->type == Dynamic)
         {
-            a->speed = glms_vec2_mul(a->speed, tangent);
+            a->speed = glms_vec2_add(a->speed, glms_vec2_negate(p));
         }
         if (b->type == Dynamic)
         {
-            b->speed = glms_vec2_mul(b->speed, tangent);
-        }
+            b->speed = glms_vec2_add(b->speed, p);
+        }    
     }
 
     // integrate position
@@ -134,7 +139,14 @@ void update(double ts)
     {
         if (bodies[i].type == Static)
             continue;
+
         vec2s dx = glms_vec2_scale(bodies[i].speed, ts);
+        if (glms_vec2_dot(dx, dx) > 400)
+        {
+            float r = 20 / glms_vec2_norm(dx);
+            dx = glms_vec2_scale(dx, r);
+        }
+
         bodies[i].position = glms_vec3_add(bodies[i].position, (vec3s){{dx.x, dx.y, 0}});
     }
 
@@ -146,11 +158,6 @@ void update(double ts)
         Body *b = contacts[i].b;
 
         vec2s normal = contacts[i].normal;
-
-        vec2s dv = glms_vec2_add(a->speed, glms_vec2_negate(b->speed));
-        float sNormal = glms_vec2_dot(dv, normal);
-        if (sNormal > 0.001)
-            break;
 
         vec2s minSeparation = contacts[i].minSeparation;
 
@@ -164,11 +171,11 @@ void update(double ts)
 
         if (a->type == Dynamic)
         {
-            a->position = glms_vec3_add(a->position, ((vec3s){{offset.x, offset.y, 0}}));
+            a->position = glms_vec3_add(a->position, glms_vec3_negate((vec3s){{offset.x, -offset.y, 0}}));
         }
         if (b->type == Dynamic)
         {
-            b->position = glms_vec3_add(b->position, glms_vec3_negate((vec3s){{offset.x, offset.y, 0}}));
+            b->position = glms_vec3_add(b->position, ((vec3s){{offset.x, -offset.y, 0}}));
         }
 
     }
