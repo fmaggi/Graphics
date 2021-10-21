@@ -48,7 +48,7 @@ void initWorld()
 
     EntityID roof = newEntity();
     TransformComponent* tr = ECSaddComponent(roof, TransformComponent);
-    tr->position = (vec3s){{-200, 400, -1}};
+    tr->position = (vec3s){{-200, 300, -1}};
     tr->rotation = 0;
     tr->scale = (vec2s){{200, 200}};
 
@@ -90,8 +90,7 @@ void onUpdateWorld(double ts)
         TransformComponent* t = ECSgetComponent(id, TransformComponent);
         PhysicsComponent* p1 = ECSgetComponent(id, PhysicsComponent);
         Body* body = p1->physicsBody;
-        if (body->type == Dynamic) // probably dont need to this as non dynamic bodies dont get updated but is clearer this way
-            t->position = body->position;
+        t->position = body->position;
     }
     closeView(r);
 
