@@ -15,17 +15,17 @@ struct Contact
 
 void collide(Body* a, Body* b, vec2s minSeparation, struct Contact* c)
 {
-    int aOnTop = (a->position.y - b->position.y) > 0 ? 1 : -1;
+    int aOnTop = (a->position.y - b->position.y) > 0 ? -1 : 1;
     vec2s separation = (vec2s){
         {fabs(b->position.x - a->position.x), (a->position.y - b->position.y)}
     };
     separation.x = fabs(b->position.x - a->position.x);
-    separation.y = !aOnTop ? fabs(b->position.y - a->position.y) : fabs(a->position.y - b->position.y);
-    // penetration = (minSeparation - separation)
-    vec2s penetration = glms_vec2_add(minSeparation, glms_vec2_negate(separation));
+    separation.y = aOnTop ? fabs(b->position.y - a->position.y) : fabs(a->position.y - b->position.y);
+    // penetration = (separation - minSeparation)
+    vec2s penetration = glms_vec2_add(separation, glms_vec2_negate(minSeparation));
 
     vec2s normal = (vec2s){
-        {-(penetration.x < penetration.y), aOnTop*(penetration.x > penetration.y)}
+        {(penetration.x > penetration.y), aOnTop*(penetration.x < penetration.y)}
     };
 
     c->a = a;
@@ -70,20 +70,22 @@ void update(double ts)
     }
     LOG_INFO_DEBUG("collide calls: %i\n", calls);
 
+    // This part of the code was inspired by erin catto's Box2d physiscs engine. (https://www.box2d.org/)
+
     //integrate velocity
     for (int i = 0; i < current; i++)
     {
         if (bodies[i].type == Static)
             continue;
         vec2s impulse = bodies[i].impulse;
-        //impulse.y -= 10/ts;
+        impulse.y -= 10/ts;
         bodies[i].impulse = impulse;
         vec2s speed = glms_vec2_scale(bodies[i].impulse, ts);
         bodies[i].speed = glms_vec2_add(bodies[i].speed, speed);
         bodies[i].impulse = GLMS_VEC2_ZERO;
     }
 
-    // solve contact at rest velocity constraints
+    // solve velocity constraints
     for (int i = 0; i < cCount; i++)
     {
         Body *a = contacts[i].a;
@@ -96,7 +98,7 @@ void update(double ts)
 
         vec2s dv = glms_vec2_add(a->speed, glms_vec2_negate(b->speed));
 
-        float lamdat = glms_vec2_dot(dv, tangent) * 0; // friction
+        float lamdat = glms_vec2_dot(dv, tangent) * (0.12); // friction
         vec2s pt = glms_vec2_scale(tangent, lamdat);
 
         float lamdan = glms_vec2_dot(dv, normal) * 1.5; // restitution
@@ -131,7 +133,7 @@ void update(double ts)
     }
 
 
-    // solve contact at rest position constraints. very hacky probably
+    // solve contact at rest position constraints
     for (int i = 0; i < cCount; i++)
     {
         Body *a = contacts[i].a;

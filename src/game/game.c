@@ -69,7 +69,7 @@ void setUpGame()
 void onUpdate()
 {
     double ts = getTimestep(); // I did this to abstract this file of anything GLFW / OpenGL related
-    LOG_INFO_DEBUG("Frametime: %fms\n", ts);
+    LOG_INFO_DEBUG("FPS: %f\n", 1/ts);
     
     onUpdateWorld(ts);
 }
