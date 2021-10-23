@@ -16,9 +16,7 @@ struct Contact
 void collide(Body* a, Body* b, vec2s minSeparation, struct Contact* c)
 {
     int aOnTop = (a->position.y - b->position.y) > 0 ? -1 : 1;
-    vec2s separation = (vec2s){
-        {fabs(b->position.x - a->position.x), (a->position.y - b->position.y)}
-    };
+    vec2s separation;
     separation.x = fabs(b->position.x - a->position.x);
     separation.y = aOnTop ? fabs(b->position.y - a->position.y) : fabs(a->position.y - b->position.y);
     // penetration = (separation - minSeparation)
