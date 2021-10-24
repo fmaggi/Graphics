@@ -45,12 +45,12 @@ static inline char* getFormattedTime()
 
 static inline void log_vec2(char* name, vec2s v)
 {
-    LOG_INFO("%s: %.2f %.2f\n", name, v.x, v.y);
+    LOG_INFO("%s: %.2f %.2f", name, v.x, v.y);
 }
 
 static inline void log_vec3(char* name, vec3s v)
 {
-    LOG_INFO("%s: %.2f %.2f %.2f\n", name, v.x, v.y, v.z);
+    LOG_INFO("%s: %.2f %.2f %.2f", name, v.x, v.y, v.z);
 }
 
 #endif

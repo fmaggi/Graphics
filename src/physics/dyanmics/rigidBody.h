@@ -14,7 +14,7 @@ typedef struct body
     vec2s speed, impulse;
 
     enum BodyType type;
-    int aabbID;
+    int32_t aabbID;
 
     void (*onCollision)(struct body* self, struct body* other);
     void* userData;
@@ -23,10 +23,6 @@ typedef struct body
 
 typedef void (*CollisionCallback)(Body* self, Body* other);
 
-Body* createBody(vec3s position, enum BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags);
 void addAABB(Body* body, float halfWidth, float halfHeight);
-
-//temporary
-void update(double ts);
 
 #endif

@@ -1,8 +1,7 @@
 #include "aabb.h"
 
+#include "contact.h"
 #include "log/log.h"
-
-typedef struct body Body;
 
 typedef struct
 {
@@ -34,11 +33,13 @@ void sort()
     }
 }
 
-void sweepAndPrune(struct CollisionStack* results)
+void sweepAndPrune(struct ContactStack* results)
 {
     sort();
     int active[32] = {-1};
     int index = 0;
+    struct Contact* c = results->contacts;
+    c->prev = NULL;
     for (int i = 0; i < current; i++)
     {
         active[index] = sorted[i];
@@ -50,11 +51,14 @@ void sweepAndPrune(struct CollisionStack* results)
             AABB a = aabbs[active[j]];
             if (b.min.x < a.max.x)
             {
-                struct Collision* c = &results->collisions[results->count++];
                 c->left = a.body;
                 c->right = b.body;
-                c->minSepareation.x = fabs(a.radius.x + b.radius.x);
-                c->minSepareation.y = fabs(a.radius.y + b.radius.y);
+                c->minSeparation.x = fabs(a.radius.x + b.radius.x);
+                c->minSeparation.y = fabs(a.radius.y + b.radius.y);
+
+                c->next = &results->contacts[++results->count];
+                c->next->prev = c;
+                c = c->next;
             }
             else
             {
@@ -73,29 +77,11 @@ int testOverlap(int aID, int bID)
         && a.min.y < b.max.y && a.max.y > b.min.y;
 }
 
-// collideAABB(int aID, int bID, vec2s centerDistance, struct ContactPoint* cp)
-// {
-//     AABB a = aabbs[aID];
-//     AABB b = aabbs[bID];
-
-//     vec2s separation = (vec2s){{
-//         (a.max.x - a.radius.x) - (b.max.x - b.radius.x),
-//         (a.max.y - a.radius.y) - (b.max.y - b.radius.y),
-//     }};
-
-//     cp->minSeparation.x = fabs(a.radius.x + b.radius.x);
-//     cp->minSeparation.y = fabs(a.radius.y + b.radius.y);
-
-//     cp->normal = (vec2s){
-//         {separation.x > separation.y, separation.x < separation.y}
-//     };
-// }
-
 int createAABB2(vec2s center, vec2s halfExtents, void* body)
 {
-    AABB* aabb = &aabbs[current];
+    AABB* aabb = aabbs + current;
     aabb->body = body;
-    
+
     aabb->min.x = center.x - halfExtents.x;
     aabb->min.y = center.y - halfExtents.y;
     aabb->max.x = center.x + halfExtents.x;
@@ -108,7 +94,7 @@ int createAABB2(vec2s center, vec2s halfExtents, void* body)
 
 void updateAABB(int id, vec3s position)
 {
-    AABB* a = &aabbs[id];
+    AABB* a = aabbs + id;
 
     float hWidth = a->radius.x;
     float hHeihgt = a->radius.y;

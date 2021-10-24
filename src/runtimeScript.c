@@ -19,6 +19,9 @@ void playerCollided(Body* self, Body* other)
 void initWorld()
 {
     // World creation here
+
+    initPhysics(-700);
+
     EntityID player = newEntity();
     world.player = player;
 
@@ -90,6 +93,7 @@ void initWorld()
 void onUpdateWorld(double ts)
 {
     // World update here
+    stepPhysics(ts);
 
     struct registryView r = ECSgroupView(PhysicsComponent, TransformComponent);
     for (int i = 0; i < r.count; i++)
@@ -105,16 +109,14 @@ void onUpdateWorld(double ts)
     PhysicsComponent* p = ECSgetComponent(world.player, PhysicsComponent);
     Body* b = p->physicsBody;
     if (isKeyPressed(KEY_W))
-        b->impulse.y += 30 / ts;
+        b->impulse.y += 1800;
     if (isKeyPressed(KEY_S))
-        b->impulse.y -= 30 / ts;
+        b->impulse.y -= 1800;
 
     if (isKeyPressed(KEY_D))
-        b->impulse.x += 30 / ts;
+        b->impulse.x += 1800;
     if (isKeyPressed(KEY_A))
-        b->impulse.x -= 30 / ts;
-
-    update(ts);
+        b->impulse.x -= 1800;
 }
 
 void onRenderWorld()
