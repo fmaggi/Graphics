@@ -23,7 +23,7 @@ int loadTexture(const char* name)
     Texture* self = malloc(sizeof(Texture));
     if (self == NULL)
     {
-        LOG_WARN("Failed to allocate memory for texture\n");
+        LOG_WARN("Failed to allocate memory for texture");
         return -1;
     }
     self->slot = usedSlot++;
@@ -33,13 +33,13 @@ int loadTexture(const char* name)
     strcat(path, "/res/textures/");
     strcat(path, name);
 
-    stbi_set_flip_vertically_on_load(1);  
+    stbi_set_flip_vertically_on_load(1);
 
     glActiveTexture(GL_TEXTURE0 + self->slot);
     glGenTextures(1, &self->id);
     glBindTexture(GL_TEXTURE_2D, self->id);
     // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -47,8 +47,8 @@ int loadTexture(const char* name)
     int width, height, nrChannels;
     unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
     if (data == NULL)
-    {   
-        LOG_ERROR("Failed to load texture %s: %s\n", name, stbi_failure_reason());
+    {
+        LOG_ERROR("Failed to load texture %s: %s", name, stbi_failure_reason());
         --usedSlot;
         return -1;
     }

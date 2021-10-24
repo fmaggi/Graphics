@@ -7,7 +7,7 @@
 #include <time.h>
 
 // Returns the local date/time formatted as 2014-03-19 11:11:52. Not my function. Got it from stackoverflow
-static inline char* getFormattedTime() 
+static inline char* getFormattedTime()
 {
 
     time_t rawtime;
@@ -24,7 +24,7 @@ static inline char* getFormattedTime()
 
 #define PROFILE_FUNC() (printf("[Function call] %s\n",__func__))
 
-#define LOG(...)       (printf("[%s]: ", getFormattedTime()), printf(__VA_ARGS__))
+#define LOG(...)       (printf("[%s]: ", getFormattedTime()), printf(__VA_ARGS__), printf("\n"))
 
 #define LOG_INFO(...)                        (LOG(__VA_ARGS__))
 #define LOG_TRACE(...) (printf("\033[0;32m"), LOG(__VA_ARGS__), printf("\033[0m"))

@@ -56,7 +56,7 @@ static Renderer r;
 
 void initRenderer()
 {
-    LOG_TRACE("Starting the renderer\n");
+    LOG_TRACE("Starting the renderer");
     r.shaders[basicShader] = createShader("vertex.glsl", "fragment.glsl");
 
     r.shaders[uvShader]    = createShader("texV.glsl", "texF.glsl");
@@ -67,7 +67,7 @@ void initRenderer()
 
     r.vertices = malloc(sizeof(struct QuadVertex) * maxVertices);
     if (r.vertices == NULL)
-        LOG_ERROR("Failed memory allocation\n");
+        LOG_ERROR("Failed memory allocation");
 
     r.vertexPtrCurrent = r.vertices;
     r.indexCount = 0;
@@ -84,7 +84,7 @@ void initRenderer()
 
     uint32_t* indices = malloc(sizeof(uint32_t) * maxIndices);
     if (indices == NULL)
-        LOG_ERROR("Failed memory allocation\n");
+        LOG_ERROR("Failed memory allocation");
 
     uint32_t offset = 0;
     int i;
@@ -119,7 +119,7 @@ void initRenderer()
 }
 
 void destroyRenderer()
-{  
+{
     destroyShader(r.shaders[basicShader]);
     destroyShader(r.shaders[uvShader]);
     destroyVao(r.vao);
@@ -177,9 +177,9 @@ void flush()
 }
 
 void endFrame()
-{   
+{
     flush();
-    LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
+    LOG_INFO_DEBUG("Render calls: %i", r.renderCalls);
 }
 
 void rendererSubmit(mat4s transform, vec3s color, float texIndex)

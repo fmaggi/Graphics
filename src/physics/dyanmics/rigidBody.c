@@ -30,7 +30,12 @@ void collide(Body* a, Body* b, vec2s minSeparation, struct Contact* c)
     c->b = b;
     c->normal = normal;
     c->minSeparation = minSeparation;
-    c->penetration = penetration;  
+    c->penetration = penetration;
+
+    if (a->onCollision != NULL)
+        a->onCollision(a, b);
+    if (b->onCollision != NULL)
+        b->onCollision(b, a);
 }
 
 void update(double ts)
@@ -46,7 +51,7 @@ void update(double ts)
         updateAABB(bodies[i].aabbID, bodies[i].position);
     }
 
-    
+
     sweepAndPrune(&c);
 
     struct Contact contacts[32];
@@ -111,7 +116,7 @@ void update(double ts)
         if (b->type == Dynamic)
         {
             b->speed = glms_vec2_add(b->speed, p);
-        }    
+        }
     }
 
     // integrate position
@@ -154,14 +159,16 @@ void update(double ts)
     }
 }
 
-Body* createBody(vec3s position, enum BodyType type, int flags)
+Body* createBody(vec3s position, enum BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)
 {
     Body* body= &bodies[current++];
 
     body->position = position;
     body->type = type;
+    body->onCollision = callback;
+    body->userData = userData;
+    body->userFlags = userFlags;
 
-    body->flags = flags;
     body->impulse = GLMS_VEC2_ZERO;
     body->speed = GLMS_VEC2_ZERO;
     body->aabbID = -1;

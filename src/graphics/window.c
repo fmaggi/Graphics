@@ -17,8 +17,8 @@ static Window window = {0, 0, 0};
 
 void errorCallback(int error, const char* description)
 {
-    LOG_ERROR("OpenGL Error: {%i}:\n", error);
-    LOG("  %s\n", description);
+    LOG_ERROR("OpenGL Error: {%i}:", error);
+    LOG("  %s", description);
 }
 
 void windowCloseCallback(GLFWwindow* window)
@@ -88,12 +88,12 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
 {
     if (window.created)
     {
-        LOG_WARN("Window already created\n");
+        LOG_WARN("Window already created");
         return;
     }
     window.created = true;
 
-    LOG_TRACE("Initializing GLFW and Glad\n");   
+    LOG_TRACE("Initializing GLFW and Glad");
 
     glfwSetErrorCallback(errorCallback);
 
@@ -101,13 +101,13 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        
+
     window.eventCallback = callbackFunc;
 
     GLFWwindow* g_window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (g_window == NULL)
     {
-        LOG_ERROR("Failed to create GLFW window\n");
+        LOG_ERROR("Failed to create GLFW window");
         exit(-1);
     }
     glfwMakeContextCurrent(g_window);
@@ -124,7 +124,7 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        LOG_ERROR("Failed to initialize GLAD\n");
+        LOG_ERROR("Failed to initialize GLAD");
         destroyWindow();
         exit(-1);
     }

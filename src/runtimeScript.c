@@ -8,6 +8,14 @@ typedef struct world
 
 World world;
 
+#define MOVING 1
+
+void playerCollided(Body* self, Body* other)
+{
+    if (other->userFlags & MOVING)
+        LOG_INFO("Hit");
+}
+
 void initWorld()
 {
     // World creation here
@@ -23,7 +31,7 @@ void initWorld()
     s->color = (vec3s){{0.92, 0.45, 0.35}};
     s->texIndex = NO_TEXTURE;
 
-    Body* v = createBody(t->position, Dynamic, 0);
+    Body* v = createBody(t->position, Dynamic, playerCollided, 0, 0);
     addAABB(v, 100, 100);
 
     PhysicsComponent* p = ECSaddComponent(player, PhysicsComponent);
@@ -40,7 +48,7 @@ void initWorld()
     sf->color = (vec3s){{0.3, 0.45, 0.96}};
     sf->texIndex = texture;
 
-    Body* v1 = createBody(tf->position, Static, 0);
+    Body* v1 = createBody(tf->position, Static, 0, 0, 0);
     addAABB(v1, 400, 50);
 
     PhysicsComponent* p1 = ECSaddComponent(floor, PhysicsComponent);
@@ -56,7 +64,7 @@ void initWorld()
     sr->color = (vec3s){{0.92, 0.75, 0.4}};
     sr->texIndex = texture;
 
-    Body* v2 = createBody(tr->position, Static, 0);
+    Body* v2 = createBody(tr->position, Static, 0, 0, 0);
     addAABB(v2, 100, 100);
 
     PhysicsComponent* p2 = ECSaddComponent(roof, PhysicsComponent);
@@ -72,7 +80,7 @@ void initWorld()
     sr2->color = (vec3s){{0.2, 0.92, 0.7}};
     sr2->texIndex = texture;
 
-    Body* v22 = createBody(tr2->position, Dynamic, 0);
+    Body* v22 = createBody(tr2->position, Dynamic, 0, 0, MOVING);
     addAABB(v22, 100, 100);
 
     PhysicsComponent* p22 = ECSaddComponent(roof2, PhysicsComponent);
@@ -111,14 +119,14 @@ void onUpdateWorld(double ts)
 
 void onRenderWorld()
 {
-    struct registryView r = ECSgroupView(SpriteComponent, TransformComponent); 
+    struct registryView r = ECSgroupView(SpriteComponent, TransformComponent);
 
     for (int i = 0; i < r.count; i++)
-    {   
+    {
         EntityID id = r.view[i];
         TransformComponent* t = ECSgetComponent(id, TransformComponent);
         SpriteComponent* s = ECSgetComponent(id, SpriteComponent);
-          
+
         mat4s m = getTransform(t->position, t->rotation, t->scale);
 
         rendererSubmit(m, s->color, s->texIndex);

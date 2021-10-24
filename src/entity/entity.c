@@ -20,14 +20,14 @@ struct Register registers;
 
 void initECS()
 {
-    LOG_TRACE("Initializing ECS\n");
+    LOG_TRACE("Initializing ECS");
     INIT_COMPONENT(TransformComponent);
     INIT_COMPONENT(SpriteComponent);
     INIT_COMPONENT(PhysicsComponent);
     registers.used = malloc(sizeof(ComponentsUsed) * maxEntities);
     if (registers.used == NULL)
     {
-        LOG_ERROR("Memory allocation error\n");
+        LOG_ERROR("Memory allocation error");
         exit(-1);
     }
     memset(registers.used, 0, sizeof(ComponentsUsed) * maxEntities);
@@ -114,7 +114,7 @@ void init_component_internal(enum ComponentType type, uint32_t size, uint32_t co
     void* temp = malloc(size * count);
     if (temp == NULL)
     {
-        LOG_ERROR("Memory allocation error\n");
+        LOG_ERROR("Memory allocation error");
         exit(-1);
     }
     memset(temp, 0, size * count);
