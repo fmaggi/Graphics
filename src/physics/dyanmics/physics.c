@@ -90,19 +90,19 @@ void stepPhysics(double ts)
             {-normal.y, normal.x}
         };
 
-        vec2s dv = glms_vec2_add(a->speed, glms_vec2_negate(b->speed));
+        vec2s dv = glms_vec2_add(b->speed, glms_vec2_negate(a->speed));
 
         float lamdat = glms_vec2_dot(dv, tangent) * (0.12); // friction
         vec2s pt = glms_vec2_scale(tangent, lamdat);
 
-        float lamdan = glms_vec2_dot(dv, normal) * 2; // restitution
+        float lamdan = glms_vec2_dot(dv, normal) * 1.5; // restitution
         vec2s pn = glms_vec2_scale(normal, lamdan);
 
         vec2s p = glms_vec2_add(pt, pn);
 
         if (a->type == Dynamic)
         {
-            a->speed = glms_vec2_add(a->speed, glms_vec2_negate(p));
+            a->speed = glms_vec2_add(a->speed, p);
             if (fabs(a->speed.x) < 30)
                 a->speed.x = 0;
             if (fabs(a->speed.y) < 30)
@@ -111,7 +111,7 @@ void stepPhysics(double ts)
         }
         if (b->type == Dynamic)
         {
-            b->speed = glms_vec2_add(b->speed, p);
+            b->speed = glms_vec2_add(b->speed, glms_vec2_negate(p));
             if (fabs(b->speed.x) < 30)
                 b->speed.x = 0;
             if (fabs(b->speed.y) < 30)
@@ -130,7 +130,7 @@ void stepPhysics(double ts)
         b->position = glms_vec3_add(b->position, (vec3s){{dx.x, dx.y, 0}});
     }
 
-    // solve contact at rest position constraints
+    // solve position constraints
     for (struct Contact* c = stack.contacts; c->next != NULL; c = c->next)
     {
         Body *a = c->left;

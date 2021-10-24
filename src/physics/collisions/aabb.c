@@ -56,7 +56,7 @@ void sweepAndPrune(struct ContactStack* results)
                 c->minSeparation.x = fabs(a.radius.x + b.radius.x);
                 c->minSeparation.y = fabs(a.radius.y + b.radius.y);
 
-                c->next = &results->contacts[++results->count];
+                c->next = results->contacts + (++results->count);
                 c->next->prev = c;
                 c = c->next;
             }
@@ -71,10 +71,10 @@ void sweepAndPrune(struct ContactStack* results)
 
 int testOverlap(int aID, int bID)
 {
-    AABB a = aabbs[aID];
-    AABB b = aabbs[bID];
-    return a.min.x < b.max.x && a.max.x > b.min.x
-        && a.min.y < b.max.y && a.max.y > b.min.y;
+    AABB* a = aabbs + aID;
+    AABB* b = aabbs + bID;
+    return a->min.x < b->max.x && a->max.x > b->min.x
+        && a->min.y < b->max.y && a->max.y > b->min.y;
 }
 
 int createAABB2(vec2s center, vec2s halfExtents, void* body)
