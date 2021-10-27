@@ -13,14 +13,17 @@ World world;
 void playerCollided(Body* self, Body* other)
 {
     if (other->userFlags & MOVING)
-        LOG_INFO("Hit");
+    {
+        EntityID id = *(EntityID*)self->userData;
+        SpriteComponent* s = ECSgetComponent(id, SpriteComponent);
+        s->color = (vec3s){{0.2, 0.5, 0.87}};
+    }
 }
 
 void initWorld()
 {
     // World creation here
-
-    initPhysics(0);
+    initPhysics(-700);
 
     EntityID player = newEntity();
     world.player = player;
@@ -34,7 +37,7 @@ void initWorld()
     s->color = (vec3s){{0.92, 0.45, 0.35}};
     s->texIndex = NO_TEXTURE;
 
-    Body* v = createBody(t->position, Dynamic, playerCollided, 0, 0);
+    Body* v = createBody(t->position, Dynamic, playerCollided, &world.player, 0);
     addAABB(v, 100, 100);
 
     PhysicsComponent* p = ECSaddComponent(player, PhysicsComponent);
@@ -95,16 +98,26 @@ void onUpdateWorld(double ts)
     // World update here
     stepPhysics(ts);
 
-    struct registryView r = ECSgroupView(PhysicsComponent, TransformComponent);
-    for (int i = 0; i < r.count; i++)
+    struct Group group = ECSgroupView(TransformComponent, PhysicsComponent);
+
+    for (int i = 0; i < group.count; i++)
     {
-        EntityID id = r.view[i];
-        TransformComponent* t = ECSgetComponent(id, TransformComponent);
-        PhysicsComponent* p1 = ECSgetComponent(id, PhysicsComponent);
+        struct GroupObject o = ECSgroupGet(&group, i, TransformComponent, PhysicsComponent);
+
+        TransformComponent* t1 = o.component1;
+        PhysicsComponent* p1 = o.component2;
         Body* body = p1->physicsBody;
-        t->position = body->position;
+        t1->position = body->position;
     }
-    closeView(r);
+
+    SpriteComponent* s = ECSgetComponent(world.player, SpriteComponent);
+    int factor = -1;
+    if (s->color.z < 0)
+        factor = 1;
+    else if (s->color.z > 1)
+        factor = -1;
+
+    s->color = glms_vec3_rotate(s->color, 0.08*factor, (vec3s){{1, 1, 1}});
 
     PhysicsComponent* p = ECSgetComponent(world.player, PhysicsComponent);
     Body* b = p->physicsBody;
@@ -121,14 +134,17 @@ void onUpdateWorld(double ts)
 
 void onRenderWorld()
 {
-    struct registryView r = ECSgroupView(SpriteComponent, TransformComponent);
+    struct Group g = ECSgroupView(SpriteComponent, TransformComponent);
 
-    for (int i = 0; i < r.count; i++)
+    for (int i = 0; i < g.count; i++)
     {
-        rendererSubmit(r.view[i]);
-    }
+        struct GroupObject o = ECSgroupGet(&g, i, SpriteComponent, TransformComponent);
 
-    closeView(r);
+        SpriteComponent* s = o.component1;
+        TransformComponent* t = o.component2;
+
+        pushQuad(t->position, t->rotation, t->scale, s->color, s->texIndex);
+    }
 }
 
 int onEventWorld(EventHolder* event)

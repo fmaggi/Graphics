@@ -66,10 +66,11 @@ void setUpGame()
     LOG_TRACE("All done!");
 }
 
-void onUpdate()
+void onUpdate(double ts)
 {
-    double ts = getTimestep(); // I did this to abstract this file of anything GLFW / OpenGL related
-    LOG_INFO_DEBUG("FPS: %f", 1/ts);
+    if (1/ts < 50)
+        LOG_WARN("FPS: %f", 1/ts);
+    // LOG_INFO_DEBUG("FPS: %f", 1/ts);
 
     onUpdateWorld(ts);
 }
@@ -85,7 +86,8 @@ void runGame()
 {
     while (running)
     {
-        onUpdate();
+        double ts = getTimestep();
+        onUpdate(ts);
         onRender();
         updateWindow();
     }

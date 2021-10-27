@@ -2,7 +2,6 @@
 #define RENDERER_H
 
 #include "cglm/struct.h"
-#include "entity/entity.h"
 
 #define MAX_SHADER 2
 enum ShaderType
@@ -14,7 +13,7 @@ enum ShaderType
 void initRenderer();
 void destroyRenderer();
 
-void rendererSubmit(EntityID id);
+void pushQuad(vec3s position, float rotation, vec2s scale, vec3s color, float texIndex);
 
 void startFrame();
 void endFrame();

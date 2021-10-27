@@ -43,6 +43,8 @@ static inline char* getFormattedTime()
     #define LOG_ERROR_DEBUG(...)
 #endif
 
+#define ASSERT(x, m) if (!(x)) { LOG_ERROR((m)); exit(-1); }
+
 static inline void log_vec2(char* name, vec2s v)
 {
     LOG_INFO("%s: %.2f %.2f", name, v.x, v.y);

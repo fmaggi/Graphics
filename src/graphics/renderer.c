@@ -87,8 +87,7 @@ void initRenderer()
         LOG_ERROR("Failed memory allocation");
 
     uint32_t offset = 0;
-    int i;
-    for (i = 0; i < maxIndices; i += 6)
+    for (int32_t i = 0; i < maxIndices; i += 6)
     {
         indices[i]   = 0 + offset;
         indices[i+1] = 1 + offset;
@@ -129,8 +128,7 @@ void destroyRenderer()
 
     for (int i = 0; i < r.currentTexture; i++)
     {
-        if (r.textures[i])
-            unloadTexture(r.textures[i]);
+        unloadTexture(r.textures[i]);
     }
 }
 
@@ -179,8 +177,21 @@ void endFrame()
     LOG_INFO_DEBUG("Render calls: %i", r.renderCalls);
 }
 
-void pushQuad(mat4s transform, vec3s color, float texIndex)
+void pushQuad(vec3s position, float rotation, vec2s scale, vec3s color, float texIndex)
 {
+    float left = position.x + scale.x/2;
+    float right = position.x - scale.x/2;
+    float up = position.y + scale.y/2;
+    float down = position.y - scale.y/2;
+
+    if (left < (-camera.width/2) * camera.zoom + camera.pos.x || right > (camera.width/2) * camera.zoom + camera.pos.x )
+        return;
+
+    if (up < (-camera.height/2) * camera.zoom + camera.pos.y || down > (camera.height/2) * camera.zoom  + camera.pos.y)
+        return;
+
+    mat4s transform = getTransform(position, rotation, scale);
+
     if(r.quadCount >= MAX_QUADS)
     {
         flush();
@@ -198,27 +209,6 @@ void pushQuad(mat4s transform, vec3s color, float texIndex)
     }
     r.indexCount += 6;
     r.quadCount  += 1;
-}
-
-void rendererSubmit(EntityID id)
-{
-    TransformComponent* t = ECSgetComponent(id, TransformComponent);
-    float left = t->position.x + t->scale.x/2;
-    float right = t->position.x - t->scale.x/2;
-    float up = t->position.y + t->scale.y/2;
-    float down = t->position.y - t->scale.y/2;
-
-    if (left < (-camera.width/2) * camera.zoom || right > (camera.width/2) * camera.zoom)
-        return;
-
-    if (up < (-camera.height/2) * camera.zoom || down > (camera.height/2) * camera.zoom)
-        return;
-
-    mat4s transform = getTransform(t->position, t->rotation, t->scale);
-
-    SpriteComponent* s = ECSgetComponent(id, SpriteComponent);
-
-    pushQuad(transform, s->color, s->texIndex);
 }
 
 /**

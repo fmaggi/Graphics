@@ -5,10 +5,16 @@
 
 typedef unsigned char ComponentsUsed; // just a bit map to mark used components by entities. with unsigned char = 8 components per entity
 
+struct Component
+{
+    void* components;
+    uint32_t count;
+};
+
 struct Register
 {
     ComponentsUsed* used;
-    void* Components[MAX_COMPONENT];
+    struct Component Components[MAX_COMPONENT];
 };
 
 extern struct Register registers;

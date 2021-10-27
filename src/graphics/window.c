@@ -4,7 +4,6 @@
 
 #include "stdlib.h"
 #include "log/log.h"
-#include "log/assert_g.h"
 
 typedef struct window
 {
