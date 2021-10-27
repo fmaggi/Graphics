@@ -13,7 +13,7 @@ enum ShaderType
 void initRenderer();
 void destroyRenderer();
 
-void rendererSubmit(mat4s transform, vec3s color, float texIndex);
+void pushQuad(vec3s position, float rotation, vec2s scale, vec3s color, float texIndex);
 
 void startFrame();
 void endFrame();

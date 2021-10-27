@@ -7,7 +7,7 @@
 #include <time.h>
 
 // Returns the local date/time formatted as 2014-03-19 11:11:52. Not my function. Got it from stackoverflow
-static inline char* getFormattedTime() 
+static inline char* getFormattedTime()
 {
 
     time_t rawtime;
@@ -24,7 +24,7 @@ static inline char* getFormattedTime()
 
 #define PROFILE_FUNC() (printf("[Function call] %s\n",__func__))
 
-#define LOG(...)       (printf("[%s]: ", getFormattedTime()), printf(__VA_ARGS__))
+#define LOG(...)       (printf("[%s]: ", getFormattedTime()), printf(__VA_ARGS__), printf("\n"))
 
 #define LOG_INFO(...)                        (LOG(__VA_ARGS__))
 #define LOG_TRACE(...) (printf("\033[0;32m"), LOG(__VA_ARGS__), printf("\033[0m"))
@@ -43,14 +43,16 @@ static inline char* getFormattedTime()
     #define LOG_ERROR_DEBUG(...)
 #endif
 
+#define ASSERT(x, m) if (!(x)) { LOG_ERROR((m)); exit(-1); }
+
 static inline void log_vec2(char* name, vec2s v)
 {
-    LOG_INFO("%s: %.2f %.2f\n", name, v.x, v.y);
+    LOG_INFO("%s: %.2f %.2f", name, v.x, v.y);
 }
 
 static inline void log_vec3(char* name, vec3s v)
 {
-    LOG_INFO("%s: %.2f %.2f %.2f\n", name, v.x, v.y, v.z);
+    LOG_INFO("%s: %.2f %.2f %.2f", name, v.x, v.y, v.z);
 }
 
 #endif

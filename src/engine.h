@@ -4,7 +4,7 @@
 #include "entity/entity.h"
 #include "entity/actions.h"
 
-#include "physics/dyanmics/rigidBody.h"
+#include "physics/dyanmics/physics.h"
 
 #include "graphics/renderer.h"
 #include "graphics/texture.h"

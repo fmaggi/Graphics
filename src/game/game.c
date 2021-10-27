@@ -38,39 +38,40 @@ void onEvent(EventHolder* event)
         return;
 
     switch (event->type)
-    {   
+    {
         case KeyPressed:    return onKeyPressed(*(KeyEvent*) event->instance);
         case KeyReleased:   return;
         case MouseScrolled: return onMouseScrolled(*(MouseScrollEvent*) event->instance);
         case MouseMoved:    return onMouseMoved(*(MouseMovedEvent*) event->instance);
 
         default:
-            LOG_INFO("Event type not currently handled\n");           
+            LOG_INFO("Event type not currently handled");
             return;
     }
 }
 
 void setUpGame()
 {
-    LOG_INFO_DEBUG("DEBUG\n");
+    LOG_INFO_DEBUG("DEBUG");
     createWindow(1200, 800, "LearnOpenGL", &onEvent);
     orthoCamera((vec3s){{0, 0, 0}}, 1200, 800);
 
     initRenderer();
     initECS();
 
-    LOG_TRACE("Initializing client World\n");
+    LOG_TRACE("Initializing client World");
     initWorld();
 
     running = 1;
-    LOG_TRACE("All done!\n");
+    LOG_TRACE("All done!");
 }
 
-void onUpdate()
+void onUpdate(double ts)
 {
-    double ts = getTimestep(); // I did this to abstract this file of anything GLFW / OpenGL related
-    LOG_INFO_DEBUG("Frametime: %fms\n", ts);
-    
+    if (1/ts < 50)
+        LOG_WARN("FPS: %f", 1/ts);
+    // LOG_INFO_DEBUG("FPS: %f", 1/ts);
+
     onUpdateWorld(ts);
 }
 
@@ -85,19 +86,20 @@ void runGame()
 {
     while (running)
     {
-        onUpdate();
+        double ts = getTimestep();
+        onUpdate(ts);
         onRender();
         updateWindow();
     }
 }
 
 void destroyGame()
-{  
+{
     destroyWorld();
     destroyECS();
     destroyRenderer();
     destroyWindow();
-    LOG_TRACE("Good bye\n");
+    LOG_TRACE("Good bye");
 }
 
 void onWindowClose()
@@ -143,7 +145,7 @@ void onKeyPressed(KeyEvent event)
 
 
 void onMouseScrolled(MouseScrollEvent event)
-{   
+{
     updateZoom(event.yoffset);
 }
 

@@ -8,21 +8,21 @@ enum BodyType
     Static = 0, Dynamic
 };
 
-typedef struct
+typedef struct body
 {
     vec3s position;
     vec2s speed, impulse;
-    int flags;
 
     enum BodyType type;
+    int32_t aabbID;
 
-    int aabbID;
+    void (*onCollision)(struct body* self, struct body* other);
+    void* userData;
+    uint32_t userFlags;
 } Body;
 
-Body* createBody(vec3s position, enum BodyType type, int flags);
-void addAABB(Body* body, float halfWidth, float halfHeight);
+typedef void (*CollisionCallback)(Body* self, Body* other);
 
-//temporary
-void update(double ts);
+void addAABB(Body* body, float halfWidth, float halfHeight);
 
 #endif

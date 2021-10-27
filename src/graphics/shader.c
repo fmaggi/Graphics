@@ -6,7 +6,7 @@
 #include "stdlib.h"
 #include "string.h"
 
-typedef struct shader 
+typedef struct shader
 {
     uint32_t vertexID;
     uint32_t fragmentID;
@@ -21,7 +21,7 @@ uint32_t compileShader(const char* path, uint32_t type)
     FILE* srcFile = fopen(buf, "r");
     if (!srcFile)
     {
-        LOG_WARN("Failed to open %s\n", buf);
+        LOG_WARN("Failed to open %s", buf);
         return 0;
     }
     memset(buf, 0, 256);
@@ -33,7 +33,7 @@ uint32_t compileShader(const char* path, uint32_t type)
     fread(src, 1, size, srcFile);
     fclose(srcFile);
     src[size] = 0;
-    
+
     const char** srcAddress = (const char**) &src;
 
     uint32_t shader = glCreateShader(type);
@@ -49,8 +49,8 @@ uint32_t compileShader(const char* path, uint32_t type)
     {
         char* s = type == GL_VERTEX_SHADER ? "Vertex" : "Fragment";
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        LOG_ERROR("%s shader compilation:\n", s);
-        LOG("  %s\n", infoLog);
+        LOG_ERROR("%s shader compilation:", s);
+        LOG("  %s", infoLog);
         exit(-1);
     }
     return shader;
@@ -66,11 +66,11 @@ uint32_t linkShader(uint32_t vertexID, uint32_t fragmentID)
     int success;
     char infoLog[512];
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) 
+    if (!success)
     {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        LOG_ERROR("Shader linking:\n");
-        LOG("  %s\n", infoLog);
+        LOG_ERROR("Shader linking:");
+        LOG("  %s", infoLog);
         exit(-1);
     }
     return shaderProgram;
@@ -80,7 +80,7 @@ Shader* createShader(const char* vertexPath, const char* fragmentPath)
 {
     Shader* shader = malloc(sizeof(Shader));
     if(shader == NULL)
-        LOG_WARN("Memory allocation failed: shader\n");
+        LOG_WARN("Memory allocation failed: shader");
     shader->vertexID = compileShader(vertexPath, GL_VERTEX_SHADER);
     shader->fragmentID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
     shader->programID = linkShader(shader->vertexID, shader->fragmentID);
@@ -99,7 +99,7 @@ int getUniformLocation(Shader* shader, const char* name)
 {
     int location = glGetUniformLocation(shader->programID, name);
     if (location == -1)
-        LOG_WARN("Invalid uniform: %s\n", name);
+        LOG_WARN("Invalid uniform: %s", name);
     return location;
 }
 

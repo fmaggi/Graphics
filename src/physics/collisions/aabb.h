@@ -3,30 +3,12 @@
 
 #include "cglm/struct.h"
 
-struct Collision
-{
-    void *left, *right;
-    vec2s minSepareation;
-};
+int32_t createAABB2(vec2s center, vec2s halfExtents, void* bodyID);
+void updateAABB(int32_t id, vec3s position);
 
-struct CollisionStack
-{
-    struct Collision* collisions;
-    int count;
-};
+struct ContactStack; // forward declaration
+void sweepAndPrune(struct ContactStack* results);
 
-struct ContactPoint
-{
-    vec2s normal, point, minSeparation;
-};
-
-int createAABB2(vec2s center, vec2s halfExtents, void* bodyID);
-void updateAABB(int id, vec3s position);
-
-void sweepAndPrune(struct CollisionStack* results);
-
-int testOverlap(int aID, int bID);
-
-//collideAABB(int aID, int bID, vec2s centerDistance, struct ContactPoint* cp);
+bool testOverlap(int32_t aID, int32_t bID);
 
 #endif

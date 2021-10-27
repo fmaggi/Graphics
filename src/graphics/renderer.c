@@ -7,7 +7,7 @@
 #include "gfx.h"
 #include "camera.h"
 
-#include "entity/entity.h"
+#include "entity/actions.h"
 
 #include "log/log.h"
 
@@ -56,7 +56,7 @@ static Renderer r;
 
 void initRenderer()
 {
-    LOG_TRACE("Starting the renderer\n");
+    LOG_TRACE("Starting the renderer");
     r.shaders[basicShader] = createShader("vertex.glsl", "fragment.glsl");
 
     r.shaders[uvShader]    = createShader("texV.glsl", "texF.glsl");
@@ -67,7 +67,7 @@ void initRenderer()
 
     r.vertices = malloc(sizeof(struct QuadVertex) * maxVertices);
     if (r.vertices == NULL)
-        LOG_ERROR("Failed memory allocation\n");
+        LOG_ERROR("Failed memory allocation");
 
     r.vertexPtrCurrent = r.vertices;
     r.indexCount = 0;
@@ -84,11 +84,10 @@ void initRenderer()
 
     uint32_t* indices = malloc(sizeof(uint32_t) * maxIndices);
     if (indices == NULL)
-        LOG_ERROR("Failed memory allocation\n");
+        LOG_ERROR("Failed memory allocation");
 
     uint32_t offset = 0;
-    int i;
-    for (i = 0; i < maxIndices; i += 6)
+    for (int32_t i = 0; i < maxIndices; i += 6)
     {
         indices[i]   = 0 + offset;
         indices[i+1] = 1 + offset;
@@ -119,7 +118,7 @@ void initRenderer()
 }
 
 void destroyRenderer()
-{  
+{
     destroyShader(r.shaders[basicShader]);
     destroyShader(r.shaders[uvShader]);
     destroyVao(r.vao);
@@ -129,8 +128,7 @@ void destroyRenderer()
 
     for (int i = 0; i < r.currentTexture; i++)
     {
-        if (r.textures[i])
-            unloadTexture(r.textures[i]);
+        unloadTexture(r.textures[i]);
     }
 }
 
@@ -138,9 +136,6 @@ void renderBatch()
 {
     if (r.indexCount == 0)
         return;
-
-    for (int i = 0; i < r.currentTexture; i++)
-        bindTexture(r.textures[i]);
 
     bindVao(r.vao);
     glDrawElements(GL_TRIANGLES, r.indexCount, GL_UNSIGNED_INT, 0);
@@ -177,13 +172,26 @@ void flush()
 }
 
 void endFrame()
-{   
+{
     flush();
-    LOG_INFO_DEBUG("Render calls: %i\n", r.renderCalls);
+    LOG_INFO_DEBUG("Render calls: %i", r.renderCalls);
 }
 
-void rendererSubmit(mat4s transform, vec3s color, float texIndex)
+void pushQuad(vec3s position, float rotation, vec2s scale, vec3s color, float texIndex)
 {
+    float left = position.x + scale.x/2;
+    float right = position.x - scale.x/2;
+    float up = position.y + scale.y/2;
+    float down = position.y - scale.y/2;
+
+    if (left < (-camera.width/2) * camera.zoom + camera.pos.x || right > (camera.width/2) * camera.zoom + camera.pos.x )
+        return;
+
+    if (up < (-camera.height/2) * camera.zoom + camera.pos.y || down > (camera.height/2) * camera.zoom  + camera.pos.y)
+        return;
+
+    mat4s transform = getTransform(position, rotation, scale);
+
     if(r.quadCount >= MAX_QUADS)
     {
         flush();

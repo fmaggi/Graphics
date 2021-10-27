@@ -8,9 +8,23 @@ typedef struct world
 
 World world;
 
+#define MOVING 1
+
+void playerCollided(Body* self, Body* other)
+{
+    if (other->userFlags & MOVING)
+    {
+        EntityID id = *(EntityID*)self->userData;
+        SpriteComponent* s = ECSgetComponent(id, SpriteComponent);
+        s->color = (vec3s){{0.2, 0.5, 0.87}};
+    }
+}
+
 void initWorld()
 {
     // World creation here
+    initPhysics(-700);
+
     EntityID player = newEntity();
     world.player = player;
 
@@ -23,7 +37,7 @@ void initWorld()
     s->color = (vec3s){{0.92, 0.45, 0.35}};
     s->texIndex = NO_TEXTURE;
 
-    Body* v = createBody(t->position, Dynamic, 0);
+    Body* v = createBody(t->position, Dynamic, playerCollided, &world.player, 0);
     addAABB(v, 100, 100);
 
     PhysicsComponent* p = ECSaddComponent(player, PhysicsComponent);
@@ -40,7 +54,7 @@ void initWorld()
     sf->color = (vec3s){{0.3, 0.45, 0.96}};
     sf->texIndex = texture;
 
-    Body* v1 = createBody(tf->position, Static, 0);
+    Body* v1 = createBody(tf->position, Static, 0, 0, 0);
     addAABB(v1, 400, 50);
 
     PhysicsComponent* p1 = ECSaddComponent(floor, PhysicsComponent);
@@ -48,7 +62,7 @@ void initWorld()
 
     EntityID roof = newEntity();
     TransformComponent* tr = ECSaddComponent(roof, TransformComponent);
-    tr->position = (vec3s){{-200, 400, -1}};
+    tr->position = (vec3s){{-200, 300, -1}};
     tr->rotation = 0;
     tr->scale = (vec2s){{200, 200}};
 
@@ -56,7 +70,7 @@ void initWorld()
     sr->color = (vec3s){{0.92, 0.75, 0.4}};
     sr->texIndex = texture;
 
-    Body* v2 = createBody(tr->position, Static, 0);
+    Body* v2 = createBody(tr->position, Static, 0, 0, 0);
     addAABB(v2, 100, 100);
 
     PhysicsComponent* p2 = ECSaddComponent(roof, PhysicsComponent);
@@ -72,7 +86,7 @@ void initWorld()
     sr2->color = (vec3s){{0.2, 0.92, 0.7}};
     sr2->texIndex = texture;
 
-    Body* v22 = createBody(tr2->position, Dynamic, 0);
+    Body* v22 = createBody(tr2->position, Dynamic, 0, 0, MOVING);
     addAABB(v22, 100, 100);
 
     PhysicsComponent* p22 = ECSaddComponent(roof2, PhysicsComponent);
@@ -82,53 +96,55 @@ void initWorld()
 void onUpdateWorld(double ts)
 {
     // World update here
+    stepPhysics(ts);
 
-    struct registryView r = ECSgroupView(PhysicsComponent, TransformComponent);
-    for (int i = 0; i < r.count; i++)
+    struct Group group = ECSgroupView(TransformComponent, PhysicsComponent);
+
+    for (int i = 0; i < group.count; i++)
     {
-        EntityID id = r.view[i];
-        TransformComponent* t = ECSgetComponent(id, TransformComponent);
-        PhysicsComponent* p1 = ECSgetComponent(id, PhysicsComponent);
+        struct GroupObject o = ECSgroupGet(&group, i, TransformComponent, PhysicsComponent);
+
+        TransformComponent* t1 = o.component1;
+        PhysicsComponent* p1 = o.component2;
         Body* body = p1->physicsBody;
-        if (body->type == Dynamic) // probably dont need to this as non dynamic bodies dont get updated but is clearer this way
-            t->position = body->position;
+        t1->position = body->position;
     }
-    closeView(r);
+
+    SpriteComponent* s = ECSgetComponent(world.player, SpriteComponent);
+    int factor = -1;
+    if (s->color.z < 0)
+        factor = 1;
+    else if (s->color.z > 1)
+        factor = -1;
+
+    s->color = glms_vec3_rotate(s->color, 0.08*factor, (vec3s){{1, 1, 1}});
 
     PhysicsComponent* p = ECSgetComponent(world.player, PhysicsComponent);
     Body* b = p->physicsBody;
     if (isKeyPressed(KEY_W))
-        b->impulse.y += 30 / ts;
-
+        b->impulse.y += 1800;
     if (isKeyPressed(KEY_S))
-        b->impulse.y -= 30 / ts;
+        b->impulse.y -= 1800;
 
     if (isKeyPressed(KEY_D))
-        b->impulse.x += 30 / ts;
+        b->impulse.x += 1800;
     if (isKeyPressed(KEY_A))
-        b->impulse.x -= 30 / ts;
-
-    // log_vec2("", b->speed);
-
-    update(ts);
+        b->impulse.x -= 1800;
 }
 
 void onRenderWorld()
 {
-    struct registryView r = ECSgroupView(SpriteComponent, TransformComponent); 
+    struct Group g = ECSgroupView(SpriteComponent, TransformComponent);
 
-    for (int i = 0; i < r.count; i++)
-    {   
-        EntityID id = r.view[i];
-        TransformComponent* t = ECSgetComponent(id, TransformComponent);
-        SpriteComponent* s = ECSgetComponent(id, SpriteComponent);
-          
-        mat4s m = getTransform(t->position, t->rotation, t->scale);
+    for (int i = 0; i < g.count; i++)
+    {
+        struct GroupObject o = ECSgroupGet(&g, i, SpriteComponent, TransformComponent);
 
-        rendererSubmit(m, s->color, s->texIndex);
+        SpriteComponent* s = o.component1;
+        TransformComponent* t = o.component2;
+
+        pushQuad(t->position, t->rotation, t->scale, s->color, s->texIndex);
     }
-
-    closeView(r);
 }
 
 int onEventWorld(EventHolder* event)
