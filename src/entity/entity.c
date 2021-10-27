@@ -73,7 +73,6 @@ void* ecs_view_get_internal(struct View* view, uint32_t size, enum ComponentType
     while (!(has_component_internal(i, type)))
         i++;
 
-    assert(i < view->count);
     return view->component + i*size;
 }
 
@@ -91,8 +90,6 @@ struct GroupObject ecs_group_get_internal(struct Group* group, uint32_t size1, u
 {
     while((registers.used[i] & group->mask) != group->mask)
         i++;
-
-    assert(i < group->count);
 
     struct GroupObject o;
     o.component1 = group->component1 + i*size1;
@@ -114,7 +111,6 @@ void* ecs_get_component_internal(EntityID id, enum ComponentType type, uint32_t 
     uint32_t offset = size * id;
     return (registers.Components[type].components + offset);
 }
-
 
 void init_component_internal(enum ComponentType type, uint32_t size, uint32_t count)
 {
