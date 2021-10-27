@@ -7,7 +7,7 @@
 #include "gfx.h"
 #include "camera.h"
 
-#include "entity/entity.h"
+#include "entity/actions.h"
 
 #include "log/log.h"
 
@@ -139,9 +139,6 @@ void renderBatch()
     if (r.indexCount == 0)
         return;
 
-    for (int i = 0; i < r.currentTexture; i++)
-        bindTexture(r.textures[i]);
-
     bindVao(r.vao);
     glDrawElements(GL_TRIANGLES, r.indexCount, GL_UNSIGNED_INT, 0);
     r.renderCalls++;
@@ -182,7 +179,7 @@ void endFrame()
     LOG_INFO_DEBUG("Render calls: %i", r.renderCalls);
 }
 
-void rendererSubmit(mat4s transform, vec3s color, float texIndex)
+void pushQuad(mat4s transform, vec3s color, float texIndex)
 {
     if(r.quadCount >= MAX_QUADS)
     {
@@ -201,6 +198,27 @@ void rendererSubmit(mat4s transform, vec3s color, float texIndex)
     }
     r.indexCount += 6;
     r.quadCount  += 1;
+}
+
+void rendererSubmit(EntityID id)
+{
+    TransformComponent* t = ECSgetComponent(id, TransformComponent);
+    float left = t->position.x + t->scale.x/2;
+    float right = t->position.x - t->scale.x/2;
+    float up = t->position.y + t->scale.y/2;
+    float down = t->position.y - t->scale.y/2;
+
+    if (left < (-camera.width/2) * camera.zoom || right > (camera.width/2) * camera.zoom)
+        return;
+
+    if (up < (-camera.height/2) * camera.zoom || down > (camera.height/2) * camera.zoom)
+        return;
+
+    mat4s transform = getTransform(t->position, t->rotation, t->scale);
+
+    SpriteComponent* s = ECSgetComponent(id, SpriteComponent);
+
+    pushQuad(transform, s->color, s->texIndex);
 }
 
 /**

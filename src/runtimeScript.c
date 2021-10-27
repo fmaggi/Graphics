@@ -20,7 +20,7 @@ void initWorld()
 {
     // World creation here
 
-    initPhysics(-700);
+    initPhysics(0);
 
     EntityID player = newEntity();
     world.player = player;
@@ -125,13 +125,7 @@ void onRenderWorld()
 
     for (int i = 0; i < r.count; i++)
     {
-        EntityID id = r.view[i];
-        TransformComponent* t = ECSgetComponent(id, TransformComponent);
-        SpriteComponent* s = ECSgetComponent(id, SpriteComponent);
-
-        mat4s m = getTransform(t->position, t->rotation, t->scale);
-
-        rendererSubmit(m, s->color, s->texIndex);
+        rendererSubmit(r.view[i]);
     }
 
     closeView(r);

@@ -69,7 +69,7 @@ void sweepAndPrune(struct ContactStack* results)
     }
 }
 
-int testOverlap(int aID, int bID)
+bool testOverlap(int aID, int bID)
 {
     AABB* a = aabbs + aID;
     AABB* b = aabbs + bID;
@@ -77,7 +77,7 @@ int testOverlap(int aID, int bID)
         && a->min.y < b->max.y && a->max.y > b->min.y;
 }
 
-int createAABB2(vec2s center, vec2s halfExtents, void* body)
+int32_t createAABB2(vec2s center, vec2s halfExtents, void* body)
 {
     AABB* aabb = aabbs + current;
     aabb->body = body;
