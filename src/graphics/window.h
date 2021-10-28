@@ -1,11 +1,7 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include "events/event.h"
-
-typedef void (*EventDispatchFunc)(EventHolder* event);
-
-void createWindow(int width, int height, const char* title, EventDispatchFunc callbackFunc);
+void createWindow(int width, int height, const char* title);
 void destroyWindow();
 
 int windowIsKeyPressed(int key);

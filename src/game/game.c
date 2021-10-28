@@ -4,7 +4,7 @@
 
 #include "cglm/struct.h"
 
-#include "events/event.h"
+#include "events/eventDispatcher.h"
 
 #include "graphics/window.h"
 #include "graphics/renderer.h"
@@ -53,7 +53,7 @@ void onEvent(EventHolder* event)
 void setUpGame()
 {
     LOG_INFO_DEBUG("DEBUG");
-    createWindow(1200, 800, "LearnOpenGL", &onEvent);
+    createWindow(1200, 800, "LearnOpenGL");
     orthoCamera((vec3s){{0, 0, 0}}, 1200, 800);
 
     initRenderer();
@@ -125,9 +125,7 @@ void onKeyPressed(KeyEvent event)
         }
         case KEY_C:
         {
-            if (event.mods == MOD_CONTROL)
-                running = 0;
-            else
+            if (event.mods == 0)
                 rendererSetShader(basicShader);
             break;
         }

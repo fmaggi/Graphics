@@ -18,7 +18,7 @@ bool moveCamera(float xoffset, float yoffset)
 {
     if (!isMouseButtonPressed(MOUSE_BUTTON_LEFT))
         return 0;
-        
+
     // glfw has its origin at the top left and I use the origin at the bottom left so I need to add one and substact the other
     camera.pos.x -= xoffset * camera.zoom;
     camera.pos.y += yoffset * camera.zoom;

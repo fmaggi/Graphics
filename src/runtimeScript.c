@@ -149,6 +149,16 @@ void onRenderWorld()
 
 int onEventWorld(EventHolder* event)
 {
+    if (event->type == KeyPressed)
+    {
+        KeyEvent e = *(KeyEvent*) event->instance;
+        if (e.key == KEY_C && e.mods == MOD_CONTROL)
+        {
+            EventHolder h = { .instance = 0, .type = WindowClose };
+            dispatchEvent(&h);
+            return 1;
+        }
+    }
     return 0;
 }
 
