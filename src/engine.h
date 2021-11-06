@@ -10,6 +10,7 @@
 
 #include "graphics/renderer.h"
 #include "graphics/texture.h"
+#include "graphics/camera.h"
 
 #include "game/input.h"
 

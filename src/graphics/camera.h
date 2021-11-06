@@ -12,10 +12,11 @@ typedef struct camera
 
 extern Camera camera;
 
+bool inFrustum(float left, float right, float top, float bottom);
+
 void orthoCamera(vec3s pos, float width, float height);
 
-bool moveCamera(float xpos, float ypos);
-
+void moveCamera(float xpos, float ypos);
 void updateZoom(float zoom);
 void calculateViewProj();
 void updateProjectionMatrix(float width, float height);

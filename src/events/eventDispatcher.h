@@ -3,6 +3,6 @@
 
 #include "event.h"
 
-void dispatchEvent(EventHolder* event);
+void dispatchEvent(EventHolder event);
 
 #endif

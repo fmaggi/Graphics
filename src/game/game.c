@@ -27,22 +27,22 @@ void onMouseMoved(MouseMovedEvent event);
 
 int running;
 
-void onEvent(EventHolder* event)
+void onEvent(EventHolder event)
 {
-    if (event->type == WindowClose)
+    if (event.type == WindowClose)
         return onWindowClose();
-    if (event->type == WindowResize)
-        return onWindowResize(*(WindowResizeEvent*) event->instance);
+    if (event.type == WindowResize)
+        return onWindowResize(*(WindowResizeEvent*) event.instance);
 
     if (onEventWorld(event))
         return;
 
-    switch (event->type)
+    switch (event.type)
     {
-        case KeyPressed:    return onKeyPressed(*(KeyEvent*) event->instance);
+        case KeyPressed:    return onKeyPressed(*(KeyEvent*) event.instance);
         case KeyReleased:   return;
-        case MouseScrolled: return onMouseScrolled(*(MouseScrollEvent*) event->instance);
-        case MouseMoved:    return onMouseMoved(*(MouseMovedEvent*) event->instance);
+        case MouseScrolled: return onMouseScrolled(*(MouseScrollEvent*) event.instance);
+        case MouseMoved:    return onMouseMoved(*(MouseMovedEvent*) event.instance);
 
         default:
             LOG_INFO("Event type not currently handled");
@@ -141,7 +141,6 @@ void onKeyPressed(KeyEvent event)
     }
 }
 
-
 void onMouseScrolled(MouseScrollEvent event)
 {
     updateZoom(event.yoffset);
@@ -157,5 +156,6 @@ void onMouseMoved(MouseMovedEvent event)
 
     lastX = event.x;
     lastY = event.y;
-    moveCamera(offsetX, offsetY);
+    if (isMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        moveCamera(-offsetX, offsetY);
 }

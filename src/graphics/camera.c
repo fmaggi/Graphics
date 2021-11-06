@@ -14,17 +14,12 @@ void orthoCamera(vec3s pos, float width, float height)
     calculateViewProj();
 }
 
-bool moveCamera(float xoffset, float yoffset)
+void moveCamera(float xoffset, float yoffset)
 {
-    if (!isMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        return 0;
-
-    // glfw has its origin at the top left and I use the origin at the bottom left so I need to add one and substact the other
-    camera.pos.x -= xoffset * camera.zoom;
+    // to move it with mouse x axis movement needs to be negative because of different origin placement by GLFW and OpenGL
+    camera.pos.x += xoffset * camera.zoom;
     camera.pos.y += yoffset * camera.zoom;
-
     calculateViewProj();
-    return 1;
 }
 
 void calculateViewProj()
@@ -47,4 +42,15 @@ void updateProjectionMatrix(float width, float height)
     camera.width = width;
     camera.height = height;
     calculateViewProj();
+}
+
+bool inFrustum(float left, float right, float top, float bottom)
+{
+    bool sideToSide = left > (-camera.width/2) * camera.zoom + camera.pos.x
+                    && right < (camera.width/2) * camera.zoom + camera.pos.x;
+
+    bool topToBottom = top > (-camera.height/2) * camera.zoom + camera.pos.y
+                    && bottom < (camera.height/2) * camera.zoom  + camera.pos.y;
+
+    return sideToSide && topToBottom;
 }

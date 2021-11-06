@@ -27,7 +27,7 @@ void windowCloseCallback(GLFWwindow* window)
     EventHolder holder;
     holder.instance = &e;
     holder.type = WindowClose;
-    dispatchEvent(&holder);
+    dispatchEvent(holder);
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height)
@@ -40,7 +40,7 @@ void windowResizeCallback(GLFWwindow* window, int width, int height)
     EventHolder holder;
     holder.instance = &e;
     holder.type = WindowResize;
-    dispatchEvent(&holder);
+    dispatchEvent(holder);
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -53,7 +53,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     EventHolder holder;
     holder.instance = &e;
     holder.type = action == GLFW_RELEASE ? KeyReleased : KeyPressed;
-    dispatchEvent(&holder);
+    dispatchEvent(holder);
 }
 
 void mouseMovedCallback(GLFWwindow* window, double x, double y)
@@ -64,7 +64,7 @@ void mouseMovedCallback(GLFWwindow* window, double x, double y)
     EventHolder holder;
     holder.instance = &e;
     holder.type = MouseMoved;
-    dispatchEvent(&holder);
+    dispatchEvent(holder);
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -75,7 +75,7 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     EventHolder holder;
     holder.instance = &e;
     holder.type = MouseScrolled;
-    dispatchEvent(&holder);
+    dispatchEvent(holder);
 }
 
 void createWindow(int width, int height, const char* title)
