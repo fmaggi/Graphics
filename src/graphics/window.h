@@ -6,6 +6,7 @@ void destroyWindow();
 
 int windowIsKeyPressed(int key);
 int windowIsMouseButtonPressed(int button);
+void windowGetCursorPos(double* x, double* y);
 
 void updateWindow();
 

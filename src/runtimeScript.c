@@ -28,7 +28,7 @@ void initWorld()
     world.player = player;
 
     TransformComponent* t = ECSaddComponent(player, TransformComponent);
-    t->position = (vec3s){{-300, 0, -1}};
+    t->position = (vec3s){{0, 0, -1}};
     t->rotation = 0;
     t->scale = (vec2s){{200, 200}};
 

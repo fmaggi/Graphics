@@ -11,6 +11,7 @@ typedef struct window
 {
     GLFWwindow* g_window;
     bool created;
+    int width, height;
 } Window;
 
 static Window window = {0, 0};
@@ -32,6 +33,10 @@ void windowResizeCallback(GLFWwindow* window, int width, int height)
     e.width = width;
     e.height = height;
     dispatchEvent(&e, WindowResize);
+
+    Window* w = glfwGetWindowUserPointer(window);
+    w->width = width;
+    w->height = height;
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -93,6 +98,8 @@ void createWindow(int width, int height, const char* title)
     glfwSetScrollCallback(g_window, scrollCallback);
     glfwSetCursorPosCallback(g_window, mouseMovedCallback);
 
+    glfwSetWindowUserPointer(g_window, &window);
+
     window.g_window = g_window;
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -103,6 +110,9 @@ void createWindow(int width, int height, const char* title)
     }
 
     glViewport(0, 0, width, height);
+
+    window.width = width;
+    window.height = height;
 }
 
 void destroyWindow()
@@ -124,4 +134,12 @@ void updateWindow()
 {
     glfwSwapBuffers(window.g_window);
     glfwPollEvents();
+}
+
+void windowGetCursorPos(double* x, double* y)
+{
+    // Origin is at the center
+    glfwGetCursorPos(window.g_window, x, y);
+    *y = window.height/2 - *y;
+    *x = -window.width/2 + *x;
 }
