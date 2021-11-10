@@ -21,4 +21,6 @@ void endFrame();
 void rendererChangeMode();
 void rendererSetShader(enum ShaderType type);
 
+void setViewport(int width, int height);
+
 #endif

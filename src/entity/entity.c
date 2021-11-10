@@ -1,7 +1,6 @@
 #include "entity.h"
 
 #include "register.h"
-#include "assert.h"
 
 #include "log/log.h"
 #include "stdint.h"
@@ -67,7 +66,6 @@ struct View ecs_view_internal(enum ComponentType type, uint32_t size)
 
     return view;
 }
-
 
 void* ECSviewGetComponent(struct View* view, uint32_t i)
 {

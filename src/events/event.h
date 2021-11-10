@@ -8,12 +8,6 @@ enum EventType
     MousePressed, MouseReleased, MouseMoved, MouseScrolled,
 };
 
-typedef struct event
-{
-    void* instance;
-    enum EventType type;
-} EventHolder;
-
 typedef struct keyEvent
 {
     int key, scancode, mods, repeat;

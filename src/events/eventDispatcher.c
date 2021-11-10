@@ -1,8 +1,8 @@
 #include "eventDispatcher.h"
 
-extern void onEvent(EventHolder event);
+extern void onEvent(void* event, enum EventType type);
 
-void dispatchEvent(EventHolder event)
+void dispatchEvent(void* event, enum EventType type)
 {
-    onEvent(event);
+    onEvent(event, type);
 }

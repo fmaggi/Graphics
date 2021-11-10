@@ -8,11 +8,9 @@ typedef struct world
 
 World world;
 
-#define MOVING 1
-
 void playerCollided(Body* self, Body* other)
 {
-    if (other->userFlags & MOVING)
+    if (other->type == Dynamic)
     {
         EntityID id = *(EntityID*) self->userData;
         SpriteComponent* s = ECSgetComponent(id, SpriteComponent);
@@ -24,6 +22,7 @@ void initWorld()
 {
     // World creation here
     initPhysics(-700);
+    orthoCamera((vec3s){{0, 0, 0}}, 1200, 800);
 
     EntityID player = newEntity();
     world.player = player;
@@ -32,7 +31,6 @@ void initWorld()
     t->position = (vec3s){{-300, 0, -1}};
     t->rotation = 0;
     t->scale = (vec2s){{200, 200}};
-
 
     SpriteComponent* s = ECSaddComponent(player, SpriteComponent);
     s->color = (vec3s){{0.92, 0.45, 0.35}};
@@ -87,7 +85,7 @@ void initWorld()
     sr2->color = (vec3s){{0.2, 0.92, 0.7}};
     sr2->texIndex = texture;
 
-    Body* v22 = createBody(tr2->position, Dynamic, 0, 0, MOVING);
+    Body* v22 = createBody(tr2->position, Dynamic, 0, 0, 0);
     addAABB(v22, 100, 100);
 
     PhysicsComponent* p22 = ECSaddComponent(roof2, PhysicsComponent);
@@ -152,16 +150,16 @@ void onRenderWorld()
     }
 }
 
-int onEventWorld(EventHolder event)
+int onEventWorld(void* event, enum EventType type)
 {
-    if (event.type == KeyPressed)
+    if (type == KeyPressed)
     {
-        KeyEvent e = *(KeyEvent*) event.instance;
+        KeyEvent e = *(KeyEvent*) event;
         if (e.key == KEY_C && e.mods == MOD_CONTROL)
-            dispatchEvent((EventHolder){ .instance = 0, .type = WindowClose });
+            dispatchEvent(0, WindowClose);
     }
-    else if (event.type == MouseMoved)
-        return 1;
+    else if (type == MouseMoved)
+        return 0;
     return 0;
 }
 

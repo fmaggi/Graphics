@@ -3,6 +3,6 @@
 
 #include "event.h"
 
-void dispatchEvent(EventHolder event);
+void dispatchEvent(void* event, enum EventType type);
 
 #endif

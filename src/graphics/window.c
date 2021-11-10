@@ -23,24 +23,15 @@ void errorCallback(int error, const char* description)
 
 void windowCloseCallback(GLFWwindow* window)
 {
-    WindowCloseEvent e;
-    EventHolder holder;
-    holder.instance = &e;
-    holder.type = WindowClose;
-    dispatchEvent(holder);
+    dispatchEvent(0, WindowClose);
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height)
 {
-    glViewport(0, 0, width, height);
-
     WindowResizeEvent e;
     e.width = width;
     e.height = height;
-    EventHolder holder;
-    holder.instance = &e;
-    holder.type = WindowResize;
-    dispatchEvent(holder);
+    dispatchEvent(&e, WindowResize);
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -50,10 +41,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     e.scancode = scancode;
     e.mods = mods;
     e.repeat = action == GLFW_REPEAT ? 1 : 0;
-    EventHolder holder;
-    holder.instance = &e;
-    holder.type = action == GLFW_RELEASE ? KeyReleased : KeyPressed;
-    dispatchEvent(holder);
+    enum EventType type = action == GLFW_RELEASE ? KeyReleased : KeyPressed;
+    dispatchEvent(&e, type);
 }
 
 void mouseMovedCallback(GLFWwindow* window, double x, double y)
@@ -61,10 +50,7 @@ void mouseMovedCallback(GLFWwindow* window, double x, double y)
     MouseMovedEvent e;
     e.x = (float) x;
     e.y = (float) y;
-    EventHolder holder;
-    holder.instance = &e;
-    holder.type = MouseMoved;
-    dispatchEvent(holder);
+    dispatchEvent(&e, MouseMoved);
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -72,10 +58,7 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     MouseScrollEvent e;
     e.xoffset = (float) xoffset;
     e.yoffset = (float) yoffset;
-    EventHolder holder;
-    holder.instance = &e;
-    holder.type = MouseScrolled;
-    dispatchEvent(holder);
+    dispatchEvent(&e, MouseScrolled);
 }
 
 void createWindow(int width, int height, const char* title)
@@ -103,8 +86,6 @@ void createWindow(int width, int height, const char* title)
         exit(-1);
     }
     glfwMakeContextCurrent(g_window);
-
-    glfwSetWindowUserPointer(g_window, &window);
 
     glfwSetWindowCloseCallback(g_window, windowCloseCallback);
     glfwSetWindowSizeCallback(g_window, windowResizeCallback);

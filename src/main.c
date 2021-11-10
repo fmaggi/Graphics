@@ -2,7 +2,7 @@
 
 int main()
 {
-    setUpGame();
+    setUpGame(1200, 800, "Graphics");
     runGame();
     destroyGame();
 }

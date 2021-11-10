@@ -27,22 +27,22 @@ void onMouseMoved(MouseMovedEvent event);
 
 int running;
 
-void onEvent(EventHolder event)
+void onEvent(void* event, enum EventType type)
 {
-    if (event.type == WindowClose)
+    if (type == WindowClose)
         return onWindowClose();
-    if (event.type == WindowResize)
-        return onWindowResize(*(WindowResizeEvent*) event.instance);
+    if (type == WindowResize)
+        return onWindowResize(*(WindowResizeEvent*) event);
 
-    if (onEventWorld(event))
+    if (onEventWorld(event, type))
         return;
 
-    switch (event.type)
+    switch (type)
     {
-        case KeyPressed:    return onKeyPressed(*(KeyEvent*) event.instance);
+        case KeyPressed:    return onKeyPressed(*(KeyEvent*) event);
         case KeyReleased:   return;
-        case MouseScrolled: return onMouseScrolled(*(MouseScrollEvent*) event.instance);
-        case MouseMoved:    return onMouseMoved(*(MouseMovedEvent*) event.instance);
+        case MouseScrolled: return onMouseScrolled(*(MouseScrollEvent*) event);
+        case MouseMoved:    return onMouseMoved(*(MouseMovedEvent*) event);
 
         default:
             LOG_INFO("Event type not currently handled");
@@ -50,11 +50,10 @@ void onEvent(EventHolder event)
     }
 }
 
-void setUpGame()
+void setUpGame(int width, int height, const char* title)
 {
     LOG_INFO_DEBUG("DEBUG");
-    createWindow(1200, 800, "LearnOpenGL");
-    orthoCamera((vec3s){{0, 0, 0}}, 1200, 800);
+    createWindow(width, height, title);
 
     initRenderer();
     initECS();
@@ -110,6 +109,7 @@ void onWindowClose()
 void onWindowResize(WindowResizeEvent event)
 {
     updateProjectionMatrix(event.width, event.height);
+    setViewport(event.width, event.height);
 }
 
 void onKeyPressed(KeyEvent event)
