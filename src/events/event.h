@@ -20,7 +20,7 @@ typedef struct mouseButton
 
 typedef struct mouseMoved
 {
-    float x, y;
+    float dx, dy;
 } MouseMovedEvent;
 
 typedef struct scroll

@@ -148,14 +148,7 @@ void onMouseScrolled(MouseScrollEvent event)
 
 void onMouseMoved(MouseMovedEvent event)
 {
-    static float lastX = 0;
-    static float lastY = 0;
-
-    float offsetX = event.x - lastX;
-    float offsetY = event.y - lastY;
-
-    lastX = event.x;
-    lastY = event.y;
+    LOG_INFO("%f %f", event.dx, event.dy);
     if (isMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        moveCamera(-offsetX, offsetY);
+        moveCamera(event.dx, event.dy);
 }

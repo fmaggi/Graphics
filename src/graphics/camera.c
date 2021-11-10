@@ -17,8 +17,8 @@ void orthoCamera(vec3s pos, float width, float height)
 void moveCamera(float xoffset, float yoffset)
 {
     // to move it with mouse x axis movement needs to be negative because of different origin placement by GLFW and OpenGL
-    camera.pos.x += xoffset * camera.zoom;
-    camera.pos.y += yoffset * camera.zoom;
+    camera.pos.x -= xoffset * camera.zoom;
+    camera.pos.y -= yoffset * camera.zoom;
     calculateViewProj();
 }
 

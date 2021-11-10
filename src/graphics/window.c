@@ -52,9 +52,19 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 void mouseMovedCallback(GLFWwindow* window, double x, double y)
 {
+    static float lastX = 0;
+    static float lastY = 0;
+
+    float offsetX = x - lastX;
+    float offsetY = y - lastY;
+
+    lastX = x;
+    lastY = y;
     MouseMovedEvent e;
-    e.x = (float) x;
-    e.y = (float) y;
+
+    // this is a bit counterintuitive but Ive done it this way to make dx from left to right positiove and dy from down to up positive
+    e.dx = (float) offsetX;
+    e.dy = (float) -offsetY;
     dispatchEvent(&e, MouseMoved);
 }
 
