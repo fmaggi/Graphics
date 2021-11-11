@@ -3,6 +3,6 @@
 
 #include "event.h"
 
-void dispatchEvent(void* event, enum EventType type);
+void dispatchEvent(struct Event event);
 
 #endif

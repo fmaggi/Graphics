@@ -21,6 +21,7 @@ void playerCollided(Body* self, Body* other)
 void initWorld()
 {
     // World creation here
+    LOG_INFO("%li", sizeof(struct Event) / sizeof(int));
     initPhysics(-700);
     orthoCamera((vec3s){{0, 0, 0}}, 1200, 800);
 
@@ -150,15 +151,14 @@ void onRenderWorld()
     }
 }
 
-int onEventWorld(void* event, enum EventType type)
+int onEventWorld(struct Event e)
 {
-    if (type == KeyPressed)
+    if (e.type == KeyPressed)
     {
-        KeyEvent e = *(KeyEvent*) event;
-        if (e.key == KEY_C && e.mods == MOD_CONTROL)
-            dispatchEvent(0, WindowClose);
+        if (e.key.key == KEY_C && e.key.mods == MOD_CONTROL)
+            dispatchEvent((struct Event){ .type = WindowClose });
     }
-    else if (type == MouseMoved)
+    else if (e.type == MouseMoved)
         return 0;
     return 0;
 }

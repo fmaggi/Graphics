@@ -37,4 +37,16 @@ typedef struct windowResize
     float width, height;
 } WindowResizeEvent;
 
+struct Event
+{
+    enum EventType type;
+    union {
+        WindowResizeEvent windowResize;
+        KeyEvent key;
+        MouseButtonEvent mouseButton;
+        MouseMovedEvent mouseMoved;
+        MouseScrollEvent mouseScrolled;
+    };
+};
+
 #endif

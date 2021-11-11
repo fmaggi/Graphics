@@ -27,22 +27,22 @@ void onMouseMoved(MouseMovedEvent event);
 
 int running;
 
-void onEvent(void* event, enum EventType type)
+void onEvent(struct Event e)
 {
-    if (type == WindowClose)
+    if (e.type == WindowClose)
         return onWindowClose();
-    if (type == WindowResize)
-        return onWindowResize(*(WindowResizeEvent*) event);
+    if (e.type == WindowResize)
+        return onWindowResize(e.windowResize);
 
-    if (onEventWorld(event, type))
+    if (onEventWorld(e))
         return;
 
-    switch (type)
+    switch (e.type)
     {
-        case KeyPressed:    return onKeyPressed(*(KeyEvent*) event);
+        case KeyPressed:    return onKeyPressed(e.key);
         case KeyReleased:   return;
-        case MouseScrolled: return onMouseScrolled(*(MouseScrollEvent*) event);
-        case MouseMoved:    return onMouseMoved(*(MouseMovedEvent*) event);
+        case MouseScrolled: return onMouseScrolled(e.mouseScrolled);
+        case MouseMoved:    return onMouseMoved(e.mouseMoved);
 
         default:
             LOG_INFO("Event type not currently handled");
@@ -148,7 +148,6 @@ void onMouseScrolled(MouseScrollEvent event)
 
 void onMouseMoved(MouseMovedEvent event)
 {
-    LOG_INFO("%f %f", event.dx, event.dy);
     if (isMouseButtonPressed(MOUSE_BUTTON_LEFT))
         moveCamera(event.dx, event.dy);
 }

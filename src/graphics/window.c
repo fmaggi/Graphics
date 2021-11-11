@@ -24,15 +24,16 @@ void errorCallback(int error, const char* description)
 
 void windowCloseCallback(GLFWwindow* window)
 {
-    dispatchEvent(0, WindowClose);
+    dispatchEvent((struct Event){.type = WindowClose});
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height)
 {
-    WindowResizeEvent e;
-    e.width = width;
-    e.height = height;
-    dispatchEvent(&e, WindowResize);
+    struct Event e;
+    e.type = WindowResize;
+    e.windowResize.width = width;
+    e.windowResize.height = height;
+    dispatchEvent(e);
 
     Window* w = glfwGetWindowUserPointer(window);
     w->width = width;
@@ -41,13 +42,13 @@ void windowResizeCallback(GLFWwindow* window, int width, int height)
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    KeyEvent e;
-    e.key = key;
-    e.scancode = scancode;
-    e.mods = mods;
-    e.repeat = action == GLFW_REPEAT ? 1 : 0;
-    enum EventType type = action == GLFW_RELEASE ? KeyReleased : KeyPressed;
-    dispatchEvent(&e, type);
+    struct Event e;
+    e.key.key = key;
+    e.key.scancode = scancode;
+    e.key.mods = mods;
+    e.key.repeat = action == GLFW_REPEAT;
+    e.type = action == GLFW_RELEASE ? KeyReleased : KeyPressed;
+    dispatchEvent(e);
 }
 
 void mouseMovedCallback(GLFWwindow* window, double x, double y)
@@ -60,20 +61,22 @@ void mouseMovedCallback(GLFWwindow* window, double x, double y)
 
     lastX = x;
     lastY = y;
-    MouseMovedEvent e;
+    struct Event e;
 
     // this is a bit counterintuitive but Ive done it this way to make dx from left to right positiove and dy from down to up positive
-    e.dx = (float) offsetX;
-    e.dy = (float) -offsetY;
-    dispatchEvent(&e, MouseMoved);
+    e.mouseMoved.dx = (float) offsetX;
+    e.mouseMoved.dy = (float) -offsetY;
+    e.type = MouseMoved;
+    dispatchEvent(e);
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    MouseScrollEvent e;
-    e.xoffset = (float) xoffset;
-    e.yoffset = (float) yoffset;
-    dispatchEvent(&e, MouseScrolled);
+    struct Event e;
+    e.type = MouseScrolled;
+    e.mouseScrolled.xoffset = (float) xoffset;
+    e.mouseScrolled.yoffset = (float) yoffset;
+    dispatchEvent(e);
 }
 
 void createWindow(int width, int height, const char* title)
