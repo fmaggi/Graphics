@@ -1,6 +1,8 @@
 #ifndef ECS_C_H
 #define ECS_C_H
 
+typedef int EntityID;
+
 #define MAX_COMPONENT PhysicsComponent_E + 1
 enum ComponentType
 {
@@ -13,6 +15,7 @@ enum ComponentType
 
 typedef struct
 {
+    EntityID id;
     vec3s position;
     float rotation;
     vec2s scale;
@@ -20,12 +23,14 @@ typedef struct
 
 typedef struct
 {
+    EntityID id;
     vec3s color;
     float texIndex;
 } SpriteComponent;
 
 typedef struct
 {
+    EntityID id;
     void* physicsBody;
 } PhysicsComponent;
 

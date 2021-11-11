@@ -181,13 +181,10 @@ void pushQuad(vec3s position, float rotation, vec2s scale, vec3s color, float te
 {
     float left = position.x + scale.x/2;
     float right = position.x - scale.x/2;
-    float up = position.y + scale.y/2;
-    float down = position.y - scale.y/2;
+    float top = position.y + scale.y/2;
+    float bottom = position.y - scale.y/2;
 
-    if (left < (-camera.width/2) * camera.zoom + camera.pos.x || right > (camera.width/2) * camera.zoom + camera.pos.x )
-        return;
-
-    if (up < (-camera.height/2) * camera.zoom + camera.pos.y || down > (camera.height/2) * camera.zoom  + camera.pos.y)
+    if (!inFrustum(left, right, top, bottom))
         return;
 
     mat4s transform = getTransform(position, rotation, scale);
@@ -244,4 +241,9 @@ void prepareRenderer()
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void setViewport(int width, int height)
+{
+    glViewport(0, 0, width, height);
 }

@@ -6,7 +6,7 @@
 void initWorld();
 void onUpdateWorld(double ts);
 void onRenderWorld();
-int  onEventWorld(EventHolder* event);
+int  onEventWorld(struct Event e);
 void destroyWorld();
 
 #endif

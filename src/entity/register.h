@@ -4,10 +4,12 @@
 #include "ECScomponents.h"
 
 typedef unsigned char ComponentsUsed; // just a bit map to mark used components by entities. with unsigned char = 8 components per entity
+typedef int EntityID;
 
 struct Component
 {
     void* components;
+    EntityID* sparse;
     uint32_t count;
 };
 

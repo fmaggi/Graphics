@@ -4,10 +4,13 @@
 #include "entity/entity.h"
 #include "entity/actions.h"
 
+#include "events/eventDispatcher.h"
+
 #include "physics/dyanmics/physics.h"
 
 #include "graphics/renderer.h"
 #include "graphics/texture.h"
+#include "graphics/camera.h"
 
 #include "game/input.h"
 

@@ -8,15 +8,9 @@ enum EventType
     MousePressed, MouseReleased, MouseMoved, MouseScrolled,
 };
 
-typedef struct event 
-{
-    void* instance;
-    enum EventType type;
-} EventHolder;
-
 typedef struct keyEvent
 {
-    int key, scancode, action, mods, repeat;
+    int key, scancode, mods, repeat;
 } KeyEvent;
 
 typedef struct mouseButton
@@ -26,7 +20,7 @@ typedef struct mouseButton
 
 typedef struct mouseMoved
 {
-    float x, y;
+    float dx, dy;
 } MouseMovedEvent;
 
 typedef struct scroll
@@ -42,5 +36,17 @@ typedef struct windowResize
 {
     float width, height;
 } WindowResizeEvent;
+
+struct Event
+{
+    enum EventType type;
+    union {
+        WindowResizeEvent windowResize;
+        KeyEvent key;
+        MouseButtonEvent mouseButton;
+        MouseMovedEvent mouseMoved;
+        MouseScrollEvent mouseScrolled;
+    };
+};
 
 #endif

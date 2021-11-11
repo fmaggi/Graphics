@@ -8,13 +8,11 @@ typedef struct world
 
 World world;
 
-#define MOVING 1
-
 void playerCollided(Body* self, Body* other)
 {
-    if (other->userFlags & MOVING)
+    if (other->type == Dynamic)
     {
-        EntityID id = *(EntityID*)self->userData;
+        EntityID id = *(EntityID*) self->userData;
         SpriteComponent* s = ECSgetComponent(id, SpriteComponent);
         s->color = (vec3s){{0.2, 0.5, 0.87}};
     }
@@ -23,13 +21,15 @@ void playerCollided(Body* self, Body* other)
 void initWorld()
 {
     // World creation here
+    LOG_INFO("%li", sizeof(struct Event) / sizeof(int));
     initPhysics(-700);
+    orthoCamera((vec3s){{0, 0, 0}}, 1200, 800);
 
     EntityID player = newEntity();
     world.player = player;
 
     TransformComponent* t = ECSaddComponent(player, TransformComponent);
-    t->position = (vec3s){{-300, 0, -1}};
+    t->position = (vec3s){{0, 0, -1}};
     t->rotation = 0;
     t->scale = (vec2s){{200, 200}};
 
@@ -86,7 +86,7 @@ void initWorld()
     sr2->color = (vec3s){{0.2, 0.92, 0.7}};
     sr2->texIndex = texture;
 
-    Body* v22 = createBody(tr2->position, Dynamic, 0, 0, MOVING);
+    Body* v22 = createBody(tr2->position, Dynamic, 0, 0, 0);
     addAABB(v22, 100, 100);
 
     PhysicsComponent* p22 = ECSaddComponent(roof2, PhysicsComponent);
@@ -98,57 +98,68 @@ void onUpdateWorld(double ts)
     // World update here
     stepPhysics(ts);
 
-    struct Group group = ECSgroupView(TransformComponent, PhysicsComponent);
+    struct View view = ECSview(PhysicsComponent);
 
-    for (int i = 0; i < group.count; i++)
+    for (int i = 0; i < view.count; i++)
     {
-        struct GroupObject o = ECSgroupGet(&group, i, TransformComponent, PhysicsComponent);
-
-        TransformComponent* t1 = o.component1;
-        PhysicsComponent* p1 = o.component2;
+        PhysicsComponent* p1 = ECSviewGetComponent(&view, i);
+        if (!ECShasComponent(p1->id,TransformComponent))
+            continue;
+        TransformComponent* t = ECSgetComponent(p1->id, TransformComponent);
         Body* body = p1->physicsBody;
-        t1->position = body->position;
+        t->position = body->position;
     }
 
-    SpriteComponent* s = ECSgetComponent(world.player, SpriteComponent);
-    int factor = -1;
-    if (s->color.z < 0)
-        factor = 1;
-    else if (s->color.z > 1)
-        factor = -1;
+    // SpriteComponent* s = ECSgetComponent(world.player, SpriteComponent);
+    // int factor = -1;
+    // if (s->color.z < 0)
+    //     factor = 1;
+    // else if (s->color.z > 1)
+    //     factor = -1;
 
-    s->color = glms_vec3_rotate(s->color, 0.08*factor, (vec3s){{1, 1, 1}});
+    // s->color = glms_vec3_rotate(s->color, 0.08*factor, (vec3s){{1, 1, 1}});
 
     PhysicsComponent* p = ECSgetComponent(world.player, PhysicsComponent);
     Body* b = p->physicsBody;
     if (isKeyPressed(KEY_W))
+        // moveCamera(0, 30);
         b->impulse.y += 1800;
     if (isKeyPressed(KEY_S))
+        // moveCamera(0, -30);
         b->impulse.y -= 1800;
 
     if (isKeyPressed(KEY_D))
+        // moveCamera(30, 0);
         b->impulse.x += 1800;
     if (isKeyPressed(KEY_A))
+        // moveCamera(-30, 0);
         b->impulse.x -= 1800;
 }
 
 void onRenderWorld()
 {
-    struct Group g = ECSgroupView(SpriteComponent, TransformComponent);
+    struct View v = ECSview(SpriteComponent);
 
-    for (int i = 0; i < g.count; i++)
+    for (int i = 0; i < v.count; i++)
     {
-        struct GroupObject o = ECSgroupGet(&g, i, SpriteComponent, TransformComponent);
-
-        SpriteComponent* s = o.component1;
-        TransformComponent* t = o.component2;
+        SpriteComponent* s = ECSviewGetComponent(&v, i);
+        if (!ECShasComponent(s->id,TransformComponent))
+            continue;
+        TransformComponent* t = ECSgetComponent(s->id, TransformComponent);
 
         pushQuad(t->position, t->rotation, t->scale, s->color, s->texIndex);
     }
 }
 
-int onEventWorld(EventHolder* event)
+int onEventWorld(struct Event e)
 {
+    if (e.type == KeyPressed)
+    {
+        if (e.key.key == KEY_C && e.key.mods == MOD_CONTROL)
+            dispatchEvent((struct Event){ .type = WindowClose });
+    }
+    else if (e.type == MouseMoved)
+        return 0;
     return 0;
 }
 

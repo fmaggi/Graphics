@@ -5,14 +5,16 @@
 #include "stdlib.h"
 #include "log/log.h"
 
+#include "events/eventDispatcher.h"
+
 typedef struct window
 {
     GLFWwindow* g_window;
-    EventDispatchFunc eventCallback;
     bool created;
+    int width, height;
 } Window;
 
-static Window window = {0, 0, 0};
+static Window window = {0, 0};
 
 void errorCallback(int error, const char* description)
 {
@@ -22,68 +24,62 @@ void errorCallback(int error, const char* description)
 
 void windowCloseCallback(GLFWwindow* window)
 {
-    Window* userWindow = (Window*) glfwGetWindowUserPointer(window);
-    WindowCloseEvent e;
-    EventHolder holder;
-    holder.instance = &e;
-    holder.type = WindowClose;
-    userWindow->eventCallback(&holder);
+    dispatchEvent((struct Event){.type = WindowClose});
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height)
 {
-    glViewport(0, 0, width, height);
-    Window* userWindow = (Window*) glfwGetWindowUserPointer(window);
+    struct Event e;
+    e.type = WindowResize;
+    e.windowResize.width = width;
+    e.windowResize.height = height;
+    dispatchEvent(e);
 
-    WindowResizeEvent e;
-    e.width = width;
-    e.height = height;
-    EventHolder holder;
-    holder.instance = &e;
-    holder.type = WindowResize;
-    userWindow->eventCallback(&holder);
+    Window* w = glfwGetWindowUserPointer(window);
+    w->width = width;
+    w->height = height;
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    Window* userWindow = (Window*) glfwGetWindowUserPointer(window);
-    KeyEvent e;
-    e.key = key;
-    e.scancode = scancode;
-    e.action = action;
-    e.mods = mods;
-    e.repeat = action == GLFW_REPEAT ? 1 : 0;
-    EventHolder holder;
-    holder.instance = &e;
-    holder.type = action == GLFW_RELEASE ? KeyReleased : KeyPressed;
-    userWindow->eventCallback(&holder);
+    struct Event e;
+    e.key.key = key;
+    e.key.scancode = scancode;
+    e.key.mods = mods;
+    e.key.repeat = action == GLFW_REPEAT;
+    e.type = action == GLFW_RELEASE ? KeyReleased : KeyPressed;
+    dispatchEvent(e);
 }
 
 void mouseMovedCallback(GLFWwindow* window, double x, double y)
 {
-    Window* userWindow = (Window*) glfwGetWindowUserPointer(window);
-    MouseMovedEvent e;
-    e.x = (float) x;
-    e.y = (float) y;
-    EventHolder holder;
-    holder.instance = &e;
-    holder.type = MouseMoved;
-    userWindow->eventCallback(&holder);
+    static float lastX = 0;
+    static float lastY = 0;
+
+    float offsetX = x - lastX;
+    float offsetY = y - lastY;
+
+    lastX = x;
+    lastY = y;
+    struct Event e;
+
+    // this is a bit counterintuitive but Ive done it this way to make dx from left to right positiove and dy from down to up positive
+    e.mouseMoved.dx = (float) offsetX;
+    e.mouseMoved.dy = (float) -offsetY;
+    e.type = MouseMoved;
+    dispatchEvent(e);
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    Window* userWindow = (Window*) glfwGetWindowUserPointer(window);
-    MouseScrollEvent e;
-    e.xoffset = (float) xoffset;
-    e.yoffset = (float) yoffset;
-    EventHolder holder;
-    holder.instance = &e;
-    holder.type = MouseScrolled;
-    userWindow->eventCallback(&holder);
+    struct Event e;
+    e.type = MouseScrolled;
+    e.mouseScrolled.xoffset = (float) xoffset;
+    e.mouseScrolled.yoffset = (float) yoffset;
+    dispatchEvent(e);
 }
 
-void createWindow(int width, int height, const char* title, EventDispatchFunc callbackFunc)
+void createWindow(int width, int height, const char* title)
 {
     if (window.created)
     {
@@ -101,8 +97,6 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window.eventCallback = callbackFunc;
-
     GLFWwindow* g_window = glfwCreateWindow(width, height, title, NULL, NULL);
     if (g_window == NULL)
     {
@@ -111,13 +105,13 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
     }
     glfwMakeContextCurrent(g_window);
 
-    glfwSetWindowUserPointer(g_window, &window);
-
     glfwSetWindowCloseCallback(g_window, windowCloseCallback);
     glfwSetWindowSizeCallback(g_window, windowResizeCallback);
     glfwSetKeyCallback(g_window, keyCallback);
     glfwSetScrollCallback(g_window, scrollCallback);
     glfwSetCursorPosCallback(g_window, mouseMovedCallback);
+
+    glfwSetWindowUserPointer(g_window, &window);
 
     window.g_window = g_window;
 
@@ -129,6 +123,9 @@ void createWindow(int width, int height, const char* title, EventDispatchFunc ca
     }
 
     glViewport(0, 0, width, height);
+
+    window.width = width;
+    window.height = height;
 }
 
 void destroyWindow()
@@ -150,4 +147,12 @@ void updateWindow()
 {
     glfwSwapBuffers(window.g_window);
     glfwPollEvents();
+}
+
+void windowGetCursorPos(double* x, double* y)
+{
+    // Origin is at the center
+    glfwGetCursorPos(window.g_window, x, y);
+    *y = window.height/2 - *y;
+    *x = -window.width/2 + *x;
 }

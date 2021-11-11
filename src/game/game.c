@@ -4,7 +4,7 @@
 
 #include "cglm/struct.h"
 
-#include "events/event.h"
+#include "events/eventDispatcher.h"
 
 #include "graphics/window.h"
 #include "graphics/renderer.h"
@@ -27,22 +27,22 @@ void onMouseMoved(MouseMovedEvent event);
 
 int running;
 
-void onEvent(EventHolder* event)
+void onEvent(struct Event e)
 {
-    if (event->type == WindowClose)
+    if (e.type == WindowClose)
         return onWindowClose();
-    if (event->type == WindowResize)
-        return onWindowResize(*(WindowResizeEvent*) event->instance);
+    if (e.type == WindowResize)
+        return onWindowResize(e.windowResize);
 
-    if (onEventWorld(event))
+    if (onEventWorld(e))
         return;
 
-    switch (event->type)
+    switch (e.type)
     {
-        case KeyPressed:    return onKeyPressed(*(KeyEvent*) event->instance);
+        case KeyPressed:    return onKeyPressed(e.key);
         case KeyReleased:   return;
-        case MouseScrolled: return onMouseScrolled(*(MouseScrollEvent*) event->instance);
-        case MouseMoved:    return onMouseMoved(*(MouseMovedEvent*) event->instance);
+        case MouseScrolled: return onMouseScrolled(e.mouseScrolled);
+        case MouseMoved:    return onMouseMoved(e.mouseMoved);
 
         default:
             LOG_INFO("Event type not currently handled");
@@ -50,11 +50,10 @@ void onEvent(EventHolder* event)
     }
 }
 
-void setUpGame()
+void setUpGame(int width, int height, const char* title)
 {
     LOG_INFO_DEBUG("DEBUG");
-    createWindow(1200, 800, "LearnOpenGL", &onEvent);
-    orthoCamera((vec3s){{0, 0, 0}}, 1200, 800);
+    createWindow(width, height, title);
 
     initRenderer();
     initECS();
@@ -110,6 +109,7 @@ void onWindowClose()
 void onWindowResize(WindowResizeEvent event)
 {
     updateProjectionMatrix(event.width, event.height);
+    setViewport(event.width, event.height);
 }
 
 void onKeyPressed(KeyEvent event)
@@ -125,9 +125,7 @@ void onKeyPressed(KeyEvent event)
         }
         case KEY_C:
         {
-            if (event.mods == MOD_CONTROL)
-                running = 0;
-            else
+            if (event.mods == 0)
                 rendererSetShader(basicShader);
             break;
         }
@@ -143,7 +141,6 @@ void onKeyPressed(KeyEvent event)
     }
 }
 
-
 void onMouseScrolled(MouseScrollEvent event)
 {
     updateZoom(event.yoffset);
@@ -151,13 +148,6 @@ void onMouseScrolled(MouseScrollEvent event)
 
 void onMouseMoved(MouseMovedEvent event)
 {
-    static float lastX = 0;
-    static float lastY = 0;
-
-    float offsetX = event.x - lastX;
-    float offsetY = event.y - lastY;
-
-    lastX = event.x;
-    lastY = event.y;
-    moveCamera(offsetX, offsetY);
+    if (isMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        moveCamera(event.dx, event.dy);
 }

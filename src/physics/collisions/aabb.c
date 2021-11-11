@@ -59,6 +59,12 @@ void sweepAndPrune(struct ContactStack* results)
                 c->next = results->contacts + (++results->count);
                 c->next->prev = c;
                 c = c->next;
+
+                if (results->count == results->size)
+                {
+                    LOG_WARN("Reached contact limit");
+                    return;
+                }
             }
             else
             {
