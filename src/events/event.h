@@ -1,6 +1,7 @@
 #ifndef EVENT_H
 #define EVENT_H
 
+#define MAX_EVENT_TYPE MouseScrolled + 1
 enum EventType
 {
     WindowClose = 0, WindowResize,
@@ -27,10 +28,6 @@ typedef struct scroll
 {
     float xoffset, yoffset;
 } MouseScrollEvent;
-
-typedef struct windowClose
-{
-} WindowCloseEvent;
 
 typedef struct windowResize
 {

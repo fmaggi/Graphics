@@ -1,6 +1,8 @@
 #include "game/world.h"
 #include "engine.h"
 
+#include "time.h"
+
 typedef struct world
 {
     EntityID player;
@@ -21,7 +23,6 @@ void playerCollided(Body* self, Body* other)
 void initWorld()
 {
     // World creation here
-    LOG_INFO("%li", sizeof(struct Event) / sizeof(int));
     initPhysics(-700);
     orthoCamera((vec3s){{0, 0, 0}}, 1200, 800);
 
@@ -97,14 +98,11 @@ void onUpdateWorld(double ts)
 {
     // World update here
     stepPhysics(ts);
-
     struct View view = ECSview(PhysicsComponent);
 
     for (int i = 0; i < view.count; i++)
     {
         PhysicsComponent* p1 = ECSviewGetComponent(&view, i);
-        if (!ECShasComponent(p1->id,TransformComponent))
-            continue;
         TransformComponent* t = ECSgetComponent(p1->id, TransformComponent);
         Body* body = p1->physicsBody;
         t->position = body->position;
@@ -143,8 +141,6 @@ void onRenderWorld()
     for (int i = 0; i < v.count; i++)
     {
         SpriteComponent* s = ECSviewGetComponent(&v, i);
-        if (!ECShasComponent(s->id,TransformComponent))
-            continue;
         TransformComponent* t = ECSgetComponent(s->id, TransformComponent);
 
         pushQuad(t->position, t->rotation, t->scale, s->color, s->texIndex);

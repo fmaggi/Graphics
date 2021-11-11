@@ -25,7 +25,7 @@ void onMouseMoved(MouseMovedEvent event);
 
 // -----------------------------
 
-int running;
+static int running;
 
 void onEvent(struct Event e)
 {
@@ -46,7 +46,6 @@ void onEvent(struct Event e)
 
         default:
             LOG_INFO("Event type not currently handled");
-            return;
     }
 }
 
