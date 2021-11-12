@@ -31,8 +31,7 @@ void stepPhysics(double ts)
     for (int i = 0; i < simulation.currentBody; i++)
     {
         Body* b = simulation.bodies + i;
-        if (b->type == Dynamic)
-            updateAABB(b->aabbID, b->position);
+        updateAABB(b->aabbID, b->position);
     }
 
     sweepAndPrune(&stack);
@@ -57,7 +56,6 @@ void stepPhysics(double ts)
             destroyContact(&stack, d);
             continue;
         }
-
         collide(c);
     }
     LOG_INFO_DEBUG("collide calls: %i\n", calls);

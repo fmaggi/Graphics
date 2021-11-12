@@ -56,7 +56,7 @@ void initWorld()
     TransformComponent* tf = ECSaddComponent(floor, TransformComponent);
     tf->position = (vec3s){{0, -200, -1}};
     tf->rotation = 0;
-    tf->scale = (vec2s){{1200, 100}};
+    tf->scale = (vec2s){{900, 100}};
 
     int texture = loadTexture("test.png");
     SpriteComponent* sf = ECSaddComponent(floor, SpriteComponent);
@@ -64,7 +64,7 @@ void initWorld()
     sf->texIndex = texture;
 
     Body* v1 = createBody(tf->position, Static, 0, 0, FLOOR);
-    addAABB(v1, 600, 50);
+    addAABB(v1, 450, 50);
 
     PhysicsComponent* p1 = ECSaddComponent(floor, PhysicsComponent);
     p1->physicsBody = v1;
@@ -74,49 +74,17 @@ void initWorld()
     TransformComponent* tf2 = ECSaddComponent(floor2, TransformComponent);
     tf2->position = (vec3s){{1200, -200, -1}};
     tf2->rotation = 0;
-    tf2->scale = (vec2s){{1200, 100}};
+    tf2->scale = (vec2s){{900, 100}};
 
     SpriteComponent* sf2 = ECSaddComponent(floor2, SpriteComponent);
-    sf2->color = (vec3s){{0.3, 0.45, 0.96}};
+    sf2->color = (vec3s){{0.3, 0.8, 0.1}};
     sf2->texIndex = texture;
 
     Body* v12 = createBody(tf2->position, Static, 0, 0, FLOOR);
-    addAABB(v12, 600, 50);
+    addAABB(v12, 450, 50);
 
     PhysicsComponent* p12 = ECSaddComponent(floor2, PhysicsComponent);
     p12->physicsBody = v12;
-
-    EntityID roof = newEntity();
-    TransformComponent* tr = ECSaddComponent(roof, TransformComponent);
-    tr->position = (vec3s){{-200, 300, -1}};
-    tr->rotation = 0;
-    tr->scale = (vec2s){{200, 200}};
-
-    SpriteComponent* sr = ECSaddComponent(roof, SpriteComponent);
-    sr->color = (vec3s){{0.92, 0.75, 0.4}};
-    sr->texIndex = texture;
-
-    Body* v2 = createBody(tr->position, Static, 0, 0, 0);
-    addAABB(v2, 100, 100);
-
-    PhysicsComponent* p2 = ECSaddComponent(roof, PhysicsComponent);
-    p2->physicsBody = v2;
-
-    EntityID roof2 = newEntity();
-    TransformComponent* tr2 = ECSaddComponent(roof2, TransformComponent);
-    tr2->position = (vec3s){{300, 0, -1}};
-    tr2->rotation = 0;
-    tr2->scale = (vec2s){{200, 200}};
-
-    SpriteComponent* sr2 = ECSaddComponent(roof2, SpriteComponent);
-    sr2->color = (vec3s){{0.2, 0.92, 0.7}};
-    sr2->texIndex = texture;
-
-    // Body* v22 = createBody(tr2->position, Static, 0, 0, OTHER);
-    // addAABB(v22, 100, 100);
-
-    // PhysicsComponent* p22 = ECSaddComponent(roof2, PhysicsComponent);
-    // p22->physicsBody = v22;
 }
 
 void onUpdateWorld(double ts)
@@ -176,6 +144,12 @@ int onEventWorld(struct Event e)
                 b->impulse.y += 30000;
                 b->userFlags &= ~ON_FLOOR;
             }
+        }
+        if (e.key.key == KEY_I)
+        {
+            PhysicsComponent* p = ECSgetComponent(world.player, PhysicsComponent);
+            Body* b = p->physicsBody;
+            log_vec2("", b->impulse);
         }
     }
     return 0;
