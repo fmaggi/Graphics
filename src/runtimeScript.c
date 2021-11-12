@@ -4,7 +4,7 @@
 typedef struct world
 {
     EntityID player;
-    EntityID floor[2];
+    EntityID floor[3];
     float speed;
 } World;
 
@@ -12,16 +12,11 @@ World world;
 
 #define FLOOR 1
 #define ON_FLOOR 1
-#define OTHER 2
 void playerCollided(Body* self, Body* other)
 {
     if (other->userFlags & FLOOR)
     {
         self->userFlags |= ON_FLOOR;
-    }
-    else if(other->userFlags & OTHER)
-    {
-        world.speed = 0;
     }
 }
 
@@ -85,19 +80,38 @@ void initWorld()
 
     PhysicsComponent* p12 = ECSaddComponent(floor2, PhysicsComponent);
     p12->physicsBody = v12;
+
+    EntityID floor3 = newEntity();
+    world.floor[2] = floor3;
+    TransformComponent* tf3 = ECSaddComponent(floor3, TransformComponent);
+    tf3->position = (vec3s){{-1200, -200, -1}};
+    tf3->rotation = 0;
+    tf3->scale = (vec2s){{900, 100}};
+
+    SpriteComponent* sf3 = ECSaddComponent(floor3, SpriteComponent);
+    sf3->color = (vec3s){{0.7, 0.8, 0.1}};
+    sf3->texIndex = texture;
+
+    Body* v13 = createBody(tf3->position, Static, 0, 0, FLOOR);
+    addAABB(v13, 450, 50);
+
+    PhysicsComponent* p13 = ECSaddComponent(floor3, PhysicsComponent);
+    p13->physicsBody = v13;
 }
 
 void onUpdateWorld(double ts)
 {
     // World update here
     stepPhysics(ts);
-    static int next = 1;
+    static int next = 2;
     if ((int)camera.pos.x % 600 == 0 && (int)camera.pos.x % 1200 != 0)
     {
-        next = !next;
         PhysicsComponent* p = ECSgetComponent(world.floor[next], PhysicsComponent);
         Body* b = p->physicsBody;
-        b->position.x += 2400;
+        b->position.x += 1200 * 3;
+        next++;
+        if (next == 3)
+            next = 0;
     }
 
     struct View view = ECSview(PhysicsComponent);
@@ -144,12 +158,6 @@ int onEventWorld(struct Event e)
                 b->impulse.y += 30000;
                 b->userFlags &= ~ON_FLOOR;
             }
-        }
-        if (e.key.key == KEY_I)
-        {
-            PhysicsComponent* p = ECSgetComponent(world.player, PhysicsComponent);
-            Body* b = p->physicsBody;
-            log_vec2("", b->impulse);
         }
     }
     return 0;
