@@ -33,7 +33,6 @@ void addAttribute(Vao* vao,  int size, uint32_t stride)
     glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)offset);
     glEnableVertexAttribArray(index);
 
-    index += 1;
-    vao->index = index;
+    vao->index++;
     vao->offset += size * sizeof(float);
 }

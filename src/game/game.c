@@ -54,7 +54,6 @@ void setUpGame(int width, int height, const char* title)
 {
     LOG_INFO_DEBUG("DEBUG");
     createWindow(width, height, title);
-
     initRenderer();
     initECS();
 
@@ -149,5 +148,5 @@ void onMouseScrolled(MouseScrollEvent event)
 void onMouseMoved(MouseMovedEvent event)
 {
     if (isMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        moveCamera(event.dx, event.dy);
+        moveCamera(-event.dx, -event.dy);
 }

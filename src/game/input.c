@@ -12,9 +12,9 @@ int isMouseButtonPressed(ButtonCode button)
     return windowIsMouseButtonPressed(button);
 }
 
-struct cursorPos getCursorPos()
+vec2s getCursorPos()
 {
-    struct cursorPos pos;
-    windowGetCursorPos(&pos.x, &pos.y);
-    return pos;
+    double x, y;
+    windowGetCursorPos(&x, &y);
+    return (vec2s){{x, y}};
 }

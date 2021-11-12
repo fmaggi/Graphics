@@ -92,7 +92,7 @@ void stepPhysics(double ts)
 
         vec2s dv = glms_vec2_add(b->speed, glms_vec2_negate(a->speed));
 
-        float lamdat = glms_vec2_dot(dv, tangent) * (0.12); // friction
+        float lamdat = glms_vec2_dot(dv, tangent) * 0; // friction
         vec2s pt = glms_vec2_scale(tangent, lamdat);
 
         float lamdan = glms_vec2_dot(dv, normal) * 1.5; // restitution
@@ -103,19 +103,10 @@ void stepPhysics(double ts)
         if (a->type == Dynamic)
         {
             a->speed = glms_vec2_add(a->speed, p);
-            if (fabs(a->speed.x) < 30)
-                a->speed.x = 0;
-            if (fabs(a->speed.y) < 30)
-                a->speed.y = 0;
-
         }
         if (b->type == Dynamic)
         {
             b->speed = glms_vec2_add(b->speed, glms_vec2_negate(p));
-            if (fabs(b->speed.x) < 30)
-                b->speed.x = 0;
-            if (fabs(b->speed.y) < 30)
-                b->speed.y = 0;
         }
     }
 
