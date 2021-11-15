@@ -1,7 +1,7 @@
 #ifndef BODY_H
 #define BODY_H
 
-#include "cglm/struct.h"
+#include "glm/glm.hpp"
 
 enum BodyType
 {
@@ -10,8 +10,8 @@ enum BodyType
 
 typedef struct body
 {
-    vec3s position;
-    vec2s speed, impulse;
+    glm::vec3 position;
+    glm::vec2 speed, impulse;
 
     enum BodyType type;
     int32_t aabbID;

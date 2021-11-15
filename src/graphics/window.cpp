@@ -35,7 +35,7 @@ void windowResizeCallback(GLFWwindow* window, int width, int height)
     e.windowResize.height = height;
     dispatchEvent(e);
 
-    Window* w = glfwGetWindowUserPointer(window);
+    Window* w = (Window*) glfwGetWindowUserPointer(window);
     w->width = width;
     w->height = height;
 }

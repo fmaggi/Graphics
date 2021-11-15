@@ -1,10 +1,10 @@
 #ifndef AABB_H
 #define AABB_H
 
-#include "cglm/struct.h"
+#include "glm/glm.hpp"
 
-int32_t createAABB2(vec2s center, vec2s halfExtents, void* bodyID);
-void updateAABB(int32_t id, vec3s position);
+int32_t createAABB2(glm::vec2 center, glm::vec2 halfExtents, void* bodyID);
+void updateAABB(int32_t id, glm::vec3 position);
 
 struct ContactStack; // forward declaration
 void sweepAndPrune(struct ContactStack* results);

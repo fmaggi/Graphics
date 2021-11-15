@@ -3,9 +3,11 @@
 #include "log/log.h"
 #include "game/input.h"
 
+#include "glm/gtc/matrix_transform.hpp"
+
 Camera camera;
 
-void orthoCamera(vec3s pos, float width, float height)
+void orthoCamera(glm::vec3 pos, float width, float height)
 {
     camera.zoom = 1;
     camera.pos = pos;
@@ -24,10 +26,10 @@ void moveCamera(float xoffset, float yoffset)
 
 void calculateViewProj()
 {
-    mat4s transform = glms_translate(glms_mat4_identity(), camera.pos);
-    mat4s view = glms_mat4_inv_fast(transform);
-    mat4s proj = glms_ortho(-(camera.width/2) * camera.zoom, (camera.width/2) * camera.zoom, -(camera.height/2) * camera.zoom, (camera.height/2) * camera.zoom, 0.1, 100*camera.zoom);
-    camera.projview = glms_mat4_mul(proj, view);
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), camera.pos);
+    glm::mat4 view = glm::inverse(transform);
+    glm::mat4 proj = glm::ortho(-(camera.width/2) * camera.zoom, (camera.width/2) * camera.zoom, -(camera.height/2) * camera.zoom, (camera.height/2) * camera.zoom);
+    camera.projview = proj * view;
 }
 
 void updateZoom(float zoom)

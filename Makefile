@@ -1,12 +1,12 @@
-CC = gcc
+CC = g++
 TARGET_PREFIX = graphicsExe
 
 DEPS = dependencies
 
-CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/cglm/include -I$(DEPS)/stb -Isrc -Wall -Werror -std=c99 -D_FORTIFY_SOURCE=2
-LFLAGS = $(DEPS)/glad/glad.o $(DEPS)/GLFW/src/libglfw3.a $(DEPS)/cglm/libcglm.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
+CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/glm/ -I$(DEPS)/stb -Isrc -D_FORTIFY_SOURCE=2
+LFLAGS = $(DEPS)/glad/glad.o $(DEPS)/GLFW/src/libglfw3.a $(DEPS)/glm/glm/libglm_static.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
 
-SRC  = $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) $(wildcard src/**/**/**/*.c)
+SRC  = $(wildcard src/*.cpp) $(wildcard src/**/*.cpp) $(wildcard src/**/**/*.cpp) $(wildcard src/**/**/**/*.cpp)
 
 ifndef config
 	config=release
@@ -22,7 +22,7 @@ else
 	OBJ = obj/release
 endif
 
-OBJECTS  = $(SRC:src/%.c=$(OBJ)/%.o)
+OBJECTS  = $(SRC:src/%.cpp=$(OBJ)/%.o)
 OBJDIRS = $(dir $(OBJECTS))
 
 all: $(TARGET)
@@ -38,7 +38,7 @@ $(TARGET): $(OBJECTS)
 t:
 	@echo $(GENERATED)
 
-$(OBJ)/%.o: src/%.c
+$(OBJ)/%.o: src/%.cpp
 	@echo [CC] $<
 	@$(CC) -o $@ -c $< $(CFLAGS)
 
@@ -48,9 +48,9 @@ libs:
 	@echo [LIB] GLFW
 	@cd $(DEPS)/GLFW && cmake . -D GLFW_BUILD_EXAMPLES=OFF -D GLFW_BUILD_TESTS=OFF -D GLFW_BUILD_DOCS=OFF && make -s --no-print-directory
 	@echo [LIB] Glad
-	@cd $(DEPS)/glad && $(CC) -o glad.o -Iinclude -c src/glad.c
-	@echo [LIB] cglm
-	@cd $(DEPS)/cglm && cmake . -DCGLM_STATIC=ON && make -s --no-print-directory
+	@cd $(DEPS)/glad && gcc -o glad.o -Iinclude -c src/glad.c
+	@echo [LIB] glm
+	@cd $(DEPS)/glm && cmake . -DCGLM_STATIC=ON && make -s --no-print-directory
 	@echo ===================== Done! ===================
 	@echo
 

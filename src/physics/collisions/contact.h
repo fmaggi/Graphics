@@ -2,12 +2,13 @@
 #define CONTACT_H
 
 #include "physics/dyanmics/rigidBody.h"
-#include "cglm/struct.h"
+
+#include "glm/glm.hpp"
 
 struct Contact
 {
     Body *left, *right;
-    vec2s normal, minSeparation, penetration;
+    glm::vec2 normal, minSeparation, penetration;
     struct Contact *prev, *next;
 };
 

@@ -5,7 +5,7 @@
 
 typedef struct
 {
-    vec2s min, max, radius;
+    glm::vec2 min, max, radius;
     Body* body;
 } AABB;
 
@@ -83,10 +83,10 @@ bool testOverlap(int aID, int bID)
         && a->min.y < b->max.y && a->max.y > b->min.y;
 }
 
-int32_t createAABB2(vec2s center, vec2s halfExtents, void* body)
+int32_t createAABB2(glm::vec2 center, glm::vec2 halfExtents, void* body)
 {
     AABB* aabb = aabbs + current;
-    aabb->body = body;
+    aabb->body = (Body*) body;
 
     aabb->min.x = center.x - halfExtents.x;
     aabb->min.y = center.y - halfExtents.y;
@@ -98,13 +98,13 @@ int32_t createAABB2(vec2s center, vec2s halfExtents, void* body)
     return current++;
 }
 
-void updateAABB(int id, vec3s position)
+void updateAABB(int id, glm::vec3 position)
 {
     AABB* a = aabbs + id;
 
     float hWidth = a->radius.x;
     float hHeihgt = a->radius.y;
 
-    a->min = (vec2s){{position.x - hWidth, position.y - hHeihgt}};
-    a->max = (vec2s){{position.x + hWidth, position.y + hHeihgt}};
+    a->min = {position.x - hWidth, position.y - hHeihgt};
+    a->max = {position.x + hWidth, position.y + hHeihgt};
 }

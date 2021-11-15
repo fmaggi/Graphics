@@ -1,14 +1,15 @@
 #ifndef ENTITY_ACTIONS_H
 #define ENTITY_ACTIONS_H
 
-#include "cglm/struct.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
-static inline mat4s getTransform(vec3s translation, float rotation, vec2s scale)
+static inline glm::mat4 getTransform(glm::vec3 translation, float rotation, glm::vec2 scale)
 {
-    mat4s m = glms_translate(glms_mat4_identity(), translation);
-    m = glms_rotate(m, rotation, (vec3s){{0, 0, 1}});
-    vec3s scale3 = (vec3s){{scale.x, scale.y, 1}};
-    m = glms_scale(m, scale3);
+    glm::mat4 m = glm::translate(glm::mat4(1.0f), translation);
+    m = glm::rotate(m, rotation, {0, 0, 1});
+    m = glm::scale(m, {scale.x, scale.y, 1});
     return m;
 }
 

@@ -23,17 +23,17 @@ void collide(struct Contact* c)
     Body* a = c->left;
     Body* b = c->right;
 
-    vec2s minSeparation = c->minSeparation;
+    glm::vec2 minSeparation = c->minSeparation;
 
     int aOnTop = (a->position.y - b->position.y) > 0 ? -1 : 1;
-    vec2s separation;
+    glm::vec2 separation;
     separation.x = fabs(b->position.x - a->position.x);
     separation.y = aOnTop ? fabs(b->position.y - a->position.y) : fabs(a->position.y - b->position.y);
     // penetration = (separation - minSeparation)
-    vec2s penetration = glms_vec2_add(separation, glms_vec2_negate(minSeparation));
+    glm::vec2 penetration = separation - minSeparation;
 
-    vec2s normal = (vec2s){
-        {(penetration.x > penetration.y), aOnTop*(penetration.x < penetration.y)}
+    glm::vec2 normal = {
+        (penetration.x > penetration.y), aOnTop*(penetration.x < penetration.y)
     };
 
     c->normal = normal;

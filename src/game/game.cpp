@@ -2,7 +2,7 @@
 #include "timestep.h"
 #include "input.h"
 
-#include "cglm/struct.h"
+#include "glm/glm.hpp"
 
 #include "events/eventDispatcher.h"
 
@@ -54,7 +54,7 @@ void setUpGame(int width, int height, const char* title)
 {
     LOG_INFO_DEBUG("DEBUG");
     createWindow(width, height, title);
-    initRenderer();
+    Renderer::Init();
     initECS();
 
     LOG_TRACE("Initializing client World");
@@ -75,9 +75,9 @@ void onUpdate(double ts)
 
 void onRender()
 {
-    startFrame();
+    Renderer::StartFrame();
     onRenderWorld();
-    endFrame();
+    Renderer::EndFrame();
 }
 
 void runGame()
@@ -95,7 +95,7 @@ void destroyGame()
 {
     destroyWorld();
     destroyECS();
-    destroyRenderer();
+    Renderer::Destroy();
     destroyWindow();
     LOG_TRACE("Good bye");
 }
@@ -108,7 +108,7 @@ void onWindowClose()
 void onWindowResize(WindowResizeEvent event)
 {
     updateProjectionMatrix(event.width, event.height);
-    setViewport(event.width, event.height);
+    Renderer::SetViewport(event.width, event.height);
 }
 
 void onKeyPressed(KeyEvent event)
@@ -119,18 +119,18 @@ void onKeyPressed(KeyEvent event)
     {
         case KEY_M:
         {
-            rendererChangeMode();
+            Renderer::ChangeMode();
             break;
         }
         case KEY_C:
         {
             if (event.mods == 0)
-                rendererSetShader(basicShader);
+                Renderer::SetShader(basicShader);
             break;
         }
         case KEY_U:
         {
-            rendererSetShader(uvShader);
+            Renderer::SetShader(uvShader);
             break;
         }
         default:

@@ -1,7 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "cglm/struct.h"
+#include "glm/glm.hpp"
 
 #define MAX_SHADER 2
 enum ShaderType
@@ -10,17 +10,23 @@ enum ShaderType
     uvShader
 };
 
-void initRenderer();
-void destroyRenderer();
+class Renderer
+{
+public:
+   static void Init();
+   static void Destroy();
 
-void pushQuad(vec3s position, float rotation, vec2s scale, vec3s color, float texIndex);
+   static void PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm::vec3 color, float texIndex);
 
-void startFrame();
-void endFrame();
+   static void StartFrame();
+   static void EndFrame();
 
-void rendererChangeMode();
-void rendererSetShader(enum ShaderType type);
+   static void ChangeMode();
+   static void SetShader(enum ShaderType type);
 
-void setViewport(int width, int height);
+   static void SetViewport(int width, int height);
+private:
+
+};
 
 #endif

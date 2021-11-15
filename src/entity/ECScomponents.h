@@ -11,20 +11,20 @@ enum ComponentType
     PhysicsComponent_E,
 };
 
-#include "cglm/struct.h"
+#include "glm/glm.hpp"
 
 typedef struct
 {
     EntityID id;
-    vec3s position;
+    glm::vec3 position;
     float rotation;
-    vec2s scale;
+    glm::vec2 scale;
 } TransformComponent;
 
 typedef struct
 {
     EntityID id;
-    vec3s color;
+    glm::vec3 color;
     float texIndex;
 } SpriteComponent;
 

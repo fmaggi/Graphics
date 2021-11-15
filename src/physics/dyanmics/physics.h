@@ -3,9 +3,9 @@
 
 #include "rigidBody.h"
 
-void initPhysics();
+void initPhysics(float gravity);
 void stepPhysics(double ts);
 
-Body* createBody(vec3s position, enum BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags);
+Body* createBody(glm::vec3 position, enum BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags);
 
 #endif

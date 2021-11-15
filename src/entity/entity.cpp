@@ -22,7 +22,7 @@ void initECS()
     INIT_COMPONENT(TransformComponent);
     INIT_COMPONENT(SpriteComponent);
     INIT_COMPONENT(PhysicsComponent);
-    registers.used = malloc(sizeof(ComponentsUsed) * maxEntities);
+    registers.used = (ComponentsUsed*) malloc(sizeof(ComponentsUsed) * maxEntities);
     if (registers.used == NULL)
     {
         LOG_ERROR("Memory allocation error");
@@ -57,20 +57,26 @@ int has_component_internal(EntityID id, enum ComponentType type)
     return registers.used[id] & ECS_TAG_VALUE(type);
 }
 
-struct View ecs_view_internal(enum ComponentType type, uint32_t size)
+template<typename T>
+T& View<T>::GetComponent(EntityID id)
 {
-    struct View view;
-    view.size = size;
-    view.component = registers.Components[type].components;
-    view.count = registers.Components[type].count;
-
-    return view;
+    return;
 }
 
-void* ECSviewGetComponent(struct View* view, uint32_t i)
-{
-    return view->component + view->size * i;
-}
+// struct View ecs_view_internal(enum ComponentType type, uint32_t size)
+// {
+//     struct View view;
+//     view.size = size;
+//     view.component = registers.Components[type].components;
+//     view.count = registers.Components[type].count;
+
+//     return view;
+// }
+
+// void* ECSviewGetComponent(struct View* view, uint32_t i)
+// {
+//     return view->component + view->size * i;
+// }
 
 // struct Group ecs_group_view_internal(enum ComponentType t1, enum ComponentType t2)
 // {
@@ -123,7 +129,7 @@ void init_component_internal(enum ComponentType type, uint32_t size, uint32_t co
         exit(-1);
     }
     memset(temp, 0, size * count);
-    EntityID* e = malloc(sizeof(EntityID) * count);
+    EntityID* e = (EntityID*) malloc(sizeof(EntityID) * count);
     memset(e, 0, sizeof(EntityID) * count);
     registers.Components[type].count = 0;
     registers.Components[type].components = temp;

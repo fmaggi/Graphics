@@ -14,7 +14,7 @@ struct Simulation
 
 static struct Simulation simulation;
 
-void initPhysics(int32_t gravity)
+void initPhysics(float gravity)
 {
     simulation.currentBody = 0;
     simulation.gravity = gravity;
@@ -71,10 +71,10 @@ void stepPhysics(double ts)
 
         b->impulse.y += simulation.gravity;
 
-        vec2s speed = glms_vec2_scale(b->impulse, ts);
-        b->speed = glms_vec2_add(b->speed, speed);
+        glm::vec2 speed = (float) ts * b->impulse;
+        b->speed += speed;
 
-        b->impulse = GLMS_VEC2_ZERO;
+        b->impulse = {0, 0};
     }
 
     // solve velocity constraints
@@ -83,28 +83,28 @@ void stepPhysics(double ts)
         Body *a = c->left;
         Body *b = c->right;
 
-        vec2s normal = c->normal;
-        vec2s tangent = (vec2s){
-            {-normal.y, normal.x}
+        glm::vec2 normal = c->normal;
+        glm::vec2 tangent = {
+            -normal.y, normal.x
         };
 
-        vec2s dv = glms_vec2_add(b->speed, glms_vec2_negate(a->speed));
+        glm::vec2 dv = b->speed - a->speed;
 
-        float lamdat = glms_vec2_dot(dv, tangent) * 0; // friction
-        vec2s pt = glms_vec2_scale(tangent, lamdat);
+        float lamdat = glm::dot(dv, tangent) * 0; // friction
+        glm::vec2 pt = tangent * lamdat;
 
-        float lamdan = glms_vec2_dot(dv, normal) * 1.5; // restitution
-        vec2s pn = glms_vec2_scale(normal, lamdan);
+        float lamdan = glm::dot(dv, normal) * 1.5; // restitution
+        glm::vec2 pn = normal * lamdan;
 
-        vec2s p = glms_vec2_add(pt, pn);
+        glm::vec2 p = pt + pn;
 
         if (a->type == Dynamic)
         {
-            a->speed = glms_vec2_add(a->speed, p);
+            a->speed += p;
         }
         if (b->type == Dynamic)
         {
-            b->speed = glms_vec2_add(b->speed, glms_vec2_negate(p));
+            b->speed -= p;
         }
     }
 
@@ -115,8 +115,8 @@ void stepPhysics(double ts)
         if (b->type == Static)
             continue;
 
-        vec2s dx = glms_vec2_scale(b->speed, ts);
-        b->position = glms_vec3_add(b->position, (vec3s){{dx.x, dx.y, 0}});
+        glm::vec2 dx = (float)ts * b->speed;
+        b->position += (glm::vec3){dx.x, dx.y, 0};
     }
 
     // solve position constraints
@@ -125,23 +125,23 @@ void stepPhysics(double ts)
         Body *a = c->left;
         Body *b = c->right;
 
-        vec2s normal = c->normal;
-        vec2s penetration = c->penetration;
+        glm::vec2 normal = c->normal;
+        glm::vec2 penetration = c->penetration;
 
-        vec2s offset = glms_vec2_mul(penetration, normal);
+        glm::vec2 offset = penetration * normal;
 
         if (a->type == Dynamic)
         {
-            a->position = glms_vec3_add(a->position, ((vec3s){{offset.x, offset.y, 0}}));
+            a->position += (glm::vec3){offset.x, offset.y, 0};
         }
         if (b->type == Dynamic)
         {
-            b->position = glms_vec3_add(b->position, glms_vec3_negate((vec3s){{offset.x, offset.y, 0}}));
+            b->position -= (glm::vec3){offset.x, offset.y, 0};
         }
     }
 }
 
-Body* createBody(vec3s position, enum BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)
+Body* createBody(glm::vec3 position, enum BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)
 {
     Body* body= simulation.bodies + simulation.currentBody++;
 
@@ -151,8 +151,8 @@ Body* createBody(vec3s position, enum BodyType type, CollisionCallback callback,
     body->userData = userData;
     body->userFlags = userFlags;
 
-    body->impulse = GLMS_VEC2_ZERO;
-    body->speed = GLMS_VEC2_ZERO;
+    body->impulse = {0, 0};
+    body->speed = {0, 0};
     body->aabbID = -1;
 
     return body;

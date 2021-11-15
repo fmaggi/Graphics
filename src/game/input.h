@@ -2,13 +2,13 @@
 #define INPUT_H
 
 #include "keys.h"
-#include "cglm/struct.h"
+#include "glm/glm.hpp"
 
 typedef int Keycode;
 typedef int ButtonCode;
 
 int isKeyPressed(Keycode key);
 int isMouseButtonPressed(ButtonCode button);
-vec2s getCursorPos();
+glm::vec2 getCursorPos();
 
 #endif

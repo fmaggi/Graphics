@@ -5,24 +5,16 @@
 
 typedef int EntityID;
 
-struct View
+template <typename T>
+class View
 {
-    void* component;
-    uint32_t size;
-    uint32_t count;
+public:
+    View();
+    T& GetComponent(EntityID id);
+private:
+    T* m_components;
+    uint32_t m_count;
 };
-
-// struct Group
-// {
-//     void *component;
-//     uint32_t count;
-//     uint32_t mask;
-// };
-
-// struct GroupObject
-// {
-//     void *component1, *component2;
-// };
 
 void initECS();
 void destroyECS();
@@ -43,8 +35,8 @@ int has_component_internal(EntityID id, enum ComponentType type);
 void* ecs_add_component_internal(EntityID id, enum ComponentType type, uint32_t size);
 void* ecs_get_component_internal(EntityID id, enum ComponentType type, uint32_t size);
 
-struct View ecs_view_internal(enum ComponentType type, uint32_t size);
-void* ECSviewGetComponent(struct View* view, uint32_t i);
+// struct View ecs_view_internal(enum ComponentType type, uint32_t size);
+// void* ECSviewGetComponent(struct View* view, uint32_t i);
 
 // struct Group ecs_group_view_internal(enum ComponentType t1, enum ComponentType t2);
 // struct GroupObject ecs_group_get_internal(struct Group* group, uint32_t size1, enum ComponentType t1, uint32_t size2, enum ComponentType t2, uint32_t i);

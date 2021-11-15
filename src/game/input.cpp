@@ -12,9 +12,9 @@ int isMouseButtonPressed(ButtonCode button)
     return windowIsMouseButtonPressed(button);
 }
 
-vec2s getCursorPos()
+glm::vec2 getCursorPos()
 {
     double x, y;
     windowGetCursorPos(&x, &y);
-    return (vec2s){{x, y}};
+    return {x, y};
 }

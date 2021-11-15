@@ -2,7 +2,7 @@
 #define LOG_H
 
 #include "stdio.h"
-#include "cglm/struct.h"
+#include "glm/glm.hpp"
 
 #include <time.h>
 
@@ -45,12 +45,12 @@ static inline char* getFormattedTime()
 
 #define ASSERT(x, m) if (!(x)) { LOG_ERROR((m)); exit(-1); }
 
-static inline void log_vec2(char* name, vec2s v)
+static inline void log_vec2(char* name, glm::vec2 v)
 {
     LOG_INFO("%s: %.2f %.2f", name, v.x, v.y);
 }
 
-static inline void log_vec3(char* name, vec3s v)
+static inline void log_vec3(char* name, glm::vec3 v)
 {
     LOG_INFO("%s: %.2f %.2f %.2f", name, v.x, v.y, v.z);
 }

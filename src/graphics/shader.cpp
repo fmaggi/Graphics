@@ -29,7 +29,7 @@ uint32_t compileShader(const char* path, uint32_t type)
     fseek(srcFile, 0L, SEEK_END);
     size_t size = ftell(srcFile);
     rewind(srcFile);
-    char* src = malloc(size * sizeof(char) + 1);
+    char* src = (char*)malloc(size * sizeof(char) + 1);
     fread(src, 1, size, srcFile);
     fclose(srcFile);
     src[size] = 0;
@@ -47,7 +47,7 @@ uint32_t compileShader(const char* path, uint32_t type)
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success)
     {
-        char* s = type == GL_VERTEX_SHADER ? "Vertex" : "Fragment";
+        const char* s = type == GL_VERTEX_SHADER ? "Vertex" : "Fragment";
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
         LOG_ERROR("%s shader compilation:", s);
         LOG("  %s", infoLog);
@@ -78,7 +78,7 @@ uint32_t linkShader(uint32_t vertexID, uint32_t fragmentID)
 
 Shader* createShader(const char* vertexPath, const char* fragmentPath)
 {
-    Shader* shader = malloc(sizeof(Shader));
+    Shader* shader = (Shader*) malloc(sizeof(Shader));
     if(shader == NULL)
         LOG_WARN("Memory allocation failed: shader");
     shader->vertexID = compileShader(vertexPath, GL_VERTEX_SHADER);
@@ -103,11 +103,11 @@ int getUniformLocation(Shader* shader, const char* name)
     return location;
 }
 
-void shaderSetUniformMat4(Shader* shader, mat4s mat, const char* name)
+void shaderSetUniformMat4(Shader* shader, glm::mat4 mat, const char* name)
 {
     glUseProgram(shader->programID);
     int location = getUniformLocation(shader, name);
-    glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&mat.raw);
+    glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&mat[0][0]);
 }
 
 
