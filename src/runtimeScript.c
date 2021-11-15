@@ -18,6 +18,10 @@ void playerCollided(Body* self, Body* other)
     {
         self->userFlags |= ON_FLOOR;
     }
+    if (self->position.y < -80)
+    {
+        world.speed = 0;
+    }
 }
 
 void initWorld()
@@ -42,6 +46,7 @@ void initWorld()
 
     Body* v = createBody(t->position, Dynamic, playerCollided, &world.player, 0);
     addAABB(v, 100, 100);
+    v->speed.x = 180;
 
     PhysicsComponent* p = ECSaddComponent(player, PhysicsComponent);
     p->physicsBody = v;
@@ -124,9 +129,6 @@ void onUpdateWorld(double ts)
         t->position = body->position;
     }
 
-    PhysicsComponent* p = ECSgetComponent(world.player, PhysicsComponent);
-    Body* b = p->physicsBody;
-    b->position.x += world.speed;
     moveCamera(world.speed, 0);
 }
 
