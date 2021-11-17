@@ -17,6 +17,11 @@ void playerCollided(Body* self, Body* other)
     if (other->userFlags & FLOOR)
     {
         self->userFlags |= ON_FLOOR;
+        if (self->position.y < -80)
+        {
+            world.speed = 0;
+            self->speed.x = 0;
+        }
     }
 }
 
