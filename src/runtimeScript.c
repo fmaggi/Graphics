@@ -1,6 +1,8 @@
 #include "game/world.h"
 #include "engine.h"
 
+#include "time.h"
+
 typedef struct world
 {
     EntityID player;

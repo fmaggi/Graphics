@@ -9,10 +9,10 @@ typedef struct
     Body* body;
 } AABB;
 
-AABB aabbs[32];
+static AABB aabbs[32];
 static int current = 0;
 
-int sorted[32] = {0};
+static int sorted[32] = {0};
 
 void sort()
 {
@@ -43,7 +43,7 @@ void sweepAndPrune(struct ContactStack* results)
     for (int i = 0; i < current; i++)
     {
         active[index] = sorted[i];
-        for (int j = 0; j < index; j++) // check from right to left if it intersects anything in the interval.
+        for (int j = 0; j < index; j++)
         {
             if (active[j] == -1)
                 continue;

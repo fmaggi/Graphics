@@ -58,7 +58,6 @@ void initRenderer()
 {
     LOG_TRACE("Starting the renderer");
     r.shaders[basicShader] = createShader("vertex.glsl", "fragment.glsl");
-
     r.shaders[uvShader]    = createShader("texV.glsl", "texF.glsl");
     shaderSetTextureSlot(r.shaders[uvShader], "u_texture");
 
