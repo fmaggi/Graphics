@@ -1,13 +1,19 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-void createWindow(int width, int height, const char* title);
-void destroyWindow();
+#include <string>
 
-int windowIsKeyPressed(int key);
-int windowIsMouseButtonPressed(int button);
-void windowGetCursorPos(double* x, double* y);
+class Window
+{
+public:
+    static void Create(uint32_t width, uint32_t height, const std::string& title);
+    static void Destroy();
 
-void updateWindow();
+    static int IsKeyPressed(int key);
+    static int IsMouseButtonPressed(int button);
+    static void GetCursorPos(double* x, double* y);
+
+    static void Update();
+};
 
 #endif // WINDOW_H

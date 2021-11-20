@@ -1,20 +1,23 @@
-#ifndef VAO_H
-#define VAO_H
+#ifndef VertexArray_H
+#define VertexArray_H
 
 #include "buffer.h"
 
-typedef struct vao
+class VertexArray
 {
-    uint32_t id;
-    uint32_t index;
-    uint32_t offset;
-} Vao;
+public:
+    VertexArray();
+    ~VertexArray();
 
-Vao createVao();
-void destroyVao(Vao vao);
+    void Bind();
+    void AddAttribute(uint32_t size);
 
-void bindVao(Vao vao);
-
-void addAttribute(Vao* vao, int size, uint32_t stride);
+    inline void SetStride(uint32_t stride) { m_stride = stride; }
+private:
+    uint32_t m_ID;
+    uint32_t m_stride;
+    uint32_t m_index;
+    uint64_t m_offset;
+};
 
 #endif

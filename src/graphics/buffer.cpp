@@ -5,58 +5,61 @@
 #include "stdlib.h"
 #include "string.h"
 
-Vbo createVbo(uint32_t size)
+#include "log/log.h"
+
+static inline GLenum GetGLType(VertexBuffer::BufferType type)
 {
-    struct Buffer self;
-    glGenBuffers(1, &self.id);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, self.id);
-    glBufferData(GL_ARRAY_BUFFER, size, 0, GL_DYNAMIC_DRAW);
-
-    self.type = GL_ARRAY_BUFFER;
-
-    return self;
+    switch (type)
+    {
+        case VertexBuffer::BufferType::Static:  return GL_STATIC_DRAW;
+        case VertexBuffer::BufferType::Dynamic: return GL_DYNAMIC_DRAW;
+    }
+    LOG_WARN("Invalid buffer type");
+    return GL_STATIC_DRAW;
 }
 
-Vbo createStaticVbo(uint32_t size, const void* data)
+VertexBuffer::VertexBuffer(uint32_t size, BufferType type, const void* data)
 {
-    struct Buffer self;
-    glGenBuffers(1, &self.id);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, self.id);
-    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+    glGenBuffers(1, &m_ID);
 
-    self.type = GL_ARRAY_BUFFER;
+    glBindBuffer(GL_ARRAY_BUFFER, m_ID);
+    glBufferData(GL_ARRAY_BUFFER, size, data, GetGLType(type));
 
-    return self;
+    m_type = type;
+};
+
+VertexBuffer::~VertexBuffer()
+{
+    glDeleteBuffers(1, &m_ID);
 }
 
-Ibo createIbo(uint32_t count, uint32_t * data)
+void VertexBuffer::PushData(uint32_t size, const void* data)
 {
-    struct Buffer self;
-    glGenBuffers(1, &self.id);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.id);
+    glBindBuffer(GL_ARRAY_BUFFER, m_ID);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+}
+
+void VertexBuffer::Bind()
+{
+    glBindBuffer(GL_ARRAY_BUFFER, m_ID);
+}
+
+IndexBuffer::IndexBuffer(uint32_t count, uint32_t* data)
+{
+    glGenBuffers(1, &m_ID);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), data, GL_STATIC_DRAW);
 
-    self.type = GL_ELEMENT_ARRAY_BUFFER;
-    self.count = count;
-
-    return self;
+    m_vertexCount = count;
 }
 
-void destroyBuffer(struct Buffer b)
+IndexBuffer::~IndexBuffer()
 {
-    glDeleteBuffers(1, &b.id);
+    glDeleteBuffers(1, &m_ID);
 }
 
-void pushBufferData(struct Buffer b, int32_t size, const void* data)
+void IndexBuffer::Bind()
 {
-    glBindBuffer(b.type, b.id);
-    glBufferSubData(b.type, 0, size, data);
-}
-
-void bindBuffer(struct Buffer b)
-{
-    glBindBuffer(b.type, b.id);
+    glBindBuffer(GL_ARRAY_BUFFER, m_ID);
 }

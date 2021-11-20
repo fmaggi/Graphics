@@ -7,14 +7,14 @@
 
 #include "events/eventDispatcher.h"
 
-typedef struct window
+struct WindowInternal
 {
     GLFWwindow* g_window;
     bool created;
-    int width, height;
-} Window;
+    uint32_t width, height;
+};
 
-static Window window = {0, 0};
+static WindowInternal window = {0, 0};
 
 void errorCallback(int error, const char* description)
 {
@@ -24,31 +24,14 @@ void errorCallback(int error, const char* description)
 
 void windowCloseCallback(GLFWwindow* window)
 {
-    dispatchEvent((struct Event){.type = WindowClose});
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height)
 {
-    struct Event e;
-    e.type = WindowResize;
-    e.windowResize.width = width;
-    e.windowResize.height = height;
-    dispatchEvent(e);
-
-    Window* w = (Window*) glfwGetWindowUserPointer(window);
-    w->width = width;
-    w->height = height;
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    struct Event e;
-    e.key.key = key;
-    e.key.scancode = scancode;
-    e.key.mods = mods;
-    e.key.repeat = action == GLFW_REPEAT;
-    e.type = action == GLFW_RELEASE ? KeyReleased : KeyPressed;
-    dispatchEvent(e);
 }
 
 void mouseMovedCallback(GLFWwindow* window, double x, double y)
@@ -61,25 +44,20 @@ void mouseMovedCallback(GLFWwindow* window, double x, double y)
 
     lastX = x;
     lastY = y;
-    struct Event e;
+    // struct Event e;
 
-    // this is a bit counterintuitive but Ive done it this way to make dx from left to right positiove and dy from down to up positive
-    e.mouseMoved.dx = (float) offsetX;
-    e.mouseMoved.dy = (float) -offsetY;
-    e.type = MouseMoved;
-    dispatchEvent(e);
+    // // this is a bit counterintuitive but Ive done it this way to make dx from left to right positiove and dy from down to up positive
+    // e.mouseMoved.dx = (float) offsetX;
+    // e.mouseMoved.dy = (float) -offsetY;
+    // e.type = MouseMoved;
+    // dispatchEvent(e);
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    struct Event e;
-    e.type = MouseScrolled;
-    e.mouseScrolled.xoffset = (float) xoffset;
-    e.mouseScrolled.yoffset = (float) yoffset;
-    dispatchEvent(e);
 }
 
-void createWindow(int width, int height, const char* title)
+void Window::Create(uint32_t width, uint32_t height, const std::string& title)
 {
     if (window.created)
     {
@@ -97,7 +75,7 @@ void createWindow(int width, int height, const char* title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* g_window = glfwCreateWindow(width, height, title, NULL, NULL);
+    GLFWwindow* g_window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     if (g_window == NULL)
     {
         LOG_ERROR("Failed to create GLFW window");
@@ -118,7 +96,6 @@ void createWindow(int width, int height, const char* title)
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         LOG_ERROR("Failed to initialize GLAD");
-        destroyWindow();
         exit(-1);
     }
 
@@ -128,28 +105,28 @@ void createWindow(int width, int height, const char* title)
     window.height = height;
 }
 
-void destroyWindow()
+void Window::Destroy()
 {
     glfwTerminate();
 }
 
-int windowIsKeyPressed(int key)
+int Window::IsKeyPressed(int key)
 {
     return glfwGetKey(window.g_window, key) == GLFW_PRESS;
 }
 
-int windowIsMouseButtonPressed(int button)
+int Window::IsMouseButtonPressed(int button)
 {
     return glfwGetMouseButton(window.g_window, button) == GLFW_PRESS;
 }
 
-void updateWindow()
+void Window::Update()
 {
     glfwSwapBuffers(window.g_window);
     glfwPollEvents();
 }
 
-void windowGetCursorPos(double* x, double* y)
+void Window::GetCursorPos(double* x, double* y)
 {
     // Origin is at the center
     glfwGetCursorPos(window.g_window, x, y);

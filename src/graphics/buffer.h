@@ -3,23 +3,33 @@
 
 #include "stdint.h"
 
-struct Buffer
+class VertexBuffer
 {
-    uint32_t type;
-    uint32_t id;
-    uint32_t count;
+public:
+    enum class BufferType
+    {
+        Static = 0, Dynamic
+    };
+    VertexBuffer(uint32_t size, BufferType type, const void* data = 0);
+    ~VertexBuffer();
+
+    void Bind();
+    void PushData(uint32_t size, const void* data);
+private:
+    uint32_t m_ID;
+    BufferType m_type;
 };
 
-typedef struct Buffer Vbo;
-typedef struct Buffer Ibo;
+class IndexBuffer
+{
+public:
+    IndexBuffer(uint32_t count, uint32_t* data);
+    ~IndexBuffer();
 
-Vbo createVbo(uint32_t size);
-Vbo createStaticVbo(uint32_t size, const void* data);
-Ibo createIbo(uint32_t count, uint32_t* data);
-
-void destroyBuffer(struct Buffer b);
-
-void pushBufferData(struct Buffer b, int size, const void* data);
-void bindBuffer(struct Buffer b);
+    void Bind();
+private:
+    uint32_t m_ID;
+    uint32_t m_vertexCount;
+};
 
 #endif

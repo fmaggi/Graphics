@@ -1,6 +1,6 @@
 #ifndef TS_H
 #define TS_H
 
-double getTimestep();
+float getTimestep();
 
 #endif

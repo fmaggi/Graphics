@@ -30,20 +30,20 @@ struct QuadVertex
 
 struct rendererData
 {
-    enum ShaderType type;
+    ShaderType type;
     Shader* currentShader;
     Shader* shaders[MAX_SHADER];
 
-    Vao vao;
-    Vbo vbo;
-    Ibo ibo;
+    VertexArray* vao;
+    VertexBuffer* vbo;
+    IndexBuffer* ibo;
 
     glm::vec3 vertexPositions[4];
     glm::vec2 texturesCoords[4];
-    struct QuadVertex* vertices;
-    struct QuadVertex* vertexPtrCurrent;
+    QuadVertex* vertices;
+    QuadVertex* vertexPtrCurrent;
 
-    Texture* textures[16];
+    // Texture textures[16];
     uint32_t currentTexture;
 
     uint32_t indexCount;
@@ -73,14 +73,14 @@ void Renderer::Init()
     r.indexCount = 0;
     r.quadCount = 0;
 
-    r.vao = createVao();
-    bindVao(r.vao);
+    r.vao = new VertexArray();
+    r.vao->SetStride(sizeof(QuadVertex));
 
-    r.vbo = createVbo(sizeof(QuadVertex) * maxVertices);
-    addAttribute(&(r.vao), 3, sizeof(QuadVertex)); // position
-    addAttribute(&(r.vao), 3, sizeof(QuadVertex)); // color
-    addAttribute(&(r.vao), 2, sizeof(QuadVertex)); // uv coords;
-    addAttribute(&(r.vao), 1, sizeof(QuadVertex)); // texIndex;
+    r.vbo = new VertexBuffer(sizeof(QuadVertex) * maxVertices, VertexBuffer::BufferType::Dynamic);
+    r.vao->AddAttribute(3); // position
+    r.vao->AddAttribute(3); // color
+    r.vao->AddAttribute(2); // uv coords;
+    r.vao->AddAttribute(1); // texIndex;
 
     uint32_t* indices = (uint32_t*) malloc(sizeof(uint32_t) * maxIndices);
     if (indices == NULL)
@@ -99,7 +99,7 @@ void Renderer::Init()
         offset += 4;
     }
 
-    r.ibo = createIbo(maxIndices, indices);
+    r.ibo = new IndexBuffer(maxIndices, indices);
     free(indices);
 
     r.vertexPositions[0] = {-0.5f, -0.5f, 0.0f}; // bottom left
@@ -114,22 +114,17 @@ void Renderer::Init()
 
     r.renderCalls = 0;
 
-    r.currentTexture = 0;
+    // currentTexture = 0;
 }
 
 void Renderer::Destroy()
 {
     destroyShader(r.shaders[basicShader]);
     destroyShader(r.shaders[uvShader]);
-    destroyVao(r.vao);
-    destroyBuffer(r.vbo);
-    destroyBuffer(r.ibo);
+    delete r.vao;
+    delete r.vbo;
+    delete r.ibo;
     free(r.vertices);
-
-    for (int i = 0; i < r.currentTexture; i++)
-    {
-        unloadTexture(r.textures[i]);
-    }
 }
 
 void renderBatch()
@@ -137,7 +132,7 @@ void renderBatch()
     if (r.indexCount == 0)
         return;
 
-    bindVao(r.vao);
+    r.vao->Bind();
     glDrawElements(GL_TRIANGLES, r.indexCount, GL_UNSIGNED_INT, 0);
     r.renderCalls++;
 }
@@ -157,7 +152,7 @@ void Renderer::StartFrame()
     shaderSetUniformMat4(r.shaders[basicShader], camera.projview, "projview");
     shaderSetUniformMat4(r.shaders[uvShader],    camera.projview, "projview");
 
-    // shaderSet bind the shader. Restore the shader to the original one
+    // shaderSet bind the shade Restore the shader to the original one
     useShader(r.currentShader);
 
     startBatch();
@@ -166,7 +161,7 @@ void Renderer::StartFrame()
 void flush()
 {
     uint32_t size = (uint32_t)((unsigned char*) r.vertexPtrCurrent - (unsigned char*) r.vertices);
-    pushBufferData(r.vbo, size, r.vertices);
+    r.vbo->PushData(size, r.vertices);
 
     renderBatch();
 }
@@ -177,7 +172,7 @@ void Renderer::EndFrame()
     LOG_INFO_DEBUG("Render calls: %i", r.renderCalls);
 }
 
-void Renderer::PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm::vec3 color, float texIndex)
+void Renderer::PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm::vec3 color, Texture& texture)
 {
     float left = position.x + scale.x/2;
     float right = position.x - scale.x/2;
@@ -203,7 +198,7 @@ void Renderer::PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm
         r.vertexPtrCurrent->pos = {vertex.x, vertex.y, vertex.z};
         r.vertexPtrCurrent->color = color;
         r.vertexPtrCurrent->uv = r.texturesCoords[i];
-        r.vertexPtrCurrent->texIndex = texIndex;
+        r.vertexPtrCurrent->texIndex = texture.GetID();
         r.vertexPtrCurrent++;
     }
     r.indexCount += 6;
@@ -218,7 +213,7 @@ void Renderer::PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm
 
 void onTextureLoad(Texture* texture)
 {
-    r.textures[r.currentTexture++] = texture;
+    // textures[currentTexture++] = *texture;
 }
 
 void Renderer::ChangeMode()
@@ -231,7 +226,7 @@ void Renderer::ChangeMode()
 void Renderer::SetShader(enum ShaderType type)
 {
     r.currentShader = r.shaders[type];
-    r.type = type;
+    type = type;
 
     useShader(r.currentShader);
 }

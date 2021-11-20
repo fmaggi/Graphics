@@ -1,8 +1,13 @@
 #include "game/game.h"
+#include "mainLayer.h"
+
+#include "iostream"
 
 int main()
 {
-    setUpGame(1200, 800, "Graphics");
-    runGame();
-    destroyGame();
+    std::cout << "starting" << std::endl;
+
+    Game::SetUp(new Test);
+    Game::Run();
+    Game::Destroy();
 }

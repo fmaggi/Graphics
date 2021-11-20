@@ -4,35 +4,35 @@
 
 #include "log/log.h"
 
-Vao createVao()
+VertexArray::VertexArray()
 {
-    Vao self;
-    glGenVertexArrays(1, &(self.id));
+    glGenVertexArrays(1, &m_ID);
+    glBindVertexArray(m_ID);
 
-    self.index = 0;
-    self.offset = 0;
-
-    return self;
+    m_index = 0;
+    m_offset = 0;
+    m_stride = 0;
 }
 
-void destroyVao(Vao vao)
+VertexArray::~VertexArray()
 {
-    glDeleteVertexArrays(1, &(vao.id));
+    glDeleteVertexArrays(1, &m_ID);
 }
 
-void bindVao(Vao vao)
+void VertexArray::Bind()
 {
-    glBindVertexArray(vao.id);
+    glBindVertexArray(m_ID);
 }
 
-void addAttribute(Vao* vao,  int size, uint32_t stride)
+void VertexArray::AddAttribute(uint32_t size)
 {
-    uint32_t index = vao->index;
-    unsigned long int offset = vao->offset; // the long is just to remove some warngins
+    ASSERT(m_stride > 0, "Need to set stride");
 
-    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (void*)offset);
-    glEnableVertexAttribArray(index);
+    glBindVertexArray(m_ID);
 
-    vao->index++;
-    vao->offset += size * sizeof(float);
+    glVertexAttribPointer(m_index, size, GL_FLOAT, GL_FALSE, m_stride, (void*)m_offset);
+    glEnableVertexAttribArray(m_index);
+
+    m_index++;
+    m_offset += size * sizeof(float);
 }

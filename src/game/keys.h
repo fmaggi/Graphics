@@ -1,6 +1,9 @@
 #ifndef KEYS_H
 #define KEYS_H
 
+typedef int Keycode;
+typedef int ButtonCode;
+
 // just copied GLFW definitions to be able to detach from GLFW
 // if you wanna change GLFW you are gonna need a converting func
 

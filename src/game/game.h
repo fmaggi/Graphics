@@ -1,8 +1,18 @@
 #ifndef GAME_H
 #define GAME_H
 
-void setUpGame(int width, int height, const char* title);
-void runGame();
-void destroyGame();
+#include "layer.h"
+
+class Game
+{
+public:
+    static bool SetUp(Layer* layer);
+    static void Run();
+    static void Destroy();
+    static void OnUpdate(float ts);
+    static void OnEvent(Event& event);
+    static void OnRender();
+private:
+};
 
 #endif

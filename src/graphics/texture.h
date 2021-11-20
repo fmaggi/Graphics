@@ -1,14 +1,22 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include <string>
+
 #define NO_TEXTURE -1
 
-typedef struct texture Texture;
+class Texture
+{
+public:
+    Texture(const std::string& name);
+    ~Texture();
 
-int loadTexture(const char* name);
+    void Bind();
 
-void bindTexture(Texture* t);
+    inline uint32_t GetID() { return m_slot;}
 
-void unloadTexture(Texture* t);
+private:
+    uint32_t m_ID, m_slot;
+};
 
 #endif

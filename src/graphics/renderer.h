@@ -10,13 +10,15 @@ enum ShaderType
     uvShader
 };
 
+class Texture;
+
 class Renderer
 {
 public:
    static void Init();
    static void Destroy();
 
-   static void PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm::vec3 color, float texIndex);
+   static void PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm::vec3 color, Texture& texture);
 
    static void StartFrame();
    static void EndFrame();

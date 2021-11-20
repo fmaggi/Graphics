@@ -1,8 +1,8 @@
 #include "eventDispatcher.h"
 
-extern void onEvent(struct Event event);
+// extern void onEvent(struct Event event);
 
-void dispatchEvent(struct Event event)
+void dispatchEvent(Event& event)
 {
-    onEvent(event);
+    // onEvent(event);
 }
