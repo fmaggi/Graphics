@@ -41,7 +41,7 @@ void stepPhysics(double ts)
     {
         Body* a = c->left;
         Body* b = c->right;
-        if (b->type == Static && a->type == Static)
+        if (b->type == BodyType::Static && a->type == BodyType::Static)
         {
             struct Contact* d = c;
             destroyContact(&stack, d);
@@ -66,7 +66,7 @@ void stepPhysics(double ts)
     for (int i = 0; i < simulation.currentBody; i++)
     {
         Body* b = simulation.bodies + i;
-        if (b->type == Static)
+        if (b->type == BodyType::Static)
             continue;
 
         b->impulse.y += simulation.gravity;
@@ -98,11 +98,11 @@ void stepPhysics(double ts)
 
         glm::vec2 p = pt + pn;
 
-        if (a->type == Dynamic)
+        if (a->type == BodyType::Dynamic)
         {
             a->speed += p;
         }
-        if (b->type == Dynamic)
+        if (b->type == BodyType::Dynamic)
         {
             b->speed -= p;
         }
@@ -112,7 +112,7 @@ void stepPhysics(double ts)
     for (int i = 0; i < simulation.currentBody; i ++)
     {
         Body* b = simulation.bodies + i;
-        if (b->type == Static)
+        if (b->type == BodyType::Static)
             continue;
 
         glm::vec2 dx = (float)ts * b->speed;
@@ -130,18 +130,18 @@ void stepPhysics(double ts)
 
         glm::vec2 offset = penetration * normal;
 
-        if (a->type == Dynamic)
+        if (a->type == BodyType::Dynamic)
         {
             a->position += (glm::vec3){offset.x, offset.y, 0};
         }
-        if (b->type == Dynamic)
+        if (b->type == BodyType::Dynamic)
         {
             b->position -= (glm::vec3){offset.x, offset.y, 0};
         }
     }
 }
 
-Body* createBody(glm::vec3 position, enum BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)
+Body* createBody(glm::vec3 position, BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)
 {
     Body* body= simulation.bodies + simulation.currentBody++;
 

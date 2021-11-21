@@ -3,7 +3,7 @@
 
 #include "glm/glm.hpp"
 
-enum BodyType
+enum class BodyType
 {
     Static = 0, Dynamic
 };
@@ -13,7 +13,7 @@ typedef struct body
     glm::vec3 position;
     glm::vec2 speed, impulse;
 
-    enum BodyType type;
+    BodyType type;
     int32_t aabbID;
 
     void (*onCollision)(struct body* self, struct body* other);

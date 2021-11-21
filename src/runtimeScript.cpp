@@ -8,6 +8,12 @@ void Test::OnAttach()
     // World creation here
     t = new Texture("");
     orthoCamera({0, 0, 0}, m_width, m_height);
+
+    EventHandler<KeyEvent>::RegisterOnEventFunction([](KeyEvent& event){
+        if (event.GetType() == EventType::KeyPressed)
+            LOG_INFO("%c", event.key);
+        return true;
+    });
 }
 
 void Test::OnUpdate(float ts)

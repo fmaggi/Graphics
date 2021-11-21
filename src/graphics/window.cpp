@@ -24,14 +24,25 @@ void errorCallback(int error, const char* description)
 
 void windowCloseCallback(GLFWwindow* window)
 {
+    WindowClose e;
+    EventHandler<WindowClose>::Dispatch(e);
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height)
 {
+    WindowResize e(width, height);
+    EventHandler<WindowResize>::Dispatch(e);
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    EventType type = EventType::KeyPressed;
+    bool repeat = action == GLFW_REPEAT;
+    if (action == GLFW_RELEASE)
+        type = EventType::KeyReleased;
+
+    KeyEvent e(key, scancode, mods, repeat, type);
+    EventHandler<KeyEvent>::Dispatch(e);
 }
 
 void mouseMovedCallback(GLFWwindow* window, double x, double y)
@@ -44,17 +55,15 @@ void mouseMovedCallback(GLFWwindow* window, double x, double y)
 
     lastX = x;
     lastY = y;
-    // struct Event e;
 
-    // // this is a bit counterintuitive but Ive done it this way to make dx from left to right positiove and dy from down to up positive
-    // e.mouseMoved.dx = (float) offsetX;
-    // e.mouseMoved.dy = (float) -offsetY;
-    // e.type = MouseMoved;
-    // dispatchEvent(e);
+    MouseMoved e(offsetX, -offsetY);
+    EventHandler<MouseMoved>::Dispatch(e);
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    MouseScrolled e(xoffset, yoffset);
+    EventHandler<MouseScrolled>::Dispatch(e);
 }
 
 void Window::Create(uint32_t width, uint32_t height, const std::string& title)

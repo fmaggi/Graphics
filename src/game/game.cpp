@@ -15,16 +15,6 @@
 
 #include "log/log.h"
 
-// On event function prototypes
-
-// void onWindowClose();
-// void onWindowResize(WindowResizeEvent event);
-// void onKeyPressed(KeyEvent event);
-// void onMouseScrolled(MouseScrollEvent event);
-// void onMouseMoved(MouseMovedEvent event);
-
-// -----------------------------
-
 static Layer* s_layer = 0;
 static bool running = 0;
 
@@ -35,6 +25,11 @@ void Game::OnEvent(Event& event)
 
 bool Game::SetUp(Layer* layer)
 {
+    EventHandler<WindowClose>::RegisterOnEventFunction([](WindowClose& event){
+        running = 0;
+        return true;;
+    });
+
     s_layer = layer;
     LOG_INFO_DEBUG("DEBUG");
     Window::Create(layer->m_width, layer->m_height, layer->m_title.c_str());
@@ -84,54 +79,3 @@ void Game::Destroy()
     Window::Destroy();
     LOG_TRACE("Good bye");
 }
-
-// void onWindowClose()
-// {
-//     Game::running = 0;
-// }
-
-// void onWindowResize(WindowResizeEvent event)
-// {
-//     updateProjectionMatrix(event.width, event.height);
-//     Renderer::SetViewport(event.width, event.height);
-// }
-
-// void onKeyPressed(KeyEvent event)
-// {
-//     if (event.repeat)
-//         return;
-//     switch (event.key)
-//     {
-//         case KEY_M:
-//         {
-//             Renderer::ChangeMode();
-//             break;
-//         }
-//         case KEY_C:
-//         {
-//             if (event.mods == 0)
-//                 Renderer::SetShader(basicShader);
-//             break;
-//         }
-//         case KEY_U:
-//         {
-//             Renderer::SetShader(uvShader);
-//             break;
-//         }
-//         default:
-//         {
-//             break;
-//         }
-//     }
-// }
-
-// void onMouseScrolled(MouseScrollEvent event)
-// {
-//     updateZoom(event.yoffset);
-// }
-
-// void onMouseMoved(MouseMovedEvent event)
-// {
-//     if (isMouseButtonPressed(MOUSE_BUTTON_LEFT))
-//         moveCamera(-event.dx, -event.dy);
-// }
