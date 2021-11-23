@@ -18,11 +18,6 @@
 static Layer* s_layer = 0;
 static bool running = 0;
 
-void Game::OnEvent(Event& event)
-{
-    s_layer->OnEvent(event);
-}
-
 bool Game::SetUp(Layer* layer)
 {
     EventHandler<WindowClose>::RegisterOnEventFunction([](WindowClose& event){
@@ -55,7 +50,7 @@ void Game::OnUpdate(float ts)
 
 void Game::OnRender()
 {
-    Renderer::StartFrame();
+    Renderer::StartFrame(camera);
     s_layer->OnRender();
     Renderer::EndFrame();
 }
@@ -69,6 +64,7 @@ void Game::Run()
         Game::OnRender();
         Window::Update();
     }
+    Destroy();
 }
 
 void Game::Destroy()

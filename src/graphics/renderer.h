@@ -3,6 +3,9 @@
 
 #include "glm/glm.hpp"
 
+#include "camera.h"
+#include "texture.h"
+
 #define MAX_SHADER 2
 enum ShaderType
 {
@@ -10,17 +13,15 @@ enum ShaderType
     uvShader
 };
 
-class Texture;
-
 class Renderer
 {
 public:
    static void Init();
    static void Destroy();
 
-   static void PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm::vec3 color, Texture& texture);
+   static void PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm::vec3 color, TextureID texture);
 
-   static void StartFrame();
+   static void StartFrame(Camera& camera);
    static void EndFrame();
 
    static void ChangeMode();

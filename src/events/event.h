@@ -12,26 +12,40 @@ struct Event
 {
 public:
     Event(EventType type)
-        : m_type(type)
+        : type(type)
     {}
-    inline EventType GetType() const { return m_type; }
-private:
-    EventType m_type;
+    const EventType type;
 };
 
-struct KeyEvent : public Event
+struct KeyPressed : public Event
 {
-    KeyEvent(int key_, int scancode_, int mods_, bool repeat_, EventType type)
-        : Event(type), key(key_), scancode(scancode_), mods(mods_), repeat(repeat_)
+    KeyPressed(int key_, int scancode_, int mods_, bool repeat_)
+        : Event(EventType::KeyPressed), key(key_), scancode(scancode_), mods(mods_), repeat(repeat_)
     {}
     const int key, scancode, mods;
     const bool repeat;
 };
 
-struct MouseButtonEvent : public Event
+struct KeyReleased : public Event
 {
-    MouseButtonEvent(int button_, int mods_, EventType type)
-        : Event(type), button(button_), mods(mods_)
+    KeyReleased(int key_, int scancode_, int mods_)
+        : Event(EventType::KeyReleased), key(key_), scancode(scancode_), mods(mods_)
+    {}
+    const int key, scancode, mods;
+};
+
+struct MouseButtonPressed : public Event
+{
+    MouseButtonPressed(int button_, int mods_)
+        : Event(EventType::MousePressed), button(button_), mods(mods_)
+    {}
+    const int button, mods;
+};
+
+struct MouseButtonReleased : public Event
+{
+    MouseButtonReleased(int button_, int mods_)
+        : Event(EventType::MouseReleased), button(button_), mods(mods_)
     {}
     const int button, mods;
 };

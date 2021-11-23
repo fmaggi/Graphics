@@ -3,12 +3,12 @@
 
 #include "glm/glm.hpp"
 
-typedef struct camera
+struct Camera
 {
     glm::vec3 pos;
     glm::mat4 projview;
     float width, height, zoom;
-} Camera;
+};
 
 extern Camera camera;
 

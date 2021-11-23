@@ -9,19 +9,24 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-static uint32_t usedSlot = 0;
+#define NO_TEXTURE -1
 
 extern void onTextureLoad(Texture* texture);
 
-Texture::Texture(const std::string& name)
+TextureID Texture::CreateTexture(const std::string& name)
 {
+    static uint32_t usedSlot = 0;
+    static Texture textures[16];
+
+    Texture* t = textures + usedSlot;
+
     if (name.empty())
     {
-        m_slot = -1;
-        m_ID = -1;
-        return;
+        t->m_slot = NO_TEXTURE;
+        t->m_ID = NO_TEXTURE;
+        return NO_TEXTURE;
     }
-    m_slot = usedSlot++;
+    t->m_slot = usedSlot++;
 
     char path[512];
     getcwd(path, sizeof(path));
@@ -37,12 +42,12 @@ Texture::Texture(const std::string& name)
     {
         LOG_ERROR("Failed to load texture %s: %s", name, stbi_failure_reason());
         --usedSlot;
-        m_slot = -1;
+        t->m_slot = -1;
     }
 
-    glActiveTexture(GL_TEXTURE0 + m_slot);
-    glGenTextures(1, &m_ID);
-    glBindTexture(GL_TEXTURE_2D, m_ID);
+    glActiveTexture(GL_TEXTURE0 + t->m_slot);
+    glGenTextures(1, &t->m_ID);
+    glBindTexture(GL_TEXTURE_2D, t->m_ID);
     // set the texture wrapping/filtering options (on the currently bound texture object)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -54,7 +59,9 @@ Texture::Texture(const std::string& name)
 
     stbi_image_free(data);
 
-    // onTextureLoad(this);
+    onTextureLoad(t);
+
+    return t->m_slot;
 }
 
 Texture::~Texture()

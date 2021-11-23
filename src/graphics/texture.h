@@ -5,18 +5,19 @@
 
 #define NO_TEXTURE -1
 
+typedef uint32_t TextureID;
+
 class Texture
 {
 public:
-    Texture(const std::string& name);
+    static TextureID CreateTexture(const std::string& name = "");
     ~Texture();
 
     void Bind();
 
-    inline uint32_t GetID() { return m_slot;}
-
 private:
     uint32_t m_ID, m_slot;
+    Texture(){}
 };
 
 #endif

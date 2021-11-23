@@ -5,7 +5,6 @@
 #include "shader.h"
 #include "texture.h"
 #include "gfx.h"
-#include "camera.h"
 
 #include "entity/actions.h"
 
@@ -43,13 +42,13 @@ struct rendererData
     QuadVertex* vertices;
     QuadVertex* vertexPtrCurrent;
 
-    // Texture textures[16];
-    uint32_t currentTexture;
+    Texture* textures[16] = {0};
+    uint32_t currentTexture = 0;
 
-    uint32_t indexCount;
-    uint32_t quadCount;
+    uint32_t indexCount = 0;
+    uint32_t quadCount = 0;
 
-    uint32_t renderCalls;
+    uint32_t renderCalls = 0;
 };
 
 static rendererData r;
@@ -73,14 +72,13 @@ void Renderer::Init()
     r.indexCount = 0;
     r.quadCount = 0;
 
-    r.vao = new VertexArray();
-    r.vao->SetStride(sizeof(QuadVertex));
-
-    r.vbo = new VertexBuffer(sizeof(QuadVertex) * maxVertices, VertexBuffer::BufferType::Dynamic);
+    r.vao = new VertexArray(sizeof(QuadVertex));
     r.vao->AddAttribute(3); // position
     r.vao->AddAttribute(3); // color
     r.vao->AddAttribute(2); // uv coords;
     r.vao->AddAttribute(1); // texIndex;
+
+    r.vbo = new VertexBuffer(sizeof(QuadVertex) * maxVertices, VertexBuffer::BufferType::Dynamic);
 
     uint32_t* indices = (uint32_t*) malloc(sizeof(uint32_t) * maxIndices);
     if (indices == NULL)
@@ -111,10 +109,6 @@ void Renderer::Init()
     r.texturesCoords[1] = {1.0f, 0.0f};
     r.texturesCoords[2] = {1.0f, 1.0f};
     r.texturesCoords[3] = {0.0f, 1.0f};
-
-    r.renderCalls = 0;
-
-    // currentTexture = 0;
 }
 
 void Renderer::Destroy()
@@ -144,7 +138,7 @@ void startBatch()
     r.quadCount = 0;
 }
 
-void Renderer::StartFrame()
+void Renderer::StartFrame(Camera& camera)
 {
     prepareRenderer();
     r.renderCalls = 0;
@@ -172,7 +166,7 @@ void Renderer::EndFrame()
     LOG_INFO_DEBUG("Render calls: %i", r.renderCalls);
 }
 
-void Renderer::PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm::vec3 color, Texture& texture)
+void Renderer::PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm::vec3 color, TextureID textureID)
 {
     float left = position.x + scale.x/2;
     float right = position.x - scale.x/2;
@@ -198,7 +192,7 @@ void Renderer::PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm
         r.vertexPtrCurrent->pos = {vertex.x, vertex.y, vertex.z};
         r.vertexPtrCurrent->color = color;
         r.vertexPtrCurrent->uv = r.texturesCoords[i];
-        r.vertexPtrCurrent->texIndex = texture.GetID();
+        r.vertexPtrCurrent->texIndex = textureID;
         r.vertexPtrCurrent++;
     }
     r.indexCount += 6;
@@ -213,7 +207,7 @@ void Renderer::PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm
 
 void onTextureLoad(Texture* texture)
 {
-    // textures[currentTexture++] = *texture;
+    r.textures[r.currentTexture++] = texture;
 }
 
 void Renderer::ChangeMode()

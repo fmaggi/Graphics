@@ -6,13 +6,11 @@
 class VertexArray
 {
 public:
-    VertexArray();
+    VertexArray(uint32_t stride);
     ~VertexArray();
 
     void Bind();
     void AddAttribute(uint32_t size);
-
-    inline void SetStride(uint32_t stride) { m_stride = stride; }
 private:
     uint32_t m_ID;
     uint32_t m_stride;

@@ -10,7 +10,6 @@ public:
     static void Run();
     static void Destroy();
     static void OnUpdate(float ts);
-    static void OnEvent(Event& event);
     static void OnRender();
 private:
 };

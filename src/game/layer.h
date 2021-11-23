@@ -17,8 +17,6 @@ public:
     virtual void OnUpdate(float ts) = 0;
     virtual void OnRender() = 0;
 
-    virtual void OnEvent(Event& event) = 0;
-
     uint32_t m_width, m_height;
     std::string m_title;
 };

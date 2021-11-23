@@ -36,13 +36,27 @@ void windowResizeCallback(GLFWwindow* window, int width, int height)
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    EventType type = EventType::KeyPressed;
-    bool repeat = action == GLFW_REPEAT;
-    if (action == GLFW_RELEASE)
-        type = EventType::KeyReleased;
-
-    KeyEvent e(key, scancode, mods, repeat, type);
-    EventHandler<KeyEvent>::Dispatch(e);
+    switch (action)
+    {
+        case GLFW_PRESS:
+        {
+            KeyPressed e(key, scancode, mods, false);
+            EventHandler<KeyPressed>::Dispatch(e);
+            break;
+        }
+        case GLFW_RELEASE:
+        {
+            KeyReleased e(key, scancode, mods);
+            EventHandler<KeyReleased>::Dispatch(e);
+            break;
+        }
+        case GLFW_REPEAT:
+        {
+            KeyPressed e(key, scancode, mods, true);
+            EventHandler<KeyPressed>::Dispatch(e);
+            break;
+        }
+    }
 }
 
 void mouseMovedCallback(GLFWwindow* window, double x, double y)

@@ -2,9 +2,8 @@
 #define EVENT_DISPATCHER_H
 
 #include "event.h"
-#include "log/log.h"
 
-#include <vector>
+#include "log/log.h"
 
 template<typename T>
 class EventHandler
@@ -13,19 +12,12 @@ public:
     using EventHandlerFn = bool (*)(T& event);
     static void Dispatch(Event& event)
     {
-        T& e = static_cast<T&>(event);
-        for (auto& f : m_handlers)
-        {
-            if (f(e))
-                return;
-        }
+        ASSERT(false, "Invalid event type");
     }
     static void RegisterOnEventFunction(EventHandlerFn onEvent)
     {
-        m_handlers.push_back(onEvent);
+        ASSERT(false, "Invalid event type");
     }
-private:
-    static std::vector<EventHandlerFn> m_handlers;
 };
 
 #endif
