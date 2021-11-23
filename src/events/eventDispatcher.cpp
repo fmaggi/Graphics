@@ -1,20 +1,13 @@
 #include "eventDispatcher.h"
 #include "log/log.h"
 
-template<>
-std::vector<EventHandler<WindowClose>::EventHandlerFn> EventHandler<WindowClose>::m_handlers{};
+#define INIT_HANDLER_VECTOR(type) \
+    template<> \
+    std::vector<EventHandler<type>::EventHandlerFn> EventHandler<type>::m_handlers{}
 
-template<>
-std::vector<EventHandler<WindowResize>::EventHandlerFn> EventHandler<WindowResize>::m_handlers{};
-
-template<>
-std::vector<EventHandler<KeyEvent>::EventHandlerFn> EventHandler<KeyEvent>::m_handlers{};
-
-template<>
-std::vector<EventHandler<MouseScrolled>::EventHandlerFn> EventHandler<MouseScrolled>::m_handlers{};
-
-template<>
-std::vector<EventHandler<MouseButtonEvent>::EventHandlerFn> EventHandler<MouseButtonEvent>::m_handlers{};
-
-template<>
-std::vector<EventHandler<MouseMoved>::EventHandlerFn> EventHandler<MouseMoved>::m_handlers{};
+INIT_HANDLER_VECTOR(WindowClose);
+INIT_HANDLER_VECTOR(WindowResize);
+INIT_HANDLER_VECTOR(KeyEvent);
+INIT_HANDLER_VECTOR(MouseButtonEvent);
+INIT_HANDLER_VECTOR(MouseMoved);
+INIT_HANDLER_VECTOR(MouseScrolled);

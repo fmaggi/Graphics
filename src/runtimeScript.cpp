@@ -11,7 +11,8 @@ void Test::OnAttach()
 
     EventHandler<KeyEvent>::RegisterOnEventFunction([](KeyEvent& event){
         if (event.GetType() == EventType::KeyPressed)
-            LOG_INFO("%c", event.key);
+            // if (event.key == KEY_C)
+            //     EventHandler<WindowClose>::Dispatch();
         return true;
     });
 }
