@@ -33,12 +33,12 @@ void sort()
     }
 }
 
-void sweepAndPrune(struct ContactStack* results)
+void sweepAndPrune(ContactStack* results)
 {
     sort();
     int active[32] = {-1};
     int index = 0;
-    struct Contact* c = results->contacts;
+    Contact* c = results->contacts;
     c->prev = NULL;
     for (int i = 0; i < current; i++)
     {
@@ -98,13 +98,57 @@ int32_t createAABB2(glm::vec2 center, glm::vec2 halfExtents, void* body)
     return current++;
 }
 
-void updateAABB(int id, glm::vec3 position)
+void updateAABB(int id, glm::vec3 translation)
 {
     AABB* a = aabbs + id;
 
     float hWidth = a->radius.x;
     float hHeihgt = a->radius.y;
 
-    a->min = {position.x - hWidth, position.y - hHeihgt};
-    a->max = {position.x + hWidth, position.y + hHeihgt};
+    a->min = {translation.x - hWidth, translation.y - hHeihgt};
+    a->max = {translation.x + hWidth, translation.y + hHeihgt};
+}
+
+void* QueryOverlap(int32_t aabbID)
+{
+    sort();
+    AABB& aabb = aabbs[aabbID];
+
+    log_vec3("pos", aabb.body->translation);
+
+    uint32_t a = 0;
+    uint32_t b = current-1;
+    while (a < b && (b-a) > 1)
+    {
+        LOG_TRACE("%i %i", a, b);
+        uint32_t index = (a+b) / 2;
+        int sortedIndex = sorted[index];
+        if (sortedIndex == aabbID)
+            sortedIndex += 1;
+
+        AABB& toCheck = aabbs[sortedIndex];
+        log_vec3("checking", toCheck.body->translation);
+        if (aabb.min.x > toCheck.max.x)
+        {
+            LOG_INFO("to the right %f %f", aabb.min.x, toCheck.max.x);
+            a = index;
+        }
+        else if (aabb.max.x < toCheck.min.x)
+        {
+            LOG_INFO("to the left %f %f", aabb.max.x, toCheck.min.x);
+            b = index;
+        }
+        else if (testOverlap(aabbID, sortedIndex))
+        {
+            LOG_INFO("collided");
+            return toCheck.body;
+        }
+        else
+        {
+            LOG_INFO("nothing");
+            return nullptr;
+        }
+    }
+
+    return nullptr;
 }

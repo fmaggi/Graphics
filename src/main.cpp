@@ -1,8 +1,7 @@
 #include "game/game.h"
-#include "mainLayer.h"
 
 int main()
 {
-    Game::SetUp(new Test);
+    Game::SetUp(1200, 800, "title");
     Game::Run();
 }

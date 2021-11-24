@@ -13,7 +13,7 @@
 
 extern void onTextureLoad(Texture* texture);
 
-TextureID Texture::CreateTexture(const std::string& name)
+TextureID Texture::Create(const std::string& name)
 {
     static uint32_t usedSlot = 0;
     static Texture textures[16];
@@ -37,12 +37,12 @@ TextureID Texture::CreateTexture(const std::string& name)
 
     // load and generate the texture
     int width, height, nrChannels;
-    unsigned char *data = stbi_load(path, &width, &height, &nrChannels, STBI_rgb_alpha);
+    uint8_t *data = stbi_load(path, &width, &height, &nrChannels, STBI_rgb_alpha);
     if (data == NULL)
     {
-        LOG_ERROR("Failed to load texture %s: %s", name, stbi_failure_reason());
+        LOG_ERROR("Failed to load texture %s: %s", name.c_str(), stbi_failure_reason());
         --usedSlot;
-        t->m_slot = -1;
+        t->m_slot = NO_TEXTURE;
     }
 
     glActiveTexture(GL_TEXTURE0 + t->m_slot);
@@ -64,9 +64,17 @@ TextureID Texture::CreateTexture(const std::string& name)
     return t->m_slot;
 }
 
-Texture::~Texture()
+Texture::Texture()
 {
-    glDeleteTextures(1, &m_ID);
+    m_slot = NO_TEXTURE;
+    m_ID = NO_TEXTURE;
+}
+
+void Texture::Destroy()
+{
+    if (m_ID != NO_TEXTURE)
+        glDeleteTextures(1, &m_ID);
+    m_ID = NO_TEXTURE;
 }
 
 void Texture::Bind()

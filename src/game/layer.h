@@ -1,24 +1,29 @@
 #ifndef LAYER_H
 #define LAYER_H
 
-#include "events/event.h"
 #include <string>
+
+// To be implemented by the user
+struct LayerData;
 
 class Layer
 {
 public:
-    Layer(uint32_t width, uint32_t height, const std::string& title)
-        : m_width(width), m_height(height), m_title(title)
-    {};
+    static void OnAttach(uint32_t width, uint32_t height, const std::string& title);
+    static void OnDetach();
 
-    virtual void OnAttach() = 0;
-    virtual void OnDetach() = 0;
+    static void OnUpdate(float ts);
+    static void OnRender();
 
-    virtual void OnUpdate(float ts) = 0;
-    virtual void OnRender() = 0;
+    // template specializations need to be defined by te user and registered to the EventHandler
+    template<typename T>
+    static bool OnEvent(T event)
+    {
+        return false;
+    }
 
-    uint32_t m_width, m_height;
-    std::string m_title;
+private:
+    static LayerData s_LayerData;
 };
 
 #endif

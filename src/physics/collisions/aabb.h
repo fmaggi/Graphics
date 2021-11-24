@@ -4,11 +4,12 @@
 #include "glm/glm.hpp"
 
 int32_t createAABB2(glm::vec2 center, glm::vec2 halfExtents, void* bodyID);
-void updateAABB(int32_t id, glm::vec3 position);
+void updateAABB(int32_t id, glm::vec3 translation);
 
 struct ContactStack; // forward declaration
 void sweepAndPrune(struct ContactStack* results);
 
 bool testOverlap(int32_t aID, int32_t bID);
+void* QueryOverlap(int32_t aabbID);
 
 #endif

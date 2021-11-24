@@ -73,12 +73,12 @@ void Renderer::Init()
     r.quadCount = 0;
 
     r.vao = new VertexArray(sizeof(QuadVertex));
-    r.vao->AddAttribute(3); // position
+    r.vbo = new VertexBuffer(sizeof(QuadVertex) * maxVertices);
+
+    r.vao->AddAttribute(3); // translation
     r.vao->AddAttribute(3); // color
     r.vao->AddAttribute(2); // uv coords;
     r.vao->AddAttribute(1); // texIndex;
-
-    r.vbo = new VertexBuffer(sizeof(QuadVertex) * maxVertices, VertexBuffer::BufferType::Dynamic);
 
     uint32_t* indices = (uint32_t*) malloc(sizeof(uint32_t) * maxIndices);
     if (indices == NULL)
@@ -119,6 +119,12 @@ void Renderer::Destroy()
     delete r.vbo;
     delete r.ibo;
     free(r.vertices);
+
+    for (int i = 0; i < r.currentTexture; i++)
+    {
+        Texture* t = r.textures[i];
+        t->Destroy();
+    }
 }
 
 void renderBatch()
@@ -166,19 +172,19 @@ void Renderer::EndFrame()
     LOG_INFO_DEBUG("Render calls: %i", r.renderCalls);
 }
 
-void Renderer::PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm::vec3 color, TextureID textureID)
+void Renderer::PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec3 color, TextureID textureID)
 {
-    float left = position.x + scale.x/2;
-    float right = position.x - scale.x/2;
-    float top = position.y + scale.y/2;
-    float bottom = position.y - scale.y/2;
+    float left = translation.x + scale.x/2;
+    float right = translation.x - scale.x/2;
+    float top = translation.y + scale.y/2;
+    float bottom = translation.y - scale.y/2;
 
     if (!inFrustum(left, right, top, bottom))
     {
         return;
     }
 
-    glm::mat4 transform = getTransform(position, rotation, scale);
+    glm::mat4 transform = getTransform(translation, rotation, scale);
 
     if(r.quadCount >= MAX_QUADS)
     {
@@ -192,7 +198,7 @@ void Renderer::PushQuad(glm::vec3 position, float rotation, glm::vec2 scale, glm
         r.vertexPtrCurrent->pos = {vertex.x, vertex.y, vertex.z};
         r.vertexPtrCurrent->color = color;
         r.vertexPtrCurrent->uv = r.texturesCoords[i];
-        r.vertexPtrCurrent->texIndex = textureID;
+        r.vertexPtrCurrent->texIndex = (float) textureID;
         r.vertexPtrCurrent++;
     }
     r.indexCount += 6;

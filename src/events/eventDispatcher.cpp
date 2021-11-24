@@ -2,45 +2,33 @@
 #include "log/log.h"
 
 #include <vector>
-
-template<typename T>
-class EventHandlerInternal
-{
-public:
-    EventHandlerInternal() {}
-    using EventHandlerFn = bool (*)(T& event);
-    void DispatchInternal(Event& event)
-    {
-        T& e = static_cast<T&>(event);
-        for (auto it = m_handlers.rbegin(); it != m_handlers.rend(); ++it)
-        {
-            auto& f = *it;
-            if (f(e))
-                return;
-        }
-    }
-
-    void RegisterOnEventFunctionInternal(EventHandlerFn onEvent)
-    {
-        m_handlers.push_back(onEvent);
-    }
-private:
-    std::vector<EventHandlerFn> m_handlers;
-};
+#include <algorithm>
 
 #define INIT_HANDLER(type) \
-    static EventHandlerInternal<type> type##_handler; \
+    static std::vector<EventHandler<type>::EventHandlerFn> type##_handlers{}; \
     \
     template<> \
-    void EventHandler<type>::Dispatch(Event& event) \
+    void EventHandler<type>::Dispatch(type event) \
     { \
-        return type##_handler.DispatchInternal(event); \
+        for (auto it = type##_handlers.rbegin(); it != type##_handlers.rend(); ++it) \
+        { \
+            auto& f = *it; \
+            if (f(event)) \
+                return; \
+        } \
     } \
     \
     template<> \
     void EventHandler<type>::RegisterOnEventFunction(EventHandlerFn onEvent) \
     { \
-        return type##_handler.RegisterOnEventFunctionInternal(onEvent); \
+        type##_handlers.push_back(onEvent); \
+    } \
+    template<> \
+    void EventHandler<type>::RemoveOnEventFunction(EventHandlerFn onEvent) \
+    { \
+        auto it = std::find(type##_handlers.begin(), type##_handlers.end(), onEvent); \
+        if (it != type##_handlers.end()) \
+            type##_handlers.erase(it); \
     }
 
 INIT_HANDLER(WindowClose);

@@ -5,7 +5,7 @@
 
 struct Camera
 {
-    glm::vec3 pos;
+    glm::vec3 translation;
     glm::mat4 projview;
     float width, height, zoom;
 };

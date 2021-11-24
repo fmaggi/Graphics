@@ -5,25 +5,18 @@
 
 #include "log/log.h"
 
-struct Simulation
-{
-    Body bodies[32];
-    uint32_t currentBody;
-    int32_t gravity;
-};
+Physics::Simulation Physics::simulation;
 
-static struct Simulation simulation;
-
-void initPhysics(float gravity)
+void Physics::Init(float gravity)
 {
     simulation.currentBody = 0;
     simulation.gravity = gravity;
 }
 
-void stepPhysics(double ts)
+void Physics::Step(float ts)
 {
-    static struct ContactStack stack;
-    struct Contact contacts[32] = {0};
+    static ContactStack stack;
+    Contact contacts[32] = {0};
     stack.contacts = contacts;
     stack.count = 0;
     stack.size = 32;
@@ -31,19 +24,19 @@ void stepPhysics(double ts)
     for (int i = 0; i < simulation.currentBody; i++)
     {
         Body* b = simulation.bodies + i;
-        updateAABB(b->aabbID, b->position);
+        updateAABB(b->aabbID, b->translation);
     }
 
     sweepAndPrune(&stack);
 
     int calls = 0;
-    for (struct Contact* c = stack.contacts; c->next != NULL; c = c->next)
+    for (Contact* c = stack.contacts; c->next != NULL; c = c->next)
     {
         Body* a = c->left;
         Body* b = c->right;
         if (b->type == BodyType::Static && a->type == BodyType::Static)
         {
-            struct Contact* d = c;
+            Contact* d = c;
             destroyContact(&stack, d);
             continue;
         }
@@ -52,7 +45,7 @@ void stepPhysics(double ts)
         bool collided = testOverlap(a->aabbID, b->aabbID);
         if (!collided)
         {
-            struct Contact* d = c;
+            Contact* d = c;
             destroyContact(&stack, d);
             continue;
         }
@@ -78,7 +71,7 @@ void stepPhysics(double ts)
     }
 
     // solve velocity constraints
-    for (struct Contact* c = stack.contacts; c->next != NULL; c = c->next)
+    for (Contact* c = stack.contacts; c->next != NULL; c = c->next)
     {
         Body *a = c->left;
         Body *b = c->right;
@@ -108,19 +101,19 @@ void stepPhysics(double ts)
         }
     }
 
-    // integrate position
+    // integrate translation
     for (int i = 0; i < simulation.currentBody; i ++)
     {
         Body* b = simulation.bodies + i;
         if (b->type == BodyType::Static)
             continue;
 
-        glm::vec2 dx = (float)ts * b->speed;
-        b->position += (glm::vec3){dx.x, dx.y, 0};
+        glm::vec2 dx = ts * b->speed;
+        b->translation += glm::vec3(dx, 0);
     }
 
-    // solve position constraints
-    for (struct Contact* c = stack.contacts; c->next != NULL; c = c->next)
+    // solve translation constraints
+    for (Contact* c = stack.contacts; c->next != NULL; c = c->next)
     {
         Body *a = c->left;
         Body *b = c->right;
@@ -132,20 +125,20 @@ void stepPhysics(double ts)
 
         if (a->type == BodyType::Dynamic)
         {
-            a->position += (glm::vec3){offset.x, offset.y, 0};
+            a->translation += (glm::vec3){offset.x, offset.y, 0};
         }
         if (b->type == BodyType::Dynamic)
         {
-            b->position -= (glm::vec3){offset.x, offset.y, 0};
+            b->translation -= (glm::vec3){offset.x, offset.y, 0};
         }
     }
 }
 
-Body* createBody(glm::vec3 position, BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)
+Body* Physics::CreateBody(glm::vec3 translation, BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)
 {
     Body* body= simulation.bodies + simulation.currentBody++;
 
-    body->position = position;
+    body->translation = translation;
     body->type = type;
     body->onCollision = callback;
     body->userData = userData;
@@ -156,5 +149,16 @@ Body* createBody(glm::vec3 position, BodyType type, CollisionCallback callback, 
     body->aabbID = -1;
 
     return body;
+}
+
+Body* Physics::CreateBody(BodyDef& body)
+{
+    return CreateBody(body.translation, body.type, body.onCollision, body.userData, body.userFlags);
+}
+
+Body* Physics::QueryContact(Body* body)
+{
+    updateAABB(body->aabbID, body->translation);
+    return (Body*) QueryOverlap(body->aabbID);
 }
 

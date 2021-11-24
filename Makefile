@@ -50,7 +50,7 @@ libs:
 	@echo [LIB] Glad
 	@cd $(DEPS)/glad && gcc -o glad.o -Iinclude -c src/glad.c
 	@echo [LIB] glm
-	@cd $(DEPS)/glm && cmake . -DCGLM_STATIC=ON && make -s --no-print-directory
+	@cd $(DEPS)/glm && cmake . -DBUILD_TESTING=OFF && make -s --no-print-directory
 	@echo ===================== Done! ===================
 	@echo
 

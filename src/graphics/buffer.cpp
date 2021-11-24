@@ -2,9 +2,6 @@
 
 #include "gfx.h"
 
-#include "stdlib.h"
-#include "string.h"
-
 #include "log/log.h"
 
 static inline GLenum GetGLType(VertexBuffer::BufferType type)

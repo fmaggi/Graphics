@@ -4,13 +4,13 @@
 
 #include "log/log.h"
 
-void addAABB(Body* body, float halfWidth, float halfHeight)
+void Body::AddAABB(float halfWidth, float halfHeight)
 {
-    if (body->aabbID != -1)
+    if (aabbID != -1)
         LOG_WARN("Body already has an AABB\n");
 
-    glm::vec2 center = {body->position.x, body->position.y};
+    glm::vec2 center = {translation.x, translation.y};
     glm::vec2 halfExtents = {halfWidth, halfHeight};
 
-    body->aabbID = createAABB2(center, halfExtents, body);
+    aabbID = createAABB2(center, halfExtents, this);
 }

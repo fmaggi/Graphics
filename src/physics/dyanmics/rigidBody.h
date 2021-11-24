@@ -8,21 +8,37 @@ enum class BodyType
     Static = 0, Dynamic
 };
 
-typedef struct body
+class Physics;
+
+class Body
 {
-    glm::vec3 position;
+public:
+    glm::vec3 translation;
     glm::vec2 speed, impulse;
 
+    uint32_t userFlags;
+    void* userData;
+
+    void AddAABB(float halfWidth, float halfHeight);
+    void (*onCollision)(Body* self, Body* other);
+private:
+    Body(){}
     BodyType type;
     int32_t aabbID;
 
-    void (*onCollision)(struct body* self, struct body* other);
-    void* userData;
-    uint32_t userFlags;
-} Body;
+    friend Physics;
+};
 
 typedef void (*CollisionCallback)(Body* self, Body* other);
 
-void addAABB(Body* body, float halfWidth, float halfHeight);
+struct BodyDef
+{
+    BodyType type = BodyType::Static;
+    glm::vec3 translation{0,0,0};
+
+    uint32_t userFlags = 0;
+    void* userData = nullptr;
+    CollisionCallback onCollision = nullptr;
+};
 
 #endif

@@ -3,21 +3,20 @@
 
 #include <string>
 
-#define NO_TEXTURE -1
-
-typedef uint32_t TextureID;
+typedef int32_t TextureID;
+static const TextureID NoTexture = -1;
 
 class Texture
 {
 public:
-    static TextureID CreateTexture(const std::string& name = "");
-    ~Texture();
+    static TextureID Create(const std::string& name = "");
 
     void Bind();
-
+    void Destroy();
 private:
     uint32_t m_ID, m_slot;
-    Texture(){}
+    Texture();
 };
+
 
 #endif

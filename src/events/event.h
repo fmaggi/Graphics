@@ -1,83 +1,66 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-enum class EventType
-{
-    WindowClose = 0, WindowResize,
-    KeyPressed, KeyReleased,
-    MousePressed, MouseReleased, MouseMoved, MouseScrolled,
-};
-
-struct Event
-{
-public:
-    Event(EventType type)
-        : type(type)
-    {}
-    const EventType type;
-};
-
-struct KeyPressed : public Event
+struct KeyPressed
 {
     KeyPressed(int key_, int scancode_, int mods_, bool repeat_)
-        : Event(EventType::KeyPressed), key(key_), scancode(scancode_), mods(mods_), repeat(repeat_)
+        : key(key_), scancode(scancode_), mods(mods_), repeat(repeat_)
     {}
     const int key, scancode, mods;
     const bool repeat;
 };
 
-struct KeyReleased : public Event
+struct KeyReleased
 {
     KeyReleased(int key_, int scancode_, int mods_)
-        : Event(EventType::KeyReleased), key(key_), scancode(scancode_), mods(mods_)
+        : key(key_), scancode(scancode_), mods(mods_)
     {}
     const int key, scancode, mods;
 };
 
-struct MouseButtonPressed : public Event
+struct MouseButtonPressed
 {
     MouseButtonPressed(int button_, int mods_)
-        : Event(EventType::MousePressed), button(button_), mods(mods_)
+        : button(button_), mods(mods_)
     {}
     const int button, mods;
 };
 
-struct MouseButtonReleased : public Event
+struct MouseButtonReleased
 {
     MouseButtonReleased(int button_, int mods_)
-        : Event(EventType::MouseReleased), button(button_), mods(mods_)
+        : button(button_), mods(mods_)
     {}
     const int button, mods;
 };
 
-struct MouseMoved : public Event
+struct MouseMoved
 {
     MouseMoved(int dx_, int dy_)
-        : Event(EventType::MouseMoved), dx(dx_), dy(dy_)
+        : dx(dx_), dy(dy_)
     {}
     const float dx, dy;
 };
 
-struct MouseScrolled : public Event
+struct MouseScrolled
 {
     MouseScrolled(int dx_, int dy_)
-        : Event(EventType::MouseScrolled), dx(dx_), dy(dy_)
+        : dx(dx_), dy(dy_)
     {}
     const float dx, dy;
 };
 
-struct WindowResize : public Event
+struct WindowResize
 {
     WindowResize(int w_, int h_)
-        : Event(EventType::WindowResize), width(w_), height(h_)
+        : width(w_), height(h_)
     {}
     const float width, height;
 };
 
-struct WindowClose : public Event
+struct WindowClose
 {
     WindowClose()
-        : Event(EventType::WindowClose)
     {}
 };
 

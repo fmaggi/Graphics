@@ -12,6 +12,7 @@
 #include "graphics/texture.h"
 #include "graphics/camera.h"
 
+#include "game/layer.h"
 #include "game/input.h"
 
 #include "log/log.h"

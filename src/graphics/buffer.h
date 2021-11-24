@@ -10,7 +10,7 @@ public:
     {
         Static = 0, Dynamic
     };
-    VertexBuffer(uint32_t size, BufferType type, const void* data = 0);
+    VertexBuffer(uint32_t size, BufferType type = BufferType::Dynamic, const void* data = 0);
     ~VertexBuffer();
 
     void Bind();

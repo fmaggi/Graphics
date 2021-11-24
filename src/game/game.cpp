@@ -10,29 +10,26 @@
 #include "graphics/renderer.h"
 #include "graphics/camera.h"
 
-#include "world.h"
 #include "entity/entity.h"
 
 #include "log/log.h"
 
-static Layer* s_layer = 0;
 static bool running = 0;
 
-bool Game::SetUp(Layer* layer)
+bool Game::SetUp(uint32_t width, uint32_t height, const std::string& title)
 {
-    EventHandler<WindowClose>::RegisterOnEventFunction([](WindowClose& event){
+    EventHandler<WindowClose>::RegisterOnEventFunction([](WindowClose event){
         running = 0;
-        return true;;
+        return true;
     });
 
-    s_layer = layer;
     LOG_INFO_DEBUG("DEBUG");
-    Window::Create(layer->m_width, layer->m_height, layer->m_title.c_str());
+    Window::Create(width, height, title.c_str());
     Renderer::Init();
     // initECS();
 
     LOG_TRACE("Initializing client World");
-    s_layer->OnAttach();
+    Layer::OnAttach(width, height, title);
 
     running = 1;
     LOG_TRACE("All done!");
@@ -45,13 +42,13 @@ void Game::OnUpdate(float ts)
         LOG_WARN("FPS: %f", 1/ts);
     // LOG_INFO_DEBUG("FPS: %f", 1/ts);
 
-    s_layer->OnUpdate(ts);
+    Layer::OnUpdate(ts);
 }
 
 void Game::OnRender()
 {
     Renderer::StartFrame(camera);
-    s_layer->OnRender();
+    Layer::OnRender();
     Renderer::EndFrame();
 }
 
@@ -69,7 +66,7 @@ void Game::Run()
 
 void Game::Destroy()
 {
-    s_layer->OnDetach();
+    Layer::OnDetach();
     // destroyECS();
     Renderer::Destroy();
     Window::Destroy();

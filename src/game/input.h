@@ -7,9 +7,9 @@
 class Input
 {
 public:
-    static int isKeyPressed(Keycode key);
-    static int isMouseButtonPressed(ButtonCode button);
-    static glm::vec2 getCursorPos();
+    static bool isKeyPressed(Keycode key);
+    static bool isMouseButtonPressed(ButtonCode button);
+    static glm::vec2 getCursorPosition();
 };
 
 

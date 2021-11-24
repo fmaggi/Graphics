@@ -1,45 +1,58 @@
-#include "mainLayer.h"
-#include "engine.h"
+#include "runtimeScript.h"
 
-TextureID t;
-glm::vec3 pos{0,0,0};
+LayerData Layer::s_LayerData;
 
-void Test::OnAttach()
+void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
 {
-    // World creation here
-    t = Texture::CreateTexture();
-    orthoCamera({0, 0, 0}, m_width, m_height);
+    s_LayerData.t = Texture::Create("test.png");
+    orthoCamera({0, 0, 0}, width, height);
 
-    EventHandler<KeyPressed>::RegisterOnEventFunction([](KeyPressed& event){
-        if (event.key == KEY_C && event.mods == MOD_CONTROL)
-        {
-            WindowClose e;
-            EventHandler<WindowClose>::Dispatch(e);
-            return true;
-        }
-        return false;
-    });
+    EventHandler<KeyPressed>::RegisterOnEventFunction(Layer::OnEvent<KeyPressed>);
 }
 
-void Test::OnUpdate(float ts)
+void Layer::OnUpdate(float ts)
 {
     if (Input::isKeyPressed(KEY_A))
-        pos.x -= 10;
+        s_LayerData.pos.x -= 10;
     else if (Input::isKeyPressed(KEY_D))
-        pos.x += 10;
+        s_LayerData.pos.x += 10;
 
     if (Input::isKeyPressed(KEY_S))
-        pos.y -= 10;
+        s_LayerData.pos.y -= 10;
     else if (Input::isKeyPressed(KEY_W))
-        pos.y += 10;
+        s_LayerData.pos.y += 10;
 }
 
-void Test::OnRender()
+void Layer::OnRender()
 {
-    Renderer::PushQuad(pos, 0, {200, 200}, {0.86, 0.3, 0.2}, t);
+    Renderer::PushQuad(s_LayerData.pos, 0, {100, 100}, {0.86, 0.3, 0.2}, s_LayerData.t);
+    Renderer::PushQuad({150, 0, 0}, 0, {100, 100}, {0.3, 0.6, 0.8}, s_LayerData.t);
+    Renderer::PushQuad({600, 0, 0}, 0, {100, 100}, {0.3, 0.6, 0.8}, s_LayerData.t);
+    Renderer::PushQuad({-100, 0, 0}, 0, {100, 100}, {0.3, 0.6, 0.8}, s_LayerData.t);
 }
 
-void Test::OnDetach()
+template<>
+bool Layer::OnEvent<KeyPressed>(KeyPressed event)
 {
+    switch (event.key)
+    {
+        case KEY_C:
+            if (event.mods & MOD_CONTROL)
+            {
+                EventHandler<WindowClose>::Dispatch({});
+                return true;
+            }
 
+        case KEY_U:
+            Renderer::SetShader(uvShader);
+            return true;
+
+        default:
+            return false;
+    }
+}
+
+void Layer::OnDetach()
+{
+    EventHandler<KeyPressed>::RemoveOnEventFunction(Layer::OnEvent<KeyPressed>);
 }

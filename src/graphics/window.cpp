@@ -24,8 +24,7 @@ void errorCallback(int error, const char* description)
 
 void windowCloseCallback(GLFWwindow* window)
 {
-    WindowClose e;
-    EventHandler<WindowClose>::Dispatch(e);
+    EventHandler<WindowClose>::Dispatch({});
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height)
@@ -42,19 +41,19 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         {
             KeyPressed e(key, scancode, mods, false);
             EventHandler<KeyPressed>::Dispatch(e);
-            break;
+            return;
         }
         case GLFW_RELEASE:
         {
             KeyReleased e(key, scancode, mods);
             EventHandler<KeyReleased>::Dispatch(e);
-            break;
+            return;
         }
         case GLFW_REPEAT:
         {
             KeyPressed e(key, scancode, mods, true);
             EventHandler<KeyPressed>::Dispatch(e);
-            break;
+            return;
         }
     }
 }
@@ -133,12 +132,12 @@ void Window::Destroy()
     glfwTerminate();
 }
 
-int Window::IsKeyPressed(int key)
+bool Window::IsKeyPressed(int key)
 {
     return glfwGetKey(window.g_window, key) == GLFW_PRESS;
 }
 
-int Window::IsMouseButtonPressed(int button)
+bool Window::IsMouseButtonPressed(int button)
 {
     return glfwGetMouseButton(window.g_window, button) == GLFW_PRESS;
 }

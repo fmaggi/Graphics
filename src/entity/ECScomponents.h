@@ -16,7 +16,7 @@ enum ComponentType
 typedef struct
 {
     EntityID id;
-    glm::vec3 position;
+    glm::vec3 translation;
     float rotation;
     glm::vec2 scale;
 } TransformComponent;
