@@ -24,12 +24,12 @@ static inline char* getFormattedTime()
 
 #define PROFILE_FUNC() (printf("[Function call] %s\n",__func__))
 
-#define LOG(...)       (printf("[%s]: ", getFormattedTime()), printf(__VA_ARGS__), printf("\n"))
+#define LOG(...)       (printf("[%s]: ", getFormattedTime()), printf(__VA_ARGS__))
 
 #define LOG_INFO(...)                        (LOG(__VA_ARGS__))
-#define LOG_TRACE(...) (printf("\033[0;32m"), LOG(__VA_ARGS__), printf("\033[0m"))
-#define LOG_WARN(...)  (printf("\033[0;33m"), LOG(__VA_ARGS__), printf("\033[0m"))
-#define LOG_ERROR(...) (printf("\033[0;31m"), LOG(__VA_ARGS__), printf("\033[0m"))
+#define LOG_TRACE(...) (printf("\033[0;32m"), LOG(__VA_ARGS__), printf("\033[0m\n")) // green
+#define LOG_WARN(...)  (printf("\033[0;33m"), LOG(__VA_ARGS__), printf("\033[0m\n")) // yellow
+#define LOG_ERROR(...) (printf("\033[0;31m"), LOG(__VA_ARGS__), printf("\033[0m\n")) // red
 
 #ifdef DEBUG
     #define LOG_INFO_DEBUG(...)   (LOG_INFO(__VA_ARGS__))

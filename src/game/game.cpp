@@ -1,4 +1,5 @@
 #include "game.h"
+#include "layer.h"
 #include "timestep.h"
 #include "input.h"
 
