@@ -1,5 +1,6 @@
 #include "physics.h"
 
+#include "rigidBody.h"
 #include "physics/collisions/aabb.h"
 #include "physics/collisions/contact.h"
 
@@ -9,8 +10,10 @@ Physics::Simulation Physics::simulation;
 
 void Physics::Init(float gravity)
 {
+    static Body bodies[32];
     simulation.currentBody = 0;
     simulation.gravity = gravity;
+    simulation.bodies = bodies;
 }
 
 void Physics::Step(float ts)
@@ -24,10 +27,10 @@ void Physics::Step(float ts)
     for (int i = 0; i < simulation.currentBody; i++)
     {
         Body* b = simulation.bodies + i;
-        updateAABB(b->aabbID, b->translation);
+        b->aabb->Update(b->translation);
     }
 
-    sweepAndPrune(&stack);
+    AABBManager::SweepAndPrune(stack);
 
     int calls = 0;
     for (Contact* c = stack.contacts; c->next != NULL; c = c->next)
@@ -42,7 +45,7 @@ void Physics::Step(float ts)
         }
 
         calls++;
-        bool collided = testOverlap(a->aabbID, b->aabbID);
+        bool collided = AABBManager::TestOverlap(a->aabb, b->aabb);
         if (!collided)
         {
             Contact* d = c;
@@ -146,7 +149,7 @@ Body* Physics::CreateBody(glm::vec3 translation, BodyType type, CollisionCallbac
 
     body->impulse = {0, 0};
     body->speed = {0, 0};
-    body->aabbID = -1;
+    body->aabb = nullptr;
 
     return body;
 }
@@ -158,7 +161,19 @@ Body* Physics::CreateBody(BodyDef& body)
 
 Body* Physics::QueryContact(Body* body)
 {
-    updateAABB(body->aabbID, body->translation);
-    return (Body*) QueryOverlap(body->aabbID);
+    body->aabb->Update(body->translation);
+    return (Body*) AABBManager::QueryOverlap(body->aabb);
 }
+
+void Physics::AddAABB(Body* body, float halfWidth, float halfHeight)
+{
+    if (body->aabb)
+        LOG_WARN("Body already has an AABB\n");
+
+    glm::vec2 center = {body->translation.x, body->translation.y};
+    glm::vec2 halfExtents = {halfWidth, halfHeight};
+
+    body->aabb = AABBManager::Create(center, halfExtents, body);
+}
+
 

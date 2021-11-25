@@ -7,6 +7,7 @@
 #include "events/eventDispatcher.h"
 
 #include "physics/dyanmics/physics.h"
+#include "physics/dyanmics/rigidBody.h"
 
 #include "graphics/renderer.h"
 #include "graphics/texture.h"

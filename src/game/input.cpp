@@ -2,17 +2,17 @@
 
 #include "graphics/window.h"
 
-bool Input::isKeyPressed(Keycode key)
+bool Input::IsKeyPressed(Keycode key)
 {
     return Window::IsKeyPressed(key);
 }
 
-bool Input::isMouseButtonPressed(ButtonCode button)
+bool Input::IsMouseButtonPressed(ButtonCode button)
 {
     return Window::IsMouseButtonPressed(button);
 }
 
-glm::vec2 Input::getCursorPosition()
+glm::vec2 Input::GetCursorPosition()
 {
     double x, y;
     Window::GetCursorPos(&x, &y);
