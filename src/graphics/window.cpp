@@ -5,6 +5,7 @@
 #include "stdlib.h"
 #include "log/log.h"
 
+#include "events/event.h"
 #include "events/eventDispatcher.h"
 
 struct WindowInternal

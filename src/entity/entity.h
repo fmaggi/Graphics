@@ -2,43 +2,59 @@
 #define ENTITY_H
 
 #include "ECScomponents.h"
+#include "registry.h"
 
-typedef int EntityID;
+typedef uint32_t EntityID;
 
-template <typename T>
-class View
+#define ECS_TAG_VALUE(x) (1 << x)
+
+class ECS
 {
 public:
-    View();
-    T& GetComponent(EntityID id);
+    static void Init();
+    static void Destroy();
+
+    static EntityID CreateEntity();
+
+    template<typename T>
+    static bool HasComponent(EntityID id)
+    {
+        uint32_t index = TypeIndex<T>::value();
+        return registry.used[id] & ECS_TAG_VALUE(index);
+    }
+
+    template<typename T>
+    static T& GetComponent(EntityID id)
+    {
+        uint32_t componentIndex = TypeIndex<T>::value();
+        basic_component* b = registry.componentsList[componentIndex];
+        ComponentStorage<T>& s = *(static_cast<ComponentStorage<T>*>(b));
+        ASSERT(componentIndex < registry.componentsList.size() && componentIndex < 8, "Invalid Component Get");
+        uint32_t packedSetID = s.sparse[id];
+        return s.components[packedSetID];
+    }
+
+    template<typename T>
+    static T& AddComponent(EntityID id)
+    {
+        uint32_t componentIndex = TypeIndex<T>::value();
+        basic_component* b = registry.componentsList[componentIndex];
+        ComponentStorage<T>& s = *(static_cast<ComponentStorage<T>*>(b));
+        ASSERT(componentIndex < registry.componentsList.size() && componentIndex < 8, "Invalid Component Add");
+        registry.used[id] |= ECS_TAG_VALUE(componentIndex);
+
+        uint32_t packedSetID = s.components.size();
+        if (s.sparse.size() <= packedSetID)
+            s.sparse.resize(packedSetID + 1);
+
+        s.sparse[id] = packedSetID;
+
+        s.components.push_back({});
+        T& component = s.components[packedSetID];
+        return component;
+    }
 private:
-    T* m_components;
-    uint32_t m_count;
+    static Registry registry;
 };
-
-void initECS();
-void destroyECS();
-
-EntityID newEntity();
-uint32_t getEntityCount();
-
-#define ECSaddComponent(id, type) ecs_add_component_internal((id), (type##_E), sizeof(type))
-#define ECSgetComponent(id, type) ecs_get_component_internal((id), (type##_E), sizeof(type))
-#define ECShasComponent(id, type) has_component_internal((id), (type##_E))
-
-#define ECSview(component) ecs_view_internal((component##_E), sizeof(component))
-
-// #define ECSgroupView(type1, type2) ecs_group_view_internal((type1##_E), (type2##_E))
-// #define ECSgroupGet(group, i, component1, component2) ecs_group_get_internal((group), (sizeof(component1)), (sizeof(component2)), (i))
-
-int has_component_internal(EntityID id, enum ComponentType type);
-void* ecs_add_component_internal(EntityID id, enum ComponentType type, uint32_t size);
-void* ecs_get_component_internal(EntityID id, enum ComponentType type, uint32_t size);
-
-// struct View ecs_view_internal(enum ComponentType type, uint32_t size);
-// void* ECSviewGetComponent(struct View* view, uint32_t i);
-
-// struct Group ecs_group_view_internal(enum ComponentType t1, enum ComponentType t2);
-// struct GroupObject ecs_group_get_internal(struct Group* group, uint32_t size1, enum ComponentType t1, uint32_t size2, enum ComponentType t2, uint32_t i);
 
 #endif

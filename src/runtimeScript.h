@@ -6,8 +6,7 @@
 struct LayerData
 {
     TextureID t;
-    glm::vec3 pos{0,0,0};
-    Body* body;
+    EntityID player;
 };
 
 template<>

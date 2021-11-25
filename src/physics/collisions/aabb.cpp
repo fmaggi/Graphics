@@ -32,8 +32,7 @@ void AABBManager::Sort()
         while (j >= 0 && jth->min.x > min)
         {
             aabbs.sorted[j+1] = jth;
-            --j;
-            jth = aabbs.sorted[j];
+            jth = aabbs.sorted[--j];
         }
         aabbs.sorted[j+1] = ith;
     }

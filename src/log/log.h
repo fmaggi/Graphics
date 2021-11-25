@@ -26,7 +26,7 @@ static inline char* getFormattedTime()
 
 #define LOG(...)       (printf("[%s]: ", getFormattedTime()), printf(__VA_ARGS__))
 
-#define LOG_INFO(...)                        (LOG(__VA_ARGS__))
+#define LOG_INFO(...)                        (LOG(__VA_ARGS__), printf("\n"))        // white
 #define LOG_TRACE(...) (printf("\033[0;32m"), LOG(__VA_ARGS__), printf("\033[0m\n")) // green
 #define LOG_WARN(...)  (printf("\033[0;33m"), LOG(__VA_ARGS__), printf("\033[0m\n")) // yellow
 #define LOG_ERROR(...) (printf("\033[0;31m"), LOG(__VA_ARGS__), printf("\033[0m\n")) // red

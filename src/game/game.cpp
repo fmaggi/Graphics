@@ -5,6 +5,7 @@
 
 #include "glm/glm.hpp"
 
+#include "events/event.h"
 #include "events/eventDispatcher.h"
 
 #include "graphics/window.h"
@@ -27,7 +28,7 @@ bool Game::SetUp(uint32_t width, uint32_t height, const std::string& title)
     LOG_INFO_DEBUG("DEBUG");
     Window::Create(width, height, title.c_str());
     Renderer::Init();
-    // initECS();
+    ECS::Init();
 
     LOG_TRACE("Initializing client World");
     Layer::OnAttach(width, height, title);

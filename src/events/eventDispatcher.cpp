@@ -1,6 +1,8 @@
 #include "eventDispatcher.h"
 #include "log/log.h"
 
+#include "event.h"
+
 #include <vector>
 #include <algorithm>
 

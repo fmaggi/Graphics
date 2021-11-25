@@ -4,13 +4,26 @@ LayerData Layer::s_LayerData;
 
 void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
 {
-    s_LayerData.t = Texture::Create("test.png");
+    TextureID tex = Texture::Create("test.png");
     orthoCamera({0, 0, 0}, width, height);
 
-    Physics::Init(-500);
+    Physics::Init(-700);
 
-    s_LayerData.body = Physics::CreateBody({0,300,0}, BodyType::Dynamic);
-    Physics::AddAABB(s_LayerData.body, 50, 50);
+    EntityID e = ECS::CreateEntity();
+    s_LayerData.player = e;
+
+    TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
+    t.translation = {0,0,0};
+
+    SpriteComponent& s = ECS::AddComponent<SpriteComponent>(e);
+    s.color = {0.86, 0.3, 0.2};
+    s.texIndex = tex;
+
+    Body* body = Physics::CreateBody({0, 300, 0}, BodyType::Dynamic);
+    Physics::AddAABB(body, 50, 50);
+
+    PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(e);
+    p.physicsBody = body;
 
     Body* floor = Physics::CreateBody({0, -300, 0}, BodyType::Static);
     Physics::AddAABB(floor, 400, 25);
@@ -22,11 +35,20 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
 void Layer::OnUpdate(float ts)
 {
     Physics::Step(ts);
+
+    TransformComponent& t = ECS::GetComponent<TransformComponent>(s_LayerData.player);
+    PhysicsComponent& p = ECS::GetComponent<PhysicsComponent>(s_LayerData.player);
+
+    Body* b = (Body*) p.physicsBody;
+    t.translation = b->translation;
 }
 
 void Layer::OnRender()
 {
-    Renderer::PushQuad(s_LayerData.body->translation, 0, {100, 100}, {0.86, 0.3, 0.2}, s_LayerData.t);
+    TransformComponent& t = ECS::GetComponent<TransformComponent>(s_LayerData.player);
+    SpriteComponent& s = ECS::GetComponent<SpriteComponent>(s_LayerData.player);
+
+    Renderer::PushQuad(t.translation, 0, {100, 100}, s.color, s_LayerData.t);
     Renderer::PushQuad({0, -300, 0}, 0, {800, 50}, {0.3, 0.6, 0.8}, NoTexture);
 }
 
