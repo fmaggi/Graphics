@@ -20,13 +20,20 @@ static bool running = 0;
 
 bool Game::SetUp(uint32_t width, uint32_t height, const std::string& title)
 {
+    LOG_INFO_DEBUG("DEBUG");
+
     EventHandler<WindowClose>::RegisterOnEventFunction([](WindowClose event){
         running = 0;
         return true;
     });
 
-    LOG_INFO_DEBUG("DEBUG");
-    Window::Create(width, height, title.c_str());
+    EventHandler<WindowResize>::RegisterOnEventFunction([](WindowResize event){
+        Renderer::SetViewport(event.width, event.height);
+        updateProjectionMatrix(event.width, event.height);
+        return true;
+    });
+
+    Window::Create(width, height, title);
     Renderer::Init();
     ECS::Init();
 
@@ -69,8 +76,8 @@ void Game::Run()
 void Game::Destroy()
 {
     Layer::OnDetach();
-    // destroyECS();
     Renderer::Destroy();
+    ECS::Destroy();
     Window::Destroy();
     LOG_TRACE("Good bye");
 }

@@ -6,9 +6,8 @@
 
 #include "log/log.h"
 
-typedef unsigned char ComponentsUsed; // just a bit map to mark used components by entities. with unsigned char = 8 components per entity
+typedef uint8_t ComponentsUsed; // just a bit map to mark used components by entities. with uint8_t = 8 components per entity
 typedef uint32_t EntityID;
-
 
 struct index
 {

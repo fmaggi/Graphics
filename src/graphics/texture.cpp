@@ -18,14 +18,12 @@ TextureID Texture::Create(const std::string& name)
     static uint32_t usedSlot = 0;
     static Texture textures[16];
 
-    Texture* t = textures + usedSlot;
 
     if (name.empty())
     {
-        t->m_slot = NO_TEXTURE;
-        t->m_ID = NO_TEXTURE;
         return NO_TEXTURE;
     }
+    Texture* t = textures + usedSlot;
     t->m_slot = usedSlot++;
 
     char path[512];
@@ -43,6 +41,7 @@ TextureID Texture::Create(const std::string& name)
         LOG_ERROR("Failed to load texture %s: %s", name.c_str(), stbi_failure_reason());
         --usedSlot;
         t->m_slot = NO_TEXTURE;
+        return NO_TEXTURE;
     }
 
     glActiveTexture(GL_TEXTURE0 + t->m_slot);

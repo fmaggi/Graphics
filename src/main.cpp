@@ -2,6 +2,6 @@
 
 int main()
 {
-    Game::SetUp(1200, 800, "title");
+    Game::SetUp(1200, 800, "Title");
     Game::Run();
 }

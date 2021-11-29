@@ -10,8 +10,6 @@
     TypeIndex<type>::value(); \
     registry.componentsList.push_back(new ComponentStorage<type>());
 
-#define ECS_TAG_VALUE(x) (1 << x)
-
 Registry ECS::registry;
 
 void ECS::Init()

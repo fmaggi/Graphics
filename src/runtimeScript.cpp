@@ -14,6 +14,8 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
 
     TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
     t.translation = {0,0,0};
+    t.scale = {100, 100};
+    t.rotation = 0;
 
     SpriteComponent& s = ECS::AddComponent<SpriteComponent>(e);
     s.color = {0.86, 0.3, 0.2};
@@ -41,6 +43,13 @@ void Layer::OnUpdate(float ts)
 
     Body* b = (Body*) p.physicsBody;
     t.translation = b->translation;
+
+    auto view = ECS::View<TransformComponent>();
+
+    for (TransformComponent& t : view)
+    {
+        LOG_INFO("%f", t.rotation);
+    }
 }
 
 void Layer::OnRender()
@@ -48,7 +57,7 @@ void Layer::OnRender()
     TransformComponent& t = ECS::GetComponent<TransformComponent>(s_LayerData.player);
     SpriteComponent& s = ECS::GetComponent<SpriteComponent>(s_LayerData.player);
 
-    Renderer::PushQuad(t.translation, 0, {100, 100}, s.color, s_LayerData.t);
+    Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, s_LayerData.t);
     Renderer::PushQuad({0, -300, 0}, 0, {800, 50}, {0.3, 0.6, 0.8}, NoTexture);
 }
 
@@ -63,6 +72,7 @@ bool Layer::OnEvent<KeyPressed>(KeyPressed event)
                 EventHandler<WindowClose>::Dispatch({});
                 return true;
             }
+            return false;
 
         case KEY_U:
             Renderer::SetShader(uvShader);
@@ -71,6 +81,8 @@ bool Layer::OnEvent<KeyPressed>(KeyPressed event)
         default:
             return false;
     }
+
+    return false;
 }
 
 template<>
@@ -87,4 +99,5 @@ bool Layer::OnEvent<MouseMoved>(MouseMoved event)
 void Layer::OnDetach()
 {
     EventHandler<KeyPressed>::RemoveOnEventFunction(Layer::OnEvent<KeyPressed>);
+    EventHandler<MouseMoved>::RemoveOnEventFunction(Layer::OnEvent<MouseMoved>);
 }
