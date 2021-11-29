@@ -3,8 +3,8 @@ TARGET_PREFIX = graphicsExe
 
 DEPS = dependencies
 
-CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/glm/ -I$(DEPS)/stb -Isrc -D_FORTIFY_SOURCE=2
-LFLAGS = $(DEPS)/glad/glad.o $(DEPS)/GLFW/src/libglfw3.a $(DEPS)/glm/glm/libglm_static.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
+CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/glm/ -I$(DEPS)/stb -I$(DEPS)/imgui -Isrc -D_FORTIFY_SOURCE=2
+LFLAGS = $(DEPS)/glad/glad.o $(DEPS)/GLFW/src/libglfw3.a $(DEPS)/glm/glm/libglm_static.a $(DEPS)/imgui/libImguiStatic.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
 
 SRC  = $(wildcard src/*.cpp) $(wildcard src/**/*.cpp) $(wildcard src/**/**/*.cpp) $(wildcard src/**/**/**/*.cpp)
 
@@ -51,6 +51,8 @@ libs:
 	@cd $(DEPS)/glad && gcc -o glad.o -Iinclude -c src/glad.c
 	@echo [LIB] glm
 	@cd $(DEPS)/glm && cmake . -DBUILD_TESTING=OFF && make -s --no-print-directory
+	@echo [LIB] ImGui
+	@cd $(DEPS)/imgui && make -s --no-print-directory
 	@echo ===================== Done! ===================
 	@echo
 

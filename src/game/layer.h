@@ -15,6 +15,8 @@ public:
     static void OnUpdate(float ts);
     static void OnRender();
 
+    static void OnRenderUI();
+
     // template specializations need to be defined by te user and registered to the EventHandler
     template<typename T>
     static bool OnEvent(T event)

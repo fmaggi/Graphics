@@ -156,3 +156,8 @@ void Window::GetCursorPos(double* x, double* y)
     *y = window.height/2 - *y;
     *x = -window.width/2 + *x;
 }
+
+void* Window::GetNativeWindow()
+{
+    return window.g_window;
+}

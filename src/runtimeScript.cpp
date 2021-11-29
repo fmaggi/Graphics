@@ -2,12 +2,14 @@
 
 LayerData Layer::s_LayerData;
 
+bool s_RenderUI = true;
+
 void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
 {
     TextureID tex = Texture::Create("test.png");
     orthoCamera({0, 0, 0}, width, height);
 
-    Physics::Init(-700);
+    Physics::Init(0);
 
     EntityID e = ECS::CreateEntity();
     s_LayerData.player = e;
@@ -48,7 +50,6 @@ void Layer::OnUpdate(float ts)
 
     for (TransformComponent& t : view)
     {
-        LOG_INFO("%f", t.rotation);
     }
 }
 
@@ -59,6 +60,46 @@ void Layer::OnRender()
 
     Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, s_LayerData.t);
     Renderer::PushQuad({0, -300, 0}, 0, {800, 50}, {0.3, 0.6, 0.8}, NoTexture);
+}
+
+void Layer::OnRenderUI()
+{
+    if (!s_RenderUI)
+        return;
+    TransformComponent& t = ECS::GetComponent<TransformComponent>(s_LayerData.player);
+    PhysicsComponent& p = ECS::GetComponent<PhysicsComponent>(s_LayerData.player);
+    Body* b = (Body*)p.physicsBody;
+
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse;
+
+    ImGui::SetNextWindowPos(ImVec2(0,0));
+    ImGui::Begin("Menu", nullptr, window_flags);
+
+    ImGui::BeginChild("Player Transform");
+
+    for (int i = 0; i < 10; i++)
+    {
+        std::string l = "Label ";
+        l += '0'+ i;
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth;
+        bool open = ImGui::TreeNodeEx((void*)(uint64_t)i, flags, l.c_str());
+
+        if (ImGui::IsItemClicked() && !open)
+        {
+            LOG_INFO("%i", i);
+        }
+
+        if (open)
+        {
+            ImGui::Text("Hello");
+            ImGui::TreePop();
+        }
+    }
+
+    ImGui::EndChild();
+
+    ImGui::End();
 }
 
 template<>
@@ -78,11 +119,13 @@ bool Layer::OnEvent<KeyPressed>(KeyPressed event)
             Renderer::SetShader(uvShader);
             return true;
 
+        case KEY_H:
+            s_RenderUI = !s_RenderUI;
+            return true;
+
         default:
             return false;
     }
-
-    return false;
 }
 
 template<>

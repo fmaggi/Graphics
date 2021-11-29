@@ -5,6 +5,8 @@
 #include "registry.h"
 #include "view.h"
 
+#include "log/log.h"
+
 typedef uint32_t EntityID;
 
 #define ECS_TAG_VALUE(x) (1 << x)
@@ -62,10 +64,10 @@ public:
     static view<T> View()
     {
         const uint32_t componentIndex = TypeIndex<T>::value();
-        ASSERT(componentIndex < registry.componentsList.size() && componentIndex < 8, "Invalid Component Add");
+        ASSERT(componentIndex < registry.componentsList.size() && componentIndex < 8, "Invalid Component View");
 
         basic_component* b = registry.componentsList[componentIndex];
-        ComponentStorage<T>* s = (static_cast<ComponentStorage<T>*>(b));
+        ComponentStorage<T>* s = static_cast<ComponentStorage<T>*>(b);
         return view<T>(s);
     }
 

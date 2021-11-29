@@ -14,6 +14,8 @@
 
 #include "entity/entity.h"
 
+#include "ImGui/ui.h"
+
 #include "log/log.h"
 
 static bool running = 0;
@@ -21,6 +23,18 @@ static bool running = 0;
 bool Game::SetUp(uint32_t width, uint32_t height, const std::string& title)
 {
     LOG_INFO_DEBUG("DEBUG");
+
+    Window::Create(width, height, title);
+    Renderer::Init();
+    ECS::Init();
+
+    LOG_TRACE("Initializing client World");
+    Layer::OnAttach(width, height, title);
+
+    ImGuiLayer::Init((float)width, (float)height);
+
+    running = 1;
+    LOG_TRACE("All done!");
 
     EventHandler<WindowClose>::RegisterOnEventFunction([](WindowClose event){
         running = 0;
@@ -33,15 +47,6 @@ bool Game::SetUp(uint32_t width, uint32_t height, const std::string& title)
         return true;
     });
 
-    Window::Create(width, height, title);
-    Renderer::Init();
-    ECS::Init();
-
-    LOG_TRACE("Initializing client World");
-    Layer::OnAttach(width, height, title);
-
-    running = 1;
-    LOG_TRACE("All done!");
     return 1;
 }
 
@@ -52,6 +57,7 @@ void Game::OnUpdate(float ts)
     // LOG_INFO_DEBUG("FPS: %f", 1/ts);
 
     Layer::OnUpdate(ts);
+    ImGuiLayer::OnUpdate(ts);
 }
 
 void Game::OnRender()
@@ -59,6 +65,10 @@ void Game::OnRender()
     Renderer::StartFrame(camera);
     Layer::OnRender();
     Renderer::EndFrame();
+
+    ImGuiLayer::Begin();
+    Layer::OnRenderUI();
+    ImGuiLayer::End();
 }
 
 void Game::Run()

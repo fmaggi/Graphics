@@ -7,3 +7,7 @@
 [submodule "dependencies/glm"]
 	path = dependencies/glm
 	url = git@github.com:g-truc/glm.git
+[submodule "dependencies/imgui"]
+	path = dependencies/imgui
+	url = git@github.com:ocornut/imgui.git
+	branch = docking

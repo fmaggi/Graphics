@@ -17,6 +17,8 @@
 #include "game/layer.h"
 #include "game/input.h"
 
+#include "imgui.h"
+
 #include "log/log.h"
 
 #endif

@@ -14,6 +14,8 @@ public:
     static void GetCursorPos(double* x, double* y);
 
     static void Update();
+
+    static void* GetNativeWindow();
 };
 
 #endif // WINDOW_H
