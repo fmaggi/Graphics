@@ -15,7 +15,7 @@ struct TransformComponent
 
 struct  SpriteComponent
 {
-    glm::vec3 color;
+    glm::vec4 color;
     float texIndex;
 };
 

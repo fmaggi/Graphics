@@ -18,7 +18,12 @@
 #include "game/input.h"
 
 #include "imgui.h"
+#include "imgui_internal.h"
+
+#include "ImGui/ui.h"
 
 #include "log/log.h"
+
+#include "glm/glm.hpp"
 
 #endif

@@ -14,24 +14,24 @@
 
 #include "entity/entity.h"
 
-#include "ImGui/ui.h"
+#include "ImGui/imguiLayer.h"
 
 #include "log/log.h"
 
 static bool running = 0;
 
-bool Game::SetUp(uint32_t width, uint32_t height, const std::string& title)
+bool Game::SetUp(GameDef& def)
 {
     LOG_INFO_DEBUG("DEBUG");
 
-    Window::Create(width, height, title);
+    Window::Create(def.width, def.height, def.title);
     Renderer::Init();
     ECS::Init();
 
     LOG_TRACE("Initializing client World");
-    Layer::OnAttach(width, height, title);
+    Layer::OnAttach(def.width, def.height, def.title);
 
-    ImGuiLayer::Init((float)width, (float)height);
+    ImGuiLayer::Init((float)def.width, (float)def.height);
 
     running = 1;
     LOG_TRACE("All done!");
@@ -44,7 +44,7 @@ bool Game::SetUp(uint32_t width, uint32_t height, const std::string& title)
     EventHandler<WindowResize>::RegisterOnEventFunction([](WindowResize event){
         Renderer::SetViewport(event.width, event.height);
         updateProjectionMatrix(event.width, event.height);
-        return true;
+        return false;
     });
 
     return 1;
@@ -57,7 +57,6 @@ void Game::OnUpdate(float ts)
     // LOG_INFO_DEBUG("FPS: %f", 1/ts);
 
     Layer::OnUpdate(ts);
-    ImGuiLayer::OnUpdate(ts);
 }
 
 void Game::OnRender()

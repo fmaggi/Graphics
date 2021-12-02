@@ -22,7 +22,7 @@ static const uint32_t maxIndices  = MAX_QUADS * 6;
 struct QuadVertex
 {
     glm::vec3 pos;
-    glm::vec3 color;
+    glm::vec4 color;
     glm::vec2 uv;
     float texIndex;
 };
@@ -76,7 +76,7 @@ void Renderer::Init()
     r.vbo = new VertexBuffer(sizeof(QuadVertex) * maxVertices);
 
     r.vao->AddAttribute(3); // translation
-    r.vao->AddAttribute(3); // color
+    r.vao->AddAttribute(4); // color
     r.vao->AddAttribute(2); // uv coords;
     r.vao->AddAttribute(1); // texIndex;
 
@@ -172,7 +172,7 @@ void Renderer::EndFrame()
     LOG_INFO_DEBUG("Render calls: %i", r.renderCalls);
 }
 
-void Renderer::PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec3 color, TextureID textureID)
+void Renderer::PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec4 color, TextureID textureID)
 {
     float left = translation.x + scale.x/2;
     float right = translation.x - scale.x/2;

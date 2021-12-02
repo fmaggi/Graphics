@@ -14,3 +14,4 @@ all: lib
 
 lib: $(OBJECTS)
 	ar -rcs $(TARGET) $(OBJECTS)
+	rm *.o

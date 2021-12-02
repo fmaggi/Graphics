@@ -1,133 +1,63 @@
 #include "ui.h"
 
-#include "events/eventDispatcher.h"
-#include "graphics/window.h"
+#include "imgui_internal.h"
+#include "log/log.h"
 
-#include <imgui.h>
-
-#define IMGImGuiLayer_IMPL_OPENGL_LOADER_GLAD
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
-
-static float s_width = 0, s_height = 0;
-
-void ImGuiLayer::Init(float width, float height)
-{
-    LOG_TRACE("Initializing ImGui");
-
-    s_width = width;
-    s_height = height;
-
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-    // //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
-    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
-
-    float fontSize = 22.0f;// *2.0f;
-	io.Fonts->AddFontFromFileTTF("res/fonts/firacode/FiraCode-Bold.ttf", fontSize);
-	io.FontDefault = io.Fonts->AddFontFromFileTTF("res/fonts/firacode/FiraCode-Regular.ttf", fontSize);
-
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowRounding = 0.0f;
-    style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-
-
-
-	// Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-    // Setup Platform/Renderer backends
-    GLFWwindow* window = static_cast<GLFWwindow*>(Window::GetNativeWindow());
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
-
-    EventHandler<WindowResize>::RegisterOnEventFunction(ImGuiLayer::OnEvent<WindowResize>);
-    EventHandler<KeyPressed>::RegisterOnEventFunction(ImGuiLayer::OnEvent<KeyPressed>);
-    EventHandler<KeyReleased>::RegisterOnEventFunction(ImGuiLayer::OnEvent<KeyReleased>);
-    EventHandler<MouseButtonPressed>::RegisterOnEventFunction(ImGuiLayer::OnEvent<MouseButtonPressed>);
-    EventHandler<MouseButtonReleased>::RegisterOnEventFunction(ImGuiLayer::OnEvent<MouseButtonReleased>);
-    EventHandler<MouseMoved>::RegisterOnEventFunction(ImGuiLayer::OnEvent<MouseMoved>);
-    EventHandler<MouseScrolled>::RegisterOnEventFunction(ImGuiLayer::OnEvent<MouseScrolled>);
-}
-
-void ImGuiLayer::Destroy()
+namespace UI
 {
 
-}
+    ImFont* FontDefault;
+    ImFont* FontBold;
 
-void ImGuiLayer::OnUpdate(float ts)
-{
+    void BeginDockSpaceWindow(const std::string& name, ImVec2 minSize, ImVec2 maxSize, ImVec2 position, ImGuiDockNodeFlags dockFlags, ImGuiWindowFlags windowFlags)
+    {
+        static const ImGuiDockNodeFlags defualtDockFlags = ImGuiDockNodeFlags_None;
+        static const ImGuiWindowFlags defaultWindowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse;
 
-}
+        windowFlags |= defaultWindowFlags;
+        dockFlags |= defualtDockFlags;
 
-void ImGuiLayer::Begin()
-{
-    ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = ImVec2(s_width, s_height);
+        ImGui::SetNextWindowPos(position);
+        ImGui::SetNextWindowSizeConstraints(minSize, maxSize);
 
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-}
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::Begin(name.c_str(), nullptr, windowFlags);
+        ImGui::PopStyleVar();
 
-void ImGuiLayer::End()
-{
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
+        ImGuiIO& io = ImGui::GetIO();
+        ImGuiStyle& style = ImGui::GetStyle();
+        float minWinSizeX = style.WindowMinSize.x;
+        style.WindowMinSize.x = 370.0f;
+        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+        {
+            ImGuiID dockspace_id = ImGui::GetID((name + "_dock").c_str());
+            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockFlags);
+        }
 
-template<>
-bool ImGuiLayer::OnEvent<WindowResize>(WindowResize event)
-{
-    s_width = event.width;
-    s_height = event.height;
-    return false;
-}
+        style.WindowMinSize.x = minWinSizeX;
+    }
 
-template<>
-bool ImGuiLayer::OnEvent<KeyPressed>(KeyPressed event)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    return io.WantCaptureKeyboard;
-}
+    void EndDockSpaceWindow()
+    {
+        ImGui::End();
+    }
 
-template<>
-bool ImGuiLayer::OnEvent<KeyReleased>(KeyReleased event)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    return io.WantCaptureKeyboard;
-}
+    void BeginWindow(const std::string& name, bool* open,  ImGuiWindowFlags windowFlags)
+    {
+        ImGui::Begin(name.c_str(), open, windowFlags);
+    }
 
-template<>
-bool ImGuiLayer::OnEvent<MouseButtonPressed>(MouseButtonPressed event)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    return io.WantCaptureMouse;
-}
+    void EndWindow()
+    {
+        ImGui::End();
+    }
 
-template<>
-bool ImGuiLayer::OnEvent<MouseButtonReleased>(MouseButtonReleased event)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    return io.WantCaptureMouse;
-}
+    bool TreeNode(void* id, const std::string& name, ImGuiTreeNodeFlags flags)
+    {
+        static const ImGuiTreeNodeFlags defaultTreeNodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
+        flags |= flags;
 
-template<>
-bool ImGuiLayer::OnEvent<MouseScrolled>(MouseScrolled event)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    return io.WantCaptureMouse;
-}
+        return ImGui::TreeNodeEx(id, flags, name.c_str());
+    }
 
-template<>
-bool ImGuiLayer::OnEvent<MouseMoved>(MouseMoved event)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    return io.WantCaptureMouse;
-}
+};

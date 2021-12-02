@@ -18,6 +18,9 @@ public:
     static void Destroy();
 
     static EntityID CreateEntity();
+    static void DestroyEntity(EntityID id);
+
+    static std::vector<EntityID>& AllEntities();
 
     template<typename T>
     static bool HasComponent(EntityID id)
@@ -29,7 +32,6 @@ public:
     template<typename T>
     static T& GetComponent(EntityID id)
     {
-        ASSERT(HasComponent<T>(id), "Entity doesn't have component");
         const uint32_t componentIndex = TypeIndex<T>::value();
         ASSERT(componentIndex < registry.componentsList.size() && componentIndex < 8, "Invalid Component Get");
 

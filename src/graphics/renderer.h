@@ -19,7 +19,7 @@ public:
    static void Init();
    static void Destroy();
 
-   static void PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec3 color, TextureID texture = NoTexture);
+   static void PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec4 color, TextureID texture = NoTexture);
 
    static void StartFrame(Camera& camera);
    static void EndFrame();

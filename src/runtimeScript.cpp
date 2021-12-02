@@ -1,15 +1,16 @@
 #include "runtimeScript.h"
 
-LayerData Layer::s_LayerData;
-
-bool s_RenderUI = true;
+static LayerData s_LayerData;
 
 void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
 {
+    s_LayerData.width = width;
+    s_LayerData.height = height;
+
     TextureID tex = Texture::Create("test.png");
     orthoCamera({0, 0, 0}, width, height);
 
-    Physics::Init(0);
+    Physics::Init(-700);
 
     EntityID e = ECS::CreateEntity();
     s_LayerData.player = e;
@@ -20,7 +21,7 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
     t.rotation = 0;
 
     SpriteComponent& s = ECS::AddComponent<SpriteComponent>(e);
-    s.color = {0.86, 0.3, 0.2};
+    s.color = {0.86, 0.3, 0.2, 1.0};
     s.texIndex = tex;
 
     Body* body = Physics::CreateBody({0, 300, 0}, BodyType::Dynamic);
@@ -34,6 +35,7 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
 
     EventHandler<KeyPressed>::RegisterOnEventFunction(Layer::OnEvent<KeyPressed>);
     EventHandler<MouseMoved>::RegisterOnEventFunction(Layer::OnEvent<MouseMoved>);
+    EventHandler<WindowResize>::RegisterOnEventFunction(Layer::OnEvent<WindowResize>);
 }
 
 void Layer::OnUpdate(float ts)
@@ -58,48 +60,121 @@ void Layer::OnRender()
     TransformComponent& t = ECS::GetComponent<TransformComponent>(s_LayerData.player);
     SpriteComponent& s = ECS::GetComponent<SpriteComponent>(s_LayerData.player);
 
-    Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, s_LayerData.t);
-    Renderer::PushQuad({0, -300, 0}, 0, {800, 50}, {0.3, 0.6, 0.8}, NoTexture);
+    auto& es = ECS::AllEntities();
+
+    for (EntityID e : es)
+    {
+        if (!ECS::HasComponent<SpriteComponent>(e))
+            continue;
+        TransformComponent& t = ECS::GetComponent<TransformComponent>(e);
+        SpriteComponent& s = ECS::GetComponent<SpriteComponent>(e);
+        Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, s_LayerData.t);
+    }
+
+    Renderer::PushQuad({0, -300, 0}, 0, {800, 50}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
 }
 
 void Layer::OnRenderUI()
 {
-    if (!s_RenderUI)
-        return;
-    TransformComponent& t = ECS::GetComponent<TransformComponent>(s_LayerData.player);
-    PhysicsComponent& p = ECS::GetComponent<PhysicsComponent>(s_LayerData.player);
-    Body* b = (Body*)p.physicsBody;
+    static ImVec2 mainMenuSize;
 
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse;
+    static EntityID selectedEntity = -1;
 
-    ImGui::SetNextWindowPos(ImVec2(0,0));
-    ImGui::Begin("Menu", nullptr, window_flags);
-
-    ImGui::BeginChild("Player Transform");
-
-    for (int i = 0; i < 10; i++)
+    ImGui::BeginMainMenuBar();
+    if (ImGui::BeginMenu("File"))
     {
-        std::string l = "Label ";
-        l += '0'+ i;
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth;
-        bool open = ImGui::TreeNodeEx((void*)(uint64_t)i, flags, l.c_str());
-
-        if (ImGui::IsItemClicked() && !open)
-        {
-            LOG_INFO("%i", i);
-        }
-
-        if (open)
-        {
-            ImGui::Text("Hello");
-            ImGui::TreePop();
-        }
+        if (ImGui::MenuItem("Open..", "Ctrl+O")) { ECS::CreateEntity(); }
+        if (ImGui::MenuItem("Save", "Ctrl+S"))   { /* Do stuff */ }
+        if (ImGui::MenuItem("Close", "Ctrl+W"))  {  }
+        ImGui::EndMenu();
     }
 
-    ImGui::EndChild();
+    float spacing = s_LayerData.width - ImGui::GetFontSize() * 2 * 5;
 
-    ImGui::End();
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{spacing, 0});
+    ImGui::Spacing();
+    if (ImGui::RadioButton("Show UI", s_LayerData.renderUI))
+        s_LayerData.renderUI = !s_LayerData.renderUI;
+    ImGui::PopStyleVar();
+
+    mainMenuSize = ImGui::GetWindowSize();
+    ImGui::EndMainMenuBar();
+
+    if (!s_LayerData.renderUI)
+        return;
+
+    UI::BeginDockSpaceWindow("Content Manager", ImVec2{370.0f, (float)s_LayerData.height-mainMenuSize.y+1}, ImVec2{(float)s_LayerData.width, (float)s_LayerData.height-mainMenuSize.y+1}, ImVec2{0, mainMenuSize.y-1});
+
+    UI::BeginWindow("Entities");
+
+    auto& es = ECS::AllEntities();
+    for (EntityID e : es)
+    {
+		bool opened = UI::TreeNode((void*)e, "entity %i");
+
+		if (ImGui::IsItemClicked())
+        {
+            selectedEntity = e;
+        }
+
+		if (opened)
+		{
+			ImGui::TreePop();
+		}
+    }
+
+    UI::EndWindow();
+
+    UI::BeginWindow("Properties");
+
+    if (selectedEntity != -1)
+    {
+
+        if (ECS::HasComponent<SpriteComponent>(selectedEntity))
+        {
+            SpriteComponent& s = ECS::GetComponent<SpriteComponent>(selectedEntity);
+            ImGui::ColorEdit4("Color", &s.color.x);
+        }
+        else
+        {
+            if (ImGui::Button("Add spriteComponent"))
+            {
+                SpriteComponent& s = ECS::AddComponent<SpriteComponent>(selectedEntity);
+                s.color = {0.8, 0.3, 0.4, 1.0f};
+                s.texIndex = NoTexture;
+            }
+        }
+
+        ImGui::Separator();
+
+        if (ECS::HasComponent<TransformComponent>(selectedEntity))
+        {
+            TransformComponent& t = ECS::GetComponent<TransformComponent>(selectedEntity);
+            ImGui::DragFloat3("translation", &t.translation.x);
+            ImGui::DragFloat2("scale", &t.scale.x);
+        }
+        else
+        {
+            if (ImGui::Button("Add TransformComponent"))
+            {
+                TransformComponent& t = ECS::AddComponent<TransformComponent>(selectedEntity);
+                t.scale = {50, 50};
+                t.translation = {0, 0, 0};
+            }
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::Button("Delete"))
+        {
+            ECS::DestroyEntity(selectedEntity);
+        }
+
+    }
+
+    UI::EndWindow();
+
+    UI::EndDockSpaceWindow();
 }
 
 template<>
@@ -120,7 +195,7 @@ bool Layer::OnEvent<KeyPressed>(KeyPressed event)
             return true;
 
         case KEY_H:
-            s_RenderUI = !s_RenderUI;
+            s_LayerData.renderUI = !s_LayerData.renderUI;
             return true;
 
         default:
@@ -139,8 +214,17 @@ bool Layer::OnEvent<MouseMoved>(MouseMoved event)
     return false;
 }
 
+template<>
+bool Layer::OnEvent<WindowResize>(WindowResize event)
+{
+    s_LayerData.width = event.width;
+    s_LayerData.height = event.height;
+    return false;
+}
+
 void Layer::OnDetach()
 {
     EventHandler<KeyPressed>::RemoveOnEventFunction(Layer::OnEvent<KeyPressed>);
     EventHandler<MouseMoved>::RemoveOnEventFunction(Layer::OnEvent<MouseMoved>);
+    EventHandler<WindowResize>::RemoveOnEventFunction(Layer::OnEvent<WindowResize>);
 }

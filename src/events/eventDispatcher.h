@@ -1,6 +1,7 @@
 #ifndef EVENT_DISPATCHER_H
 #define EVENT_DISPATCHER_H
 
+#include "event.h"
 #include "log/log.h"
 
 template<typename T>

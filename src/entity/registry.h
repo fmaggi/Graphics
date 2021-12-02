@@ -29,18 +29,27 @@ struct TypeIndex
 struct basic_component
 {
     std::vector<EntityID> sparse{};
+    virtual void DestroyComponent(EntityID id) = 0;
 };
 
 template<typename T>
 struct ComponentStorage : public basic_component
 {
     std::vector<T> components{};
+    void DestroyComponent(EntityID id) override
+    {
+        uint32_t componentIndex = sparse[id];
+        components.erase(components.begin() + componentIndex);
+        sparse.erase(sparse.begin() + id);
+    }
 };
 
 struct Registry
 {
     std::vector<ComponentsUsed> used;
     std::vector<basic_component*> componentsList;
+    std::vector<EntityID> aliveEntities;
+    std::vector<EntityID> freeEntities;
 };
 
 #endif

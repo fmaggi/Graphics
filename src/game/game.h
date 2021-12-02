@@ -3,10 +3,19 @@
 
 #include <string>
 
+struct GameDef
+{
+    uint32_t width, height;
+    const std::string& title;
+};
+
+// to be defined by the user
+GameDef& GetGameSpecs();
+
 class Game
 {
 public:
-    static bool SetUp(uint32_t width, uint32_t hieght, const std::string& title);
+    static bool SetUp(GameDef& def);
     static void Run();
     static void Destroy();
     static void OnUpdate(float ts);

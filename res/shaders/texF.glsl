@@ -1,7 +1,7 @@
 #version 330 core
 
 in vec2 v_uv;
-in vec3 vColor;
+in vec4 vColor;
 in float v_texIndex;
 
 uniform sampler2D u_texture[16];
@@ -13,7 +13,7 @@ void main()
     vec4 texColor;
     switch (int(v_texIndex))
     {
-        case -1: texColor = vec4(vColor, 1.0f); break;
+        case -1: texColor = vColor; break;
         case  0: texColor = texture(u_texture[0], v_uv); break;
         case  1: texColor = texture(u_texture[1], v_uv); break;
     }

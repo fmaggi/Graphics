@@ -3,9 +3,6 @@
 
 #include <string>
 
-// To be implemented by the user
-struct LayerData;
-
 class Layer
 {
 public:
@@ -23,9 +20,6 @@ public:
     {
         return false;
     }
-
-private:
-    static LayerData s_LayerData;
 };
 
 #endif
