@@ -12,7 +12,7 @@
 #include "graphics/renderer.h"
 #include "graphics/camera.h"
 
-#include "entity/entity.h"
+#include "entity/ECS.h"
 
 #include "ImGui/imguiLayer.h"
 

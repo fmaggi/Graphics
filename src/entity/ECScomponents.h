@@ -1,10 +1,9 @@
 #ifndef ECS_C_H
 #define ECS_C_H
 
+#include "entity.h"
 
 #include "glm/glm.hpp"
-
-typedef uint32_t EntityID;
 
 struct TransformComponent
 {

@@ -18,7 +18,7 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
     TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
     t.translation = {0,0,0};
     t.scale = {100, 100};
-    t.rotation = 0;
+    t.rotation = 30;
 
     SpriteComponent& s = ECS::AddComponent<SpriteComponent>(e);
     s.color = {0.86, 0.3, 0.2, 1.0};
@@ -47,27 +47,15 @@ void Layer::OnUpdate(float ts)
 
     Body* b = (Body*) p.physicsBody;
     t.translation = b->translation;
-
-    auto view = ECS::View<TransformComponent>();
-
-    for (TransformComponent& t : view)
-    {
-    }
 }
 
 void Layer::OnRender()
 {
-    TransformComponent& t = ECS::GetComponent<TransformComponent>(s_LayerData.player);
-    SpriteComponent& s = ECS::GetComponent<SpriteComponent>(s_LayerData.player);
+    auto view = ECS::View<SpriteComponent, TransformComponent>();
 
-    auto& es = ECS::AllEntities();
-
-    for (EntityID e : es)
+    for (EntityID e : view)
     {
-        if (!ECS::HasComponent<SpriteComponent>(e))
-            continue;
-        TransformComponent& t = ECS::GetComponent<TransformComponent>(e);
-        SpriteComponent& s = ECS::GetComponent<SpriteComponent>(e);
+        auto [s, t] = view.Get(e);
         Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, s_LayerData.t);
     }
 
@@ -129,7 +117,6 @@ void Layer::OnRenderUI()
 
     if (selectedEntity != -1)
     {
-
         if (ECS::HasComponent<SpriteComponent>(selectedEntity))
         {
             SpriteComponent& s = ECS::GetComponent<SpriteComponent>(selectedEntity);
@@ -168,6 +155,7 @@ void Layer::OnRenderUI()
         if (ImGui::Button("Delete"))
         {
             ECS::DestroyEntity(selectedEntity);
+            selectedEntity = -1;
         }
 
     }

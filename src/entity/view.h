@@ -3,34 +3,103 @@
 
 #include "registry.h"
 
-// this class is basically a wrapper over std::vector
-// I thought of returning just a reference to the underlying vector
-// but this allows me to be able to access the sparse set and hence the entity ids
+#include "log/log.h"
 
-template<typename T>
+#include <tuple>
+
+// this could probably be optimized
+template<typename Fn, typename Tuple, size_t index>
+static bool apply_impl(Fn func, Tuple& tuple)
+{
+    auto& element = std::get<index>(tuple);
+    if constexpr (index)
+        return func(element) && apply_impl<Fn, Tuple, index-1>(func, tuple);
+    else
+        return func(element);
+}
+
+template<typename Fn, typename Tuple>
+static bool apply(Fn func, Tuple& tuple)
+{
+    constexpr size_t size = std::tuple_size<Tuple>{};
+    return apply_impl<Fn, Tuple, size-1>(func, tuple);
+}
+
+template<typename... Ts>
+class IteratorView
+{
+public:
+    IteratorView(EntityID* base, EntityID* end, std::tuple<ComponentStorage<Ts>*...>* pools)
+        : m_ptr(base), m_end(end), m_pools(pools) {}
+    bool is_valid() const
+    {
+        return (m_ptr == m_end) || apply([e = *m_ptr](auto& storage){ return storage->has(e); }, *m_pools);
+    }
+
+    IteratorView& operator++()
+    {
+        while(++m_ptr, !is_valid());
+        return *this;
+    }
+
+    EntityID operator*()
+    {
+        return *m_ptr;
+    }
+
+    bool operator!=(IteratorView<Ts...> other)
+    {
+        return m_ptr != other.m_ptr;
+    }
+
+private:
+    EntityID* m_ptr;
+    EntityID* m_end;
+    std::tuple<ComponentStorage<Ts>*...>* m_pools;
+};
+
+template<typename T, typename... Ts>
 class view
 {
 public:
-    using Iterator = typename std::vector<T>::iterator;
+    using Iterator = IteratorView<Ts...>;
 public:
-    view(ComponentStorage<T>* componentStorage)
-        : m_components(componentStorage) {}
+    view(ComponentStorage<T>* baseComponent, ComponentStorage<Ts>*... components)
+        : m_baseComponent(baseComponent), m_pools{components...}
+    {
+        base = m_baseComponent->entities.data();
+        size = m_baseComponent->entities.size();
+    }
 
-    T& operator [] (size_t index) { return m_components->components[index]; }
-    T  operator [] (size_t index) const { return m_components->components[index]; }
+    std::tuple<T&, Ts&...> Get(EntityID id)
+    {
+        return std::tuple<T&, Ts&...>(m_baseComponent->Get(id), get_component_storage<Ts>(id)...);
+    }
 
-    size_t size() { return m_components->components.size(); }
+    Iterator begin()
+    {
+        return Iterator(base, base + size, &m_pools);
+    }
 
-    Iterator begin() { return m_components->components.begin(); }
-    Iterator end()   { return m_components->components.end(); }
+    Iterator end()
+    {
+        return Iterator(base + size, base + size, &m_pools);
+    }
 
-    Iterator cbegin() const { return m_components->components.cbegin(); }
-    Iterator cend()   const { return m_components->components.cend(); }
-
-    Iterator rbegin() { return m_components->components.rbegin(); }
-    Iterator rend()   { return m_components->components.rend(); }
 private:
-    ComponentStorage<T>* m_components;
+    template<typename C>
+    C& get_component_storage(EntityID id)
+    {
+
+        ComponentStorage<C>* c = std::get<ComponentStorage<C>*>(m_pools);
+        return c->Get(id);
+    }
+private:
+    std::tuple<ComponentStorage<Ts>*...> m_pools;
+    ComponentStorage<T>* m_baseComponent;
+
+    EntityID* base;
+    size_t size;
 };
 
 #endif

@@ -1,4 +1,4 @@
-#include "entity.h"
+#include "ECS.h"
 
 #include "registry.h"
 
@@ -50,9 +50,9 @@ void ECS::DestroyEntity(EntityID id)
 EntityID ECS::CreateEntity()
 {
     EntityID entity;
-    if (registry.freeEntities.size() > 0)
+    if (!registry.freeEntities.empty())
     {
-        EntityID entity = registry.freeEntities[registry.freeEntities.size() - 1];
+        entity = registry.freeEntities[registry.freeEntities.size() - 1];
         registry.freeEntities.pop_back();
     }
     else
