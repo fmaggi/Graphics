@@ -11,7 +11,7 @@ struct AABB;
 struct Body
 {
     glm::vec3 translation;
-    glm::vec2 speed, impulse;
+    glm::vec2 velocity, impulse;
 
     uint32_t userFlags;
     void* userData;

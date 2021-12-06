@@ -18,6 +18,9 @@ template<>
 bool Layer::OnEvent<MouseMoved>(MouseMoved event);
 
 template<>
+bool Layer::OnEvent<MouseScrolled>(MouseScrolled event);
+
+template<>
 bool Layer::OnEvent<WindowResize>(WindowResize event);
 
 #endif

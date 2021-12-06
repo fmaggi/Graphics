@@ -3,6 +3,7 @@
 #include <sstream>
 
 static LayerData s_LayerData;
+Body* s_b;
 
 void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
 {
@@ -18,7 +19,7 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
     s_LayerData.player = e;
 
     TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
-    t.translation = {0,0,0};
+    t.translation = {0,-100,0};
     t.scale = {100, 100};
     t.rotation = 0;
 
@@ -26,8 +27,12 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
     s.color = {0.86, 0.3, 0.2, 1.0};
     s.texIndex = tex;
 
-    Body* body = Physics::CreateBody({0, 300, 0}, BodyType::Dynamic);
+    Body* body = Physics::CreateBody({-300, -100, 0}, BodyType::Dynamic);
+    s_b = body;
     Physics::AddAABB(body, 50, 50);
+
+    body->velocity = {300, 0};
+    body->userFlags = 1;
 
     PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(e);
     p.physicsBody = body;
@@ -37,26 +42,14 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
 
     EventHandler<KeyPressed>::RegisterOnEventFunction(Layer::OnEvent<KeyPressed>);
     EventHandler<MouseMoved>::RegisterOnEventFunction(Layer::OnEvent<MouseMoved>);
+    EventHandler<MouseScrolled>::RegisterOnEventFunction(Layer::OnEvent<MouseScrolled>);
     EventHandler<WindowResize>::RegisterOnEventFunction(Layer::OnEvent<WindowResize>);
-
-    for (int i = 0; i < 10000; i++)
-    {
-        EntityID id = ECS::CreateEntity();
-
-        TransformComponent& t2 = ECS::AddComponent<TransformComponent>(id);
-        t2.translation = {i * 10, i*10,0};
-        t2.scale = {100, 100};
-        t2.rotation = 0;
-
-        SpriteComponent& s2 = ECS::AddComponent<SpriteComponent>(id);
-        s2.color = {0.86, 0.3, 0.2, 1.0};
-        s2.texIndex = tex;
-
-    }
 }
 
 void Layer::OnUpdate(float ts)
 {
+    if (Input::IsKeyPressed(KEY_SPACE))
+        s_b->impulse.y += 4000;
     Physics::Step(ts);
 
     auto view = ECS::View<PhysicsComponent, TransformComponent>();
@@ -77,7 +70,7 @@ void Layer::OnRender()
     for (EntityID e : view)
     {
         auto [s, t] = view.Get(e);
-        Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, NoTexture);
+        Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, s.texIndex);
     }
 
     Renderer::PushQuad({0, -300, 0}, 0, {800, 50}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
@@ -226,6 +219,13 @@ bool Layer::OnEvent<MouseMoved>(MouseMoved event)
         return true;
     }
     return false;
+}
+
+template<>
+bool Layer::OnEvent<MouseScrolled>(MouseScrolled event)
+{
+    updateZoom(event.dy);
+    return true;
 }
 
 template<>

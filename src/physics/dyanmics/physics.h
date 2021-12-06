@@ -32,14 +32,6 @@ public:
 
     static Body* QueryContact(Body* body);
     static void AddAABB(Body* body, float halfWidth, float halfHeight);
-private:
-    struct Simulation
-    {
-        Body* bodies;
-        uint32_t currentBody;
-        int32_t gravity;
-    };
-    static Simulation simulation;
 };
 
 #endif
