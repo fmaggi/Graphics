@@ -23,6 +23,7 @@
 #include "ImGui/ui.h"
 
 #include "log/log.h"
+#include "log/timer.h"
 
 #include "glm/glm.hpp"
 

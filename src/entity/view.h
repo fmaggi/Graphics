@@ -9,7 +9,7 @@
 
 // this could probably be optimized
 template<typename Fn, typename Tuple, size_t index>
-static bool apply_impl(Fn func, Tuple& tuple)
+static constexpr bool apply_impl(Fn func, Tuple& tuple)
 {
     auto& element = std::get<index>(tuple);
     if constexpr (index)
@@ -19,7 +19,7 @@ static bool apply_impl(Fn func, Tuple& tuple)
 }
 
 template<typename Fn, typename Tuple>
-static bool apply(Fn func, Tuple& tuple)
+static constexpr bool apply(Fn func, Tuple& tuple)
 {
     constexpr size_t size = std::tuple_size<Tuple>{};
     return apply_impl<Fn, Tuple, size-1>(func, tuple);
@@ -58,6 +58,17 @@ private:
     std::tuple<ComponentStorage<Ts>*...>* m_pools;
 };
 
+/**
+ *  usage:
+ *      auto view = ECS::View<SpriteComponent, TransformComponent>();
+ *      for (EntityID e : view)
+ *      {
+ *          auto [sc, tc] = view.Get(e);
+ *          // Do stuff
+ *      }
+ *
+ */
+
 template<typename T, typename... Ts>
 class view
 {
@@ -73,7 +84,7 @@ public:
 
     std::tuple<T&, Ts&...> Get(EntityID id)
     {
-        return std::tuple<T&, Ts&...>(m_baseComponent->Get(id), get_component_storage<Ts>(id)...);
+        return std::tuple<T&, Ts&...>(m_baseComponent->Get(id), get_component_storage<Ts>()->Get(id)...);
     }
 
     Iterator begin()
@@ -88,11 +99,11 @@ public:
 
 private:
     template<typename C>
-    C& get_component_storage(EntityID id)
+    ComponentStorage<C>* get_component_storage()
     {
 
         ComponentStorage<C>* c = std::get<ComponentStorage<C>*>(m_pools);
-        return c->Get(id);
+        return c;
     }
 private:
     std::tuple<ComponentStorage<Ts>*...> m_pools;
@@ -100,6 +111,44 @@ private:
 
     EntityID* base;
     size_t size;
+};
+
+// single-components view iterate directly over the components
+// example:
+//
+//  auto view = ECS::View<TransformComponent>();
+//  for (TransformComponent& tc : view)
+//  {
+//      /* Do stuff */
+//  }
+
+template<typename T>
+class view<T>
+{
+public:
+    using Iterator = std::vector<T>::iterator;
+public:
+    view(ComponentStorage<T>* baseComponent)
+        : m_baseComponent(baseComponent)
+    {}
+
+    T& Get(EntityID id)
+    {
+        ASSERT(false, "Single-component views iterate over components directly. See view.h for an example!");
+    }
+
+    Iterator begin()
+    {
+        return m_baseComponent->components.begin();
+    }
+
+    Iterator end()
+    {
+        return m_baseComponent->components.end();
+    }
+
+private:
+    ComponentStorage<T>* m_baseComponent;
 };
 
 #endif

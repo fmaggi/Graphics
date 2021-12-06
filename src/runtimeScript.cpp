@@ -1,5 +1,7 @@
 #include "runtimeScript.h"
 
+#include <sstream>
+
 static LayerData s_LayerData;
 
 void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
@@ -18,7 +20,7 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
     TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
     t.translation = {0,0,0};
     t.scale = {100, 100};
-    t.rotation = 30;
+    t.rotation = 0;
 
     SpriteComponent& s = ECS::AddComponent<SpriteComponent>(e);
     s.color = {0.86, 0.3, 0.2, 1.0};
@@ -36,17 +38,36 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
     EventHandler<KeyPressed>::RegisterOnEventFunction(Layer::OnEvent<KeyPressed>);
     EventHandler<MouseMoved>::RegisterOnEventFunction(Layer::OnEvent<MouseMoved>);
     EventHandler<WindowResize>::RegisterOnEventFunction(Layer::OnEvent<WindowResize>);
+
+    for (int i = 0; i < 10000; i++)
+    {
+        EntityID id = ECS::CreateEntity();
+
+        TransformComponent& t2 = ECS::AddComponent<TransformComponent>(id);
+        t2.translation = {i * 10, i*10,0};
+        t2.scale = {100, 100};
+        t2.rotation = 0;
+
+        SpriteComponent& s2 = ECS::AddComponent<SpriteComponent>(id);
+        s2.color = {0.86, 0.3, 0.2, 1.0};
+        s2.texIndex = tex;
+
+    }
 }
 
 void Layer::OnUpdate(float ts)
 {
     Physics::Step(ts);
 
-    TransformComponent& t = ECS::GetComponent<TransformComponent>(s_LayerData.player);
-    PhysicsComponent& p = ECS::GetComponent<PhysicsComponent>(s_LayerData.player);
+    auto view = ECS::View<PhysicsComponent, TransformComponent>();
 
-    Body* b = (Body*) p.physicsBody;
-    t.translation = b->translation;
+    for (EntityID e : view)
+    {
+        auto [pc, tc] = view.Get(e);
+        Body* b = (Body*) pc.physicsBody;
+        tc.translation = b->translation;
+    }
+
 }
 
 void Layer::OnRender()
@@ -56,7 +77,7 @@ void Layer::OnRender()
     for (EntityID e : view)
     {
         auto [s, t] = view.Get(e);
-        Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, s_LayerData.t);
+        Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, NoTexture);
     }
 
     Renderer::PushQuad({0, -300, 0}, 0, {800, 50}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
@@ -72,7 +93,7 @@ void Layer::OnRenderUI()
     if (ImGui::BeginMenu("File"))
     {
         if (ImGui::MenuItem("Open..", "Ctrl+O")) { ECS::CreateEntity(); }
-        if (ImGui::MenuItem("Save", "Ctrl+S"))   { /* Do stuff */ }
+        if (ImGui::MenuItem("Save", "Ctrl+S"))   {  }
         if (ImGui::MenuItem("Close", "Ctrl+W"))  {  }
         ImGui::EndMenu();
     }
@@ -96,9 +117,12 @@ void Layer::OnRenderUI()
     UI::BeginWindow("Entities");
 
     auto& es = ECS::AllEntities();
+
     for (EntityID e : es)
     {
-		bool opened = UI::TreeNode((void*)e, "entity %i");
+        std::stringstream s;
+        s << "Entity " << e;
+		bool opened = UI::TreeNode((void*)e, s.str());
 
 		if (ImGui::IsItemClicked())
         {
@@ -139,6 +163,7 @@ void Layer::OnRenderUI()
             TransformComponent& t = ECS::GetComponent<TransformComponent>(selectedEntity);
             ImGui::DragFloat3("translation", &t.translation.x);
             ImGui::DragFloat2("scale", &t.scale.x);
+            ImGui::DragFloat("rotation", &t.rotation);
         }
         else
         {
@@ -147,6 +172,7 @@ void Layer::OnRenderUI()
                 TransformComponent& t = ECS::AddComponent<TransformComponent>(selectedEntity);
                 t.scale = {50, 50};
                 t.translation = {0, 0, 0};
+                t.rotation = 0;
             }
         }
 

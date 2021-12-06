@@ -31,8 +31,7 @@ public:
     static T& GetComponent(EntityID id)
     {
         ComponentStorage<T>& s = *GetComponentStorage<T>();
-        uint32_t packedSetID = s.sparse[id] - 1;
-        return s.components[packedSetID];
+        return s.Get(id);
     }
 
     template<typename T>

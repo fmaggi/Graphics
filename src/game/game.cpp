@@ -17,6 +17,7 @@
 #include "ImGui/imguiLayer.h"
 
 #include "log/log.h"
+#include "log/timer.h"
 
 static bool running = 0;
 
@@ -52,10 +53,6 @@ bool Game::SetUp(GameDef& def)
 
 void Game::OnUpdate(float ts)
 {
-    if (1/ts < 50)
-        LOG_WARN("FPS: %f", 1/ts);
-    // LOG_INFO_DEBUG("FPS: %f", 1/ts);
-
     Layer::OnUpdate(ts);
 }
 

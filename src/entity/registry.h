@@ -52,6 +52,7 @@ struct ComponentStorage : public basic_component
     {
         uint32_t componentIndex = sparse[id] - 1;
         components.erase(components.begin() + componentIndex);
+        entities.erase(entities.begin() + componentIndex);
         sparse.erase(sparse.begin() + id);
     }
 
