@@ -14,13 +14,15 @@
 static float s_width = 0, s_height = 0;
 static void SetDarkThemeColors();
 
-static bool KeyboardCallback(auto event)
+template<typename E>
+static bool KeyboardCallback(E event)
 {
     ImGuiIO& io = ImGui::GetIO();
     return io.WantCaptureKeyboard;
 }
 
-static bool MouseCallback(auto event)
+template<typename E>
+static bool MouseCallback(E event)
 {
     ImGuiIO& io = ImGui::GetIO();
     return io.WantCaptureMouse;
@@ -44,8 +46,6 @@ void ImGuiLayer::Init(float width, float height)
 	UI::FontDefault = io.Fonts->AddFontFromFileTTF("res/fonts/firacode/FiraCode-Regular.ttf", fontSize);
     io.FontDefault = UI::FontDefault;
 
-
-
     ImGuiStyle& style = ImGui::GetStyle();
     style.WindowRounding = 0.0f;
     style.Colors[ImGuiCol_WindowBg].w = 1.0f;
@@ -62,17 +62,18 @@ void ImGuiLayer::Init(float width, float height)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    EventHandler<WindowResize>::RegisterOnEventFunction([](auto event){
+    EventHandler<WindowResize>::RegisterOnEventFunction([](WindowResize event){
         s_width = event.width;
         s_height = event.height;
         return false;
     });
-    EventHandler<KeyPressed>::RegisterOnEventFunction(KeyboardCallback);
-    EventHandler<KeyReleased>::RegisterOnEventFunction(KeyboardCallback);
-    EventHandler<MouseButtonPressed>::RegisterOnEventFunction(MouseCallback);
-    EventHandler<MouseButtonReleased>::RegisterOnEventFunction(MouseCallback);
-    EventHandler<MouseMoved>::RegisterOnEventFunction(MouseCallback);
-    EventHandler<MouseScrolled>::RegisterOnEventFunction(MouseCallback);
+
+    EventHandler<KeyPressed>::RegisterOnEventFunction(KeyboardCallback<KeyPressed>);
+    EventHandler<KeyReleased>::RegisterOnEventFunction(KeyboardCallback<KeyReleased>);
+    EventHandler<MouseButtonPressed>::RegisterOnEventFunction(MouseCallback<MouseButtonPressed>);
+    EventHandler<MouseButtonReleased>::RegisterOnEventFunction(MouseCallback<MouseButtonReleased>);
+    EventHandler<MouseMoved>::RegisterOnEventFunction(MouseCallback<MouseMoved>);
+    EventHandler<MouseScrolled>::RegisterOnEventFunction(MouseCallback<MouseScrolled>);
 }
 
 void ImGuiLayer::Destroy()

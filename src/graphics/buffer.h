@@ -10,14 +10,20 @@ public:
     {
         Static = 0, Dynamic
     };
-    VertexBuffer(uint32_t size, BufferType type = BufferType::Dynamic, const void* data = 0);
+    VertexBuffer(uint32_t vertexSize, uint32_t vertexCount, BufferType type = BufferType::Dynamic, const void* data = 0);
     ~VertexBuffer();
 
     void Bind();
     void PushData(uint32_t size, const void* data);
+
+    void AddAttribute(uint32_t size);
 private:
     uint32_t m_ID;
     BufferType m_type;
+
+    uint32_t m_stride;
+    uint32_t m_index;
+    uint64_t m_offset;
 };
 
 class IndexBuffer

@@ -55,7 +55,7 @@ namespace UI
     bool TreeNode(void* id, const std::string& name, ImGuiTreeNodeFlags flags)
     {
         static const ImGuiTreeNodeFlags defaultTreeNodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
-        flags |= flags;
+        flags |= defaultTreeNodeFlags;
 
         return ImGui::TreeNodeEx(id, flags, name.c_str());
     }

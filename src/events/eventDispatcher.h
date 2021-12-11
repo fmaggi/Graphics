@@ -4,11 +4,15 @@
 #include "event.h"
 #include "log/log.h"
 
+#include <functional>
+
+#define BIND_EVENT_FN(fn) std::bind(fn, this, std::placeholders::_1)
+
 template<typename T>
 class EventHandler
 {
 public:
-    using EventHandlerFn = bool (*)(T event);
+    using EventHandlerFn = std::function<bool (T event)>;
     static void Dispatch(T event)
     {
         ASSERT(false, "Invalid event type dispatched!");
@@ -16,10 +20,6 @@ public:
     static void RegisterOnEventFunction(EventHandlerFn onEvent)
     {
         ASSERT(false, "Invalid event function registered!");
-    }
-    static void RemoveOnEventFunction(EventHandlerFn onEvent)
-    {
-        ASSERT(false, "Invalid event function removed!");
     }
 };
 

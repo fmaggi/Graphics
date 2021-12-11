@@ -13,21 +13,22 @@ enum ShaderType
     uvShader
 };
 
-class Renderer
-{
-public:
-   static void Init();
-   static void Destroy();
 
-   static void PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec4 color, TextureID texture = NoTexture);
+namespace Renderer {
 
-   static void StartFrame(Camera& camera);
-   static void EndFrame();
+   void Init();
+   void Destroy();
 
-   static void ChangeMode();
-   static void SetShader(enum ShaderType type);
+   void PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec4 color, TextureID texture = NoTexture);
 
-   static void SetViewport(int width, int height);
+   void StartFrame(Camera& camera);
+   void EndFrame();
+
+   void ChangeMode();
+   void SetShader(enum ShaderType type);
+
+   void SetViewport(int width, int height);
+
 };
 
 #endif

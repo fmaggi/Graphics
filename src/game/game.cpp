@@ -37,7 +37,7 @@ bool Game::SetUp(GameDef& def)
     running = 1;
     LOG_TRACE("All done!");
 
-    EventHandler<WindowClose>::RegisterOnEventFunction([](WindowClose event){
+    EventHandler<WindowClose>::RegisterOnEventFunction([&](WindowClose event){
         running = 0;
         return true;
     });

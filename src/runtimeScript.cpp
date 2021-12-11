@@ -60,7 +60,6 @@ void Layer::OnUpdate(float ts)
         Body* b = (Body*) pc.physicsBody;
         tc.translation = b->translation;
     }
-
 }
 
 void Layer::OnRender()
@@ -238,7 +237,5 @@ bool Layer::OnEvent<WindowResize>(WindowResize event)
 
 void Layer::OnDetach()
 {
-    EventHandler<KeyPressed>::RemoveOnEventFunction(Layer::OnEvent<KeyPressed>);
-    EventHandler<MouseMoved>::RemoveOnEventFunction(Layer::OnEvent<MouseMoved>);
-    EventHandler<WindowResize>::RemoveOnEventFunction(Layer::OnEvent<WindowResize>);
+
 }

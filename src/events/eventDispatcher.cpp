@@ -12,7 +12,7 @@
     template<> \
     void EventHandler<type>::Dispatch(type event) \
     { \
-        for (auto it = type##_handlers.rbegin(); it != type##_handlers.rend(); ++it) \
+        for (auto it = type##_handlers.crbegin(); it != type##_handlers.crend(); ++it) \
         { \
             auto& f = *it; \
             if (f(event)) \
@@ -25,13 +25,6 @@
     { \
         type##_handlers.push_back(onEvent); \
     } \
-    template<> \
-    void EventHandler<type>::RemoveOnEventFunction(EventHandlerFn onEvent) \
-    { \
-        auto it = std::find(type##_handlers.begin(), type##_handlers.end(), onEvent); \
-        if (it != type##_handlers.end()) \
-            type##_handlers.erase(it); \
-    }
 
 INIT_HANDLER(WindowClose);
 INIT_HANDLER(WindowResize);

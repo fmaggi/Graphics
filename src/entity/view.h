@@ -30,7 +30,11 @@ class IteratorView
 {
 public:
     IteratorView(EntityID* base, EntityID* end, std::tuple<ComponentStorage<Ts>*...>* pools)
-        : m_ptr(base), m_end(end), m_pools(pools) {}
+        : m_ptr(base), m_end(end), m_pools(pools)
+    {
+        while(!is_valid())
+            ++m_ptr;
+    }
     bool is_valid() const
     {
         return (m_ptr == m_end) || apply([e = *m_ptr](auto& storage){ return storage->has(e); }, *m_pools);
@@ -78,8 +82,8 @@ public:
     view(ComponentStorage<T>* baseComponent, ComponentStorage<Ts>*... components)
         : m_baseComponent(baseComponent), m_pools{components...}
     {
-        base = m_baseComponent->entities.data();
-        size = m_baseComponent->entities.size();
+        m_base = m_baseComponent->entities.data();
+        m_size = m_baseComponent->entities.size();
     }
 
     std::tuple<T&, Ts&...> Get(EntityID id)
@@ -89,19 +93,23 @@ public:
 
     Iterator begin()
     {
-        return Iterator(base, base + size, &m_pools);
+        return Iterator(m_base, m_base + m_size, &m_pools);
     }
 
     Iterator end()
     {
-        return Iterator(base + size, base + size, &m_pools);
+        return Iterator(m_base + m_size, m_base + m_size, &m_pools);
+    }
+
+    size_t size()
+    {
+        return m_baseComponent->entities.size();
     }
 
 private:
     template<typename C>
     ComponentStorage<C>* get_component_storage()
     {
-
         ComponentStorage<C>* c = std::get<ComponentStorage<C>*>(m_pools);
         return c;
     }
@@ -109,8 +117,8 @@ private:
     std::tuple<ComponentStorage<Ts>*...> m_pools;
     ComponentStorage<T>* m_baseComponent;
 
-    EntityID* base;
-    size_t size;
+    EntityID* m_base;
+    size_t m_size;
 };
 
 // single-components view iterate directly over the components
@@ -132,7 +140,7 @@ public:
         : m_baseComponent(baseComponent)
     {}
 
-    T& Get(EntityID id)
+    T& Get(auto id)
     {
         ASSERT(false, "Single-component views iterate over components directly. See view.h for an example!");
     }
@@ -145,6 +153,11 @@ public:
     Iterator end()
     {
         return m_baseComponent->components.end();
+    }
+
+    size_t size()
+    {
+        return m_baseComponent->entities.size();
     }
 
 private:
