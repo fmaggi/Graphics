@@ -3,23 +3,25 @@
 
 #include <string>
 
+class Layer;
+
 struct GameDef
 {
+    Layer* baseLayer;
     uint32_t width, height;
-    const std::string& title;
+    std::string title;
 };
 
-// to be defined by the user
-GameDef& GetGameSpecs();
+namespace Game {
 
-class Game
-{
-public:
-    static bool SetUp(GameDef& def);
-    static void Run();
-    static void Destroy();
-    static void OnUpdate(float ts);
-    static void OnRender();
+    bool SetUp(GameDef def);
+    void Run();
+    void Destroy();
+    void OnUpdate(float ts);
+    void OnRender();
+
+    GameDef GetGameDef();
 };
+
 
 #endif

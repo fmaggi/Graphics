@@ -1,7 +1,12 @@
 #include "game/game.h"
+#include "runtimeScript.h"
 
-GameDef& GetGameSpecs()
+GameDef Game::GetGameDef()
 {
-    static GameDef def = {1200, 800, "Title"};
+    GameDef def {
+        .baseLayer = new MyLayer,
+        .width = 1200, .height = 800,
+        .title = "Engine"
+    };
     return def;
 }

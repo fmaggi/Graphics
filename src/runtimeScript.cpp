@@ -2,13 +2,13 @@
 
 #include <sstream>
 
-static LayerData s_LayerData;
 Body* s_b;
 
-void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
+void MyLayer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
 {
-    s_LayerData.width = width;
-    s_LayerData.height = height;
+    m_width = width;
+    m_height = height;
+    m_title = title;
 
     TextureID tex = Texture::Create("test.png");
     orthoCamera({0, 0, 0}, width, height);
@@ -16,7 +16,7 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
     Physics::Init(-700);
 
     EntityID e = ECS::CreateEntity();
-    s_LayerData.player = e;
+    player = e;
 
     TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
     t.translation = {0,-100,0};
@@ -40,13 +40,15 @@ void Layer::OnAttach(uint32_t width, uint32_t height, const std::string& title)
     Body* floor = Physics::CreateBody({0, -300, 0}, BodyType::Static);
     Physics::AddAABB(floor, 400, 25);
 
-    EventHandler<KeyPressed>::RegisterOnEventFunction(Layer::OnEvent<KeyPressed>);
-    EventHandler<MouseMoved>::RegisterOnEventFunction(Layer::OnEvent<MouseMoved>);
-    EventHandler<MouseScrolled>::RegisterOnEventFunction(Layer::OnEvent<MouseScrolled>);
-    EventHandler<WindowResize>::RegisterOnEventFunction(Layer::OnEvent<WindowResize>);
+
+
+    EventHandler<KeyPressed>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<KeyPressed>));
+    EventHandler<MouseMoved>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<MouseMoved>));
+    EventHandler<MouseScrolled>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<MouseScrolled>));
+    EventHandler<WindowResize>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<WindowResize>));
 }
 
-void Layer::OnUpdate(float ts)
+void MyLayer::OnUpdate(float ts)
 {
     if (Input::IsKeyPressed(KEY_SPACE))
         s_b->impulse.y += 4000;
@@ -62,7 +64,7 @@ void Layer::OnUpdate(float ts)
     }
 }
 
-void Layer::OnRender()
+void MyLayer::OnRender()
 {
     auto view = ECS::View<SpriteComponent, TransformComponent>();
 
@@ -75,7 +77,7 @@ void Layer::OnRender()
     Renderer::PushQuad({0, -300, 0}, 0, {800, 50}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
 }
 
-void Layer::OnRenderUI()
+void MyLayer::OnRenderUI()
 {
     static ImVec2 mainMenuSize;
 
@@ -90,21 +92,21 @@ void Layer::OnRenderUI()
         ImGui::EndMenu();
     }
 
-    float spacing = s_LayerData.width - ImGui::GetFontSize() * 2 * 5;
+    float spacing = m_width - ImGui::GetFontSize() * 2 * 5;
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{spacing, 0});
     ImGui::Spacing();
-    if (ImGui::RadioButton("Show UI", s_LayerData.renderUI))
-        s_LayerData.renderUI = !s_LayerData.renderUI;
+    if (ImGui::RadioButton("Show UI", renderUI))
+        renderUI = !renderUI;
     ImGui::PopStyleVar();
 
     mainMenuSize = ImGui::GetWindowSize();
     ImGui::EndMainMenuBar();
 
-    if (!s_LayerData.renderUI)
+    if (!renderUI)
         return;
 
-    UI::BeginDockSpaceWindow("Content Manager", ImVec2{370.0f, (float)s_LayerData.height-mainMenuSize.y+1}, ImVec2{(float)s_LayerData.width, (float)s_LayerData.height-mainMenuSize.y+1}, ImVec2{0, mainMenuSize.y-1});
+    UI::BeginDockSpaceWindow("Content Manager", ImVec2{370.0f, (float)m_height-mainMenuSize.y+1}, ImVec2{(float)m_width, (float)m_height-mainMenuSize.y+1}, ImVec2{0, mainMenuSize.y-1});
 
     UI::BeginWindow("Entities");
 
@@ -184,7 +186,7 @@ void Layer::OnRenderUI()
 }
 
 template<>
-bool Layer::OnEvent<KeyPressed>(KeyPressed event)
+bool MyLayer::OnEvent<KeyPressed>(KeyPressed event)
 {
     switch (event.key)
     {
@@ -201,7 +203,7 @@ bool Layer::OnEvent<KeyPressed>(KeyPressed event)
             return true;
 
         case KEY_H:
-            s_LayerData.renderUI = !s_LayerData.renderUI;
+            renderUI = !renderUI;
             return true;
 
         default:
@@ -210,7 +212,7 @@ bool Layer::OnEvent<KeyPressed>(KeyPressed event)
 }
 
 template<>
-bool Layer::OnEvent<MouseMoved>(MouseMoved event)
+bool MyLayer::OnEvent<MouseMoved>(MouseMoved event)
 {
     if (Input::IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
     {
@@ -221,21 +223,21 @@ bool Layer::OnEvent<MouseMoved>(MouseMoved event)
 }
 
 template<>
-bool Layer::OnEvent<MouseScrolled>(MouseScrolled event)
+bool MyLayer::OnEvent<MouseScrolled>(MouseScrolled event)
 {
     updateZoom(event.dy);
     return true;
 }
 
 template<>
-bool Layer::OnEvent<WindowResize>(WindowResize event)
+bool MyLayer::OnEvent<WindowResize>(WindowResize event)
 {
-    s_LayerData.width = event.width;
-    s_LayerData.height = event.height;
+    m_width = event.width;
+    m_height = event.height;
     return false;
 }
 
-void Layer::OnDetach()
+void MyLayer::OnDetach()
 {
 
 }

@@ -8,6 +8,8 @@
 #include "events/event.h"
 #include "events/eventDispatcher.h"
 
+namespace Window {
+
 struct WindowInternal
 {
     GLFWwindow* g_window;
@@ -80,7 +82,7 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     EventHandler<MouseScrolled>::Dispatch(e);
 }
 
-void Window::Create(uint32_t width, uint32_t height, const std::string& title)
+void Create(uint32_t width, uint32_t height, const std::string& title)
 {
     if (window.created)
     {
@@ -128,28 +130,28 @@ void Window::Create(uint32_t width, uint32_t height, const std::string& title)
     window.height = height;
 }
 
-void Window::Destroy()
+void Destroy()
 {
     glfwTerminate();
 }
 
-bool Window::IsKeyPressed(int key)
+bool IsKeyPressed(int key)
 {
     return glfwGetKey(window.g_window, key) == GLFW_PRESS;
 }
 
-bool Window::IsMouseButtonPressed(int button)
+bool IsMouseButtonPressed(int button)
 {
     return glfwGetMouseButton(window.g_window, button) == GLFW_PRESS;
 }
 
-void Window::Update()
+void Update()
 {
     glfwSwapBuffers(window.g_window);
     glfwPollEvents();
 }
 
-void Window::GetCursorPos(double* x, double* y)
+void GetCursorPos(double* x, double* y)
 {
     // Origin is at the center
     glfwGetCursorPos(window.g_window, x, y);
@@ -157,7 +159,9 @@ void Window::GetCursorPos(double* x, double* y)
     *x = -window.width/2 + *x;
 }
 
-void* Window::GetNativeWindow()
+void* GetNativeWindow()
 {
     return window.g_window;
 }
+
+};

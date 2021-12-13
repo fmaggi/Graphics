@@ -6,20 +6,25 @@
 class Layer
 {
 public:
-    static void OnAttach(uint32_t width, uint32_t height, const std::string& title);
-    static void OnDetach();
+    virtual void OnAttach(uint32_t width, uint32_t height, const std::string& title) = 0;
+    virtual void OnDetach() = 0;
 
-    static void OnUpdate(float ts);
-    static void OnRender();
+    virtual void OnUpdate(float ts) = 0;
+    virtual void OnRender() = 0;
 
-    static void OnRenderUI();
+    virtual void OnRenderUI() = 0;
 
-    // template specializations need to be defined by te user and registered to the EventHandler
+    // OnEvent functions need to be defined by te user and registered to the EventHandler
+    /*
     template<typename T>
-    static bool OnEvent(T event)
+    bool OnEvent(T event)
     {
-        return false;
+        Handle event;
     }
+    */
+protected:
+   uint32_t m_width, m_height;
+   std::string m_title;
 };
 
 #endif

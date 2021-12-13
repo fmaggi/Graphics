@@ -19,18 +19,23 @@
 #include "log/log.h"
 #include "log/timer.h"
 
-static bool running = 0;
+namespace Game {
 
-bool Game::SetUp(GameDef& def)
+static bool running = 0;
+static Layer* s_baseLayer;
+
+bool SetUp(GameDef def)
 {
     LOG_INFO_DEBUG("DEBUG");
+
+    s_baseLayer = def.baseLayer;
 
     Window::Create(def.width, def.height, def.title);
     Renderer::Init();
     ECS::Init();
 
     LOG_TRACE("Initializing client World");
-    Layer::OnAttach(def.width, def.height, def.title);
+    s_baseLayer->OnAttach(def.width, def.height, def.title);
 
     ImGuiLayer::Init((float)def.width, (float)def.height);
 
@@ -51,39 +56,41 @@ bool Game::SetUp(GameDef& def)
     return 1;
 }
 
-void Game::OnUpdate(float ts)
+void OnUpdate(float ts)
 {
-    Layer::OnUpdate(ts);
+   s_baseLayer->OnUpdate(ts);
 }
 
-void Game::OnRender()
+void OnRender()
 {
     Renderer::StartFrame(camera);
-    Layer::OnRender();
+    s_baseLayer->OnRender();
     Renderer::EndFrame();
 
     ImGuiLayer::Begin();
-    Layer::OnRenderUI();
+    s_baseLayer->OnRenderUI();
     ImGuiLayer::End();
 }
 
-void Game::Run()
+void Run()
 {
     while (running)
     {
         float ts = getTimestep();
-        Game::OnUpdate(ts);
-        Game::OnRender();
+        OnUpdate(ts);
+        OnRender();
         Window::Update();
     }
     Destroy();
 }
 
-void Game::Destroy()
+void Destroy()
 {
-    Layer::OnDetach();
+    s_baseLayer->OnDetach();
     Renderer::Destroy();
     ECS::Destroy();
     Window::Destroy();
     LOG_TRACE("Good bye");
 }
+
+};

@@ -4,12 +4,12 @@
 #include "keys.h"
 #include "glm/glm.hpp"
 
-class Input
-{
-public:
-    static bool IsKeyPressed(Keycode key);
-    static bool IsMouseButtonPressed(ButtonCode button);
-    static glm::vec2 GetCursorPosition();
+namespace Input {
+
+    bool IsKeyPressed(Keycode key);
+    bool IsMouseButtonPressed(ButtonCode button);
+    glm::vec2 GetCursorPosition();
+
 };
 
 

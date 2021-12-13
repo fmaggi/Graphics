@@ -1,11 +1,11 @@
 #include "game/game.h"
 #include "log/log.h"
 
-extern GameDef& GetGameSpecs();
+extern GameDef Game::GetGameDef();
 
 int main()
 {
     LOG_TRACE("Starting Engine");
-    Game::SetUp(GetGameSpecs());
+    Game::SetUp(Game::GetGameDef());
     Game::Run();
 }

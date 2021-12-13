@@ -3,24 +3,35 @@
 
 #include "engine.h"
 
-struct LayerData
+class MyLayer : public Layer
 {
+public:
+    void OnAttach(uint32_t width, uint32_t height, const std::string& title) override;
+    void OnDetach() override;
+
+    void OnUpdate(float ts) override;
+    void OnRender() override;
+
+    void OnRenderUI() override;
+
+    template<typename E>
+    bool OnEvent(E event);
+private:
     TextureID t;
     EntityID player;
-    uint32_t width = 0, height = 0;
     bool renderUI = true;
 };
 
 template<>
-bool Layer::OnEvent<KeyPressed>(KeyPressed event);
+bool MyLayer::OnEvent<KeyPressed>(KeyPressed event);
 
 template<>
-bool Layer::OnEvent<MouseMoved>(MouseMoved event);
+bool MyLayer::OnEvent<MouseMoved>(MouseMoved event);
 
 template<>
-bool Layer::OnEvent<MouseScrolled>(MouseScrolled event);
+bool MyLayer::OnEvent<MouseScrolled>(MouseScrolled event);
 
 template<>
-bool Layer::OnEvent<WindowResize>(WindowResize event);
+bool MyLayer::OnEvent<WindowResize>(WindowResize event);
 
 #endif

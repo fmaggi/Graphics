@@ -12,11 +12,13 @@ template<typename T>
 class EventHandler
 {
 public:
-    using EventHandlerFn = std::function<bool (T event)>;
+    using EventHandlerFn = std::function<bool (T /* event */)>;
     static void Dispatch(T event)
     {
         ASSERT(false, "Invalid event type dispatched!");
     }
+
+    // Event Functions should only come from layers, as for now they are not removable
     static void RegisterOnEventFunction(EventHandlerFn onEvent)
     {
         ASSERT(false, "Invalid event function registered!");

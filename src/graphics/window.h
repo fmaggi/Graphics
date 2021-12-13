@@ -3,19 +3,19 @@
 
 #include <string>
 
-class Window
-{
-public:
-    static void Create(uint32_t width, uint32_t height, const std::string& title);
-    static void Destroy();
+namespace Window {
 
-    static bool IsKeyPressed(int key);
-    static bool IsMouseButtonPressed(int button);
-    static void GetCursorPos(double* x, double* y);
+    void Create(uint32_t width, uint32_t height, const std::string& title);
+    void Destroy();
 
-    static void Update();
+    bool IsKeyPressed(int key);
+    bool IsMouseButtonPressed(int button);
+    void GetCursorPos(double* x, double* y);
 
-    static void* GetNativeWindow();
+    void Update();
+
+    void* GetNativeWindow();
+
 };
 
 #endif // WINDOW_H
