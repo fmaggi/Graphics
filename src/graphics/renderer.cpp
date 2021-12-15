@@ -23,6 +23,9 @@ namespace Renderer {
     struct QuadVertex
     {
         glm::vec3 pos;
+        float rotation;
+        glm::vec2 scale;
+        glm::vec2 base;
         glm::vec4 color;
         glm::vec2 uv;
         float texIndex;
@@ -84,6 +87,9 @@ namespace Renderer {
 
         r.vbo = new VertexBuffer(sizeof(QuadVertex), maxVertices);
         r.vbo->AddAttribute(3); // translation
+        r.vbo->AddAttribute(1); // rotation
+        r.vbo->AddAttribute(2); // scale
+        r.vbo->AddAttribute(2); // base
         r.vbo->AddAttribute(4); // color
         r.vbo->AddAttribute(2); // uv coords;
         r.vbo->AddAttribute(1); // texIndex;
@@ -197,23 +203,12 @@ namespace Renderer {
             return;
         }
 
-        glm::mat2x2 scaleMat = {
-            { scale.x, 0 },
-            { 0, scale.y }
-        };
-
-        glm::mat2x2 rotMat = {
-            {  glm::cos(rotation), glm::sin(rotation) },
-            { -glm::sin(rotation), glm::cos(rotation) }
-        };
-
-        glm::vec2 translation2 = { translation.x, translation.y };
-        glm::vec2 vertexPos = {0, 0};
-
         for (int i = 0; i < 4; i++)
         {
-            vertexPos = translation2 + (scaleMat * rotMat * v.vertexPositions[i]);
-            v.vertexPtrCurrent->pos = glm::vec3(vertexPos, translation.z);
+            v.vertexPtrCurrent->pos = translation;
+            v.vertexPtrCurrent->rotation = rotation;
+            v.vertexPtrCurrent->scale = scale;
+            v.vertexPtrCurrent->base = v.vertexPositions[i];
             v.vertexPtrCurrent->color = color;
             v.vertexPtrCurrent->uv = v.texturesCoords[i];
             v.vertexPtrCurrent->texIndex = (float) textureID;
