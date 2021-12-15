@@ -13,7 +13,8 @@ ifndef config
 endif
 
 ifeq ($(config), debug)
-	CFLAGS += -DDEBUG -g
+	CFLAGS += -DDEBUG -g -pg
+	LFLAGS += -pg -g
 
 	TARGET = $(TARGET_PREFIX)_debug
 	OBJ = obj/debug

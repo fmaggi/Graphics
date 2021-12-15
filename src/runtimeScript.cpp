@@ -19,7 +19,7 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, const std::string& title
     player = e;
 
     TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
-    t.translation = {0,-100,0};
+    t.translation = {-300,-100,0};
     t.scale = {100, 100};
     t.rotation = 0;
 
@@ -27,7 +27,7 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, const std::string& title
     s.color = {0.86, 0.3, 0.2, 1.0};
     s.texIndex = tex;
 
-    Body* body = Physics::CreateBody({-300, -100, 0}, BodyType::Dynamic);
+    Body* body = Physics::CreateBody(t.translation, BodyType::Dynamic);
     s_b = body;
     Physics::AddAABB(body, 50, 50);
 
@@ -40,12 +40,29 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, const std::string& title
     Body* floor = Physics::CreateBody({0, -300, 0}, BodyType::Static);
     Physics::AddAABB(floor, 400, 25);
 
-
-
     EventHandler<KeyPressed>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<KeyPressed>));
     EventHandler<MouseMoved>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<MouseMoved>));
     EventHandler<MouseScrolled>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<MouseScrolled>));
     EventHandler<WindowResize>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<WindowResize>));
+
+    for (int i = 0; i < 10000; i++)
+    {
+        EntityID id = ECS::CreateEntity();
+
+        TransformComponent& tc = ECS::AddComponent<TransformComponent>(id);
+        tc.scale = {100, 100};
+        tc.translation = {-500 + i * 100 % 1200, -300 + i * 100 % 800, 0};
+        tc.rotation = 0;
+
+        SpriteComponent& sc = ECS::AddComponent<SpriteComponent>(id);
+        sc.color = {0.34, 0.67, 0.94, 1.0f};
+
+        // Body* b = Physics::CreateBody(tc.translation, BodyType::Dynamic);
+        // Physics::AddAABB(b, 50, 50);
+
+        // PhysicsComponent& pc = ECS::AddComponent<PhysicsComponent>(id);
+        // pc.physicsBody = b;
+    }
 }
 
 void MyLayer::OnUpdate(float ts)

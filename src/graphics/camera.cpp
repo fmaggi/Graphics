@@ -48,8 +48,8 @@ void updateProjectionMatrix(float width, float height)
 
 bool inFrustum(float left, float right, float top, float bottom)
 {
-    bool sideToSide = left > (-camera.width/2) * camera.zoom + camera.translation.x
-                    && right < (camera.width/2) * camera.zoom + camera.translation.x;
+    bool sideToSide = right > (-camera.width/2) * camera.zoom + camera.translation.x
+                    && left < (camera.width/2) * camera.zoom + camera.translation.x;
 
     bool topToBottom = top > (-camera.height/2) * camera.zoom + camera.translation.y
                     && bottom < (camera.height/2) * camera.zoom  + camera.translation.y;

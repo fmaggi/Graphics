@@ -26,6 +26,7 @@
         type##_handlers.push_back(onEvent); \
     } \
 
+
 INIT_HANDLER(WindowClose);
 INIT_HANDLER(WindowResize);
 INIT_HANDLER(KeyPressed);
@@ -34,4 +35,3 @@ INIT_HANDLER(MouseButtonPressed);
 INIT_HANDLER(MouseButtonReleased);
 INIT_HANDLER(MouseMoved);
 INIT_HANDLER(MouseScrolled);
-

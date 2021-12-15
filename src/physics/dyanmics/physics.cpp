@@ -28,10 +28,10 @@ void Physics::Init(float gravity)
 void Physics::Step(float ts)
 {
     static ContactStack stack;
-    Contact contacts[32] = {0};
+    Contact contacts[10000] = {0};
     stack.contacts = contacts;
     stack.count = 0;
-    stack.size = 32;
+    stack.size = 10000;
 
     for (int i = 0; i < simulation.currentBody; i++)
     {

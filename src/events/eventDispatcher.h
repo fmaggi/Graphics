@@ -13,6 +13,7 @@ class EventHandler
 {
 public:
     using EventHandlerFn = std::function<bool (T /* event */)>;
+    // using EventHandlerFn = bool (*)(T event);
     static void Dispatch(T event)
     {
         ASSERT(false, "Invalid event type dispatched!");

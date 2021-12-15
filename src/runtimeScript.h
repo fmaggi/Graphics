@@ -11,7 +11,6 @@ public:
 
     void OnUpdate(float ts) override;
     void OnRender() override;
-
     void OnRenderUI() override;
 
     template<typename E>

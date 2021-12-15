@@ -19,7 +19,7 @@ namespace Renderer {
    void Init();
    void Destroy();
 
-   void PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec4 color, TextureID texture = NoTexture);
+   void PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec4 color, TextureID textureID = NoTexture);
 
    void StartFrame(Camera& camera);
    void EndFrame();

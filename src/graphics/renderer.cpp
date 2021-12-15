@@ -6,8 +6,6 @@
 #include "texture.h"
 #include "gfx.h"
 
-#include "entity/actions.h"
-
 #include "log/log.h"
 
 #include "stdlib.h"
@@ -32,7 +30,7 @@ namespace Renderer {
 
     struct vertexData
     {
-        glm::vec3 vertexPositions[4];
+        glm::vec2 vertexPositions[4];
         glm::vec2 texturesCoords[4];
         QuadVertex* vertices;
         QuadVertex* vertexPtrCurrent;
@@ -109,10 +107,10 @@ namespace Renderer {
         r.ibo = new IndexBuffer(maxIndices, indices);
         delete indices;
 
-        v.vertexPositions[0] = {-0.5f, -0.5f, 0.0f}; // bottom left
-        v.vertexPositions[1] = { 0.5f, -0.5f, 0.0f}; // bottom right
-        v.vertexPositions[2] = { 0.5f,  0.5f, 0.0f}; // top left
-        v.vertexPositions[3] = {-0.5f,  0.5f, 0.0f}; // top right
+        v.vertexPositions[0] = {-0.5f, -0.5f}; // bottom left
+        v.vertexPositions[1] = { 0.5f, -0.5f}; // bottom right
+        v.vertexPositions[2] = { 0.5f,  0.5f}; // top right
+        v.vertexPositions[3] = {-0.5f,  0.5f}; // top left
 
         v.texturesCoords[0] = {0.0f, 0.0f};
         v.texturesCoords[1] = {1.0f, 0.0f};
@@ -183,8 +181,14 @@ namespace Renderer {
 
     void PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec4 color, TextureID textureID)
     {
-        float left = translation.x + scale.x/2;
-        float right = translation.x - scale.x/2;
+        if(r.quadCount >= MAX_QUADS)
+        {
+            Flush();
+            StartBatch();
+        }
+
+        float left = translation.x - scale.x/2;
+        float right = translation.x + scale.x/2;
         float top = translation.y + scale.y/2;
         float bottom = translation.y - scale.y/2;
 
@@ -193,18 +197,23 @@ namespace Renderer {
             return;
         }
 
-        glm::mat4 transform = getTransform(translation, rotation, scale);
+        glm::mat2x2 scaleMat = {
+            { scale.x, 0 },
+            { 0, scale.y }
+        };
 
-        if(r.quadCount >= MAX_QUADS)
-        {
-            Flush();
-            StartBatch();
-        }
+        glm::mat2x2 rotMat = {
+            {  glm::cos(rotation), glm::sin(rotation) },
+            { -glm::sin(rotation), glm::cos(rotation) }
+        };
+
+        glm::vec2 translation2 = { translation.x, translation.y };
+        glm::vec2 vertexPos = {0, 0};
 
         for (int i = 0; i < 4; i++)
         {
-            glm::vec3 vertex = transform * glm::vec4(v.vertexPositions[i], 1);
-            v.vertexPtrCurrent->pos = {vertex.x, vertex.y, vertex.z};
+            vertexPos = translation2 + (scaleMat * rotMat * v.vertexPositions[i]);
+            v.vertexPtrCurrent->pos = glm::vec3(vertexPos, translation.z);
             v.vertexPtrCurrent->color = color;
             v.vertexPtrCurrent->uv = v.texturesCoords[i];
             v.vertexPtrCurrent->texIndex = (float) textureID;
