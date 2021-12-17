@@ -85,7 +85,9 @@ struct ComponentStorage : public basic_component
 
 struct Registry
 {
+    // recycled entities keep this flag set so we dont push new components to storages when recycled
     std::vector<ComponentsUsed> used;
+
     std::vector<basic_component*> componentsList;
     std::vector<EntityID> aliveEntities;
     std::vector<EntityID> freeEntities;

@@ -47,6 +47,7 @@ public:
             return s.Get(id);
         }
 
+        // this flag is used when recycling entities
         registry.used[id] |= ECS_TAG_VALUE(componentIndex);
 
         return s.Add(id);
