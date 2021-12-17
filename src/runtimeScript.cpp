@@ -45,10 +45,10 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, const std::string& title
     Body* floor = Physics::CreateBody({0, -300, 0}, BodyType::Static);
     Physics::AddAABB(floor, 400, 25);
 
-    EventHandler<KeyPressed>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<KeyPressed>));
-    EventHandler<MouseMoved>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<MouseMoved>));
-    EventHandler<MouseScrolled>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<MouseScrolled>));
-    EventHandler<WindowResize>::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<WindowResize>));
+    EventSystem::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<KeyPressed>));
+    EventSystem::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<MouseMoved>));
+    EventSystem::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<MouseScrolled>));
+    EventSystem::RegisterOnEventFunction(BIND_EVENT_FN(&MyLayer::OnEvent<WindowResize>));
 }
 
 void MyLayer::OnUpdate(float ts)
@@ -196,7 +196,7 @@ bool MyLayer::OnEvent<KeyPressed>(KeyPressed event)
         case KEY_C:
             if (event.mods & MOD_CONTROL)
             {
-                EventHandler<WindowClose>::Dispatch({});
+                EventSystem::Dispatch(WindowClose{});
                 return true;
             }
             return false;

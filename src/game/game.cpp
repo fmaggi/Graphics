@@ -42,12 +42,12 @@ bool SetUp(GameDef def)
     running = 1;
     LOG_TRACE("All done!");
 
-    EventHandler<WindowClose>::RegisterOnEventFunction([&](WindowClose event){
+    EventSystem::RegisterOnEventFunction([&](WindowClose event){
         running = 0;
         return true;
     });
 
-    EventHandler<WindowResize>::RegisterOnEventFunction([](WindowResize event){
+    EventSystem::RegisterOnEventFunction([](WindowResize event){
         Renderer::SetViewport(event.width, event.height);
         updateProjectionMatrix(event.width, event.height);
         return false;

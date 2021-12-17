@@ -2,62 +2,35 @@
 #define EVENT_DISPATCHER_H
 
 #include "event.h"
-#include "log/log.h"
 
 #include <functional>
 
 #define BIND_EVENT_FN(fn) std::bind(fn, this, std::placeholders::_1)
 
-template<typename T>
-class EventHandler
-{
-public:
-    using EventHandlerFn = std::function<bool (T /* event */)>;
-    static void Dispatch(T event)
-    {
-        ASSERT(false, "Invalid event type dispatched!");
-    }
+namespace EventSystem {
 
-    // Event Functions should only come from layers, as for now they are not removable
-    static void RegisterOnEventFunction(EventHandlerFn onEvent)
-    {
-        ASSERT(false, "Invalid event function registered!");
-    }
-};
+    void Dispatch(WindowClose event);
+    void Dispatch(WindowResize event);
+    void Dispatch(KeyPressed event);
+    void Dispatch(KeyReleased event);
+    void Dispatch(MouseButtonPressed event);
+    void Dispatch(MouseButtonReleased event);
+    void Dispatch(MouseMoved event);
+    void Dispatch(MouseScrolled event);
 
-template<>
-void EventHandler<WindowClose>::Dispatch(WindowClose event);
-template<>
-void EventHandler<WindowResize>::Dispatch(WindowResize event);
-template<>
-void EventHandler<KeyPressed>::Dispatch(KeyPressed event);
-template<>
-void EventHandler<KeyReleased>::Dispatch(KeyReleased event);
-template<>
-void EventHandler<MouseButtonPressed>::Dispatch(MouseButtonPressed event);
-template<>
-void EventHandler<MouseButtonReleased>::Dispatch(MouseButtonReleased event);
-template<>
-void EventHandler<MouseMoved>::Dispatch(MouseMoved event);
-template<>
-void EventHandler<MouseScrolled>::Dispatch(MouseScrolled event);
+    template<typename T>
+    using EventCallback = std::function<bool (T)>;
 
-template<>
-void EventHandler<WindowClose>::RegisterOnEventFunction(EventHandlerFn onEvent);
-template<>
-void EventHandler<WindowResize>::RegisterOnEventFunction(EventHandlerFn onEvent);
-template<>
-void EventHandler<KeyPressed>::RegisterOnEventFunction(EventHandlerFn onEvent);
-template<>
-void EventHandler<KeyReleased>::RegisterOnEventFunction(EventHandlerFn onEvent);
-template<>
-void EventHandler<MouseButtonPressed>::RegisterOnEventFunction(EventHandlerFn onEvent);
-template<>
-void EventHandler<MouseButtonReleased>::RegisterOnEventFunction(EventHandlerFn onEvent);
-template<>
-void EventHandler<MouseMoved>::RegisterOnEventFunction(EventHandlerFn onEvent);
-template<>
-void EventHandler<MouseScrolled>::RegisterOnEventFunction(EventHandlerFn onEvent);
+    // TODO: make event callbacks removable
+    void RegisterOnEventFunction(EventCallback<WindowClose> callback);
+    void RegisterOnEventFunction(EventCallback<WindowResize> callback);
+    void RegisterOnEventFunction(EventCallback<KeyPressed> callback);
+    void RegisterOnEventFunction(EventCallback<KeyReleased> callback);
+    void RegisterOnEventFunction(EventCallback<MouseButtonPressed> callback);
+    void RegisterOnEventFunction(EventCallback<MouseButtonReleased> callback);
+    void RegisterOnEventFunction(EventCallback<MouseMoved> callback);
+    void RegisterOnEventFunction(EventCallback<MouseScrolled> callback);
 
+}
 
 #endif

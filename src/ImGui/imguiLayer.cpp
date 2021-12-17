@@ -62,18 +62,18 @@ void ImGuiLayer::Init(float width, float height)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    EventHandler<WindowResize>::RegisterOnEventFunction([](WindowResize event){
+    EventSystem::RegisterOnEventFunction([](WindowResize event){
         s_width = event.width;
         s_height = event.height;
         return false;
     });
 
-    EventHandler<KeyPressed>::RegisterOnEventFunction(KeyboardCallback<KeyPressed>);
-    EventHandler<KeyReleased>::RegisterOnEventFunction(KeyboardCallback<KeyReleased>);
-    EventHandler<MouseButtonPressed>::RegisterOnEventFunction(MouseCallback<MouseButtonPressed>);
-    EventHandler<MouseButtonReleased>::RegisterOnEventFunction(MouseCallback<MouseButtonReleased>);
-    EventHandler<MouseMoved>::RegisterOnEventFunction(MouseCallback<MouseMoved>);
-    EventHandler<MouseScrolled>::RegisterOnEventFunction(MouseCallback<MouseScrolled>);
+    EventSystem::RegisterOnEventFunction(KeyboardCallback<KeyPressed>);
+    EventSystem::RegisterOnEventFunction(KeyboardCallback<KeyReleased>);
+    EventSystem::RegisterOnEventFunction(MouseCallback<MouseButtonPressed>);
+    EventSystem::RegisterOnEventFunction(MouseCallback<MouseButtonReleased>);
+    EventSystem::RegisterOnEventFunction(MouseCallback<MouseMoved>);
+    EventSystem::RegisterOnEventFunction(MouseCallback<MouseScrolled>);
 }
 
 void ImGuiLayer::Destroy()

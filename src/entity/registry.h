@@ -69,7 +69,6 @@ struct ComponentStorage : public basic_component
 
     T& Add(EntityID id)
     {
-        LOG_INFO("Pushed new component");
         uint32_t packedSetID = components.size();
         if (sparse.size() <= packedSetID)
             sparse.resize(packedSetID + 10);
