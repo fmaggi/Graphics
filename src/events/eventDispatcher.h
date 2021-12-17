@@ -13,7 +13,6 @@ class EventHandler
 {
 public:
     using EventHandlerFn = std::function<bool (T /* event */)>;
-    // using EventHandlerFn = bool (*)(T event);
     static void Dispatch(T event)
     {
         ASSERT(false, "Invalid event type dispatched!");
@@ -25,5 +24,40 @@ public:
         ASSERT(false, "Invalid event function registered!");
     }
 };
+
+template<>
+void EventHandler<WindowClose>::Dispatch(WindowClose event);
+template<>
+void EventHandler<WindowResize>::Dispatch(WindowResize event);
+template<>
+void EventHandler<KeyPressed>::Dispatch(KeyPressed event);
+template<>
+void EventHandler<KeyReleased>::Dispatch(KeyReleased event);
+template<>
+void EventHandler<MouseButtonPressed>::Dispatch(MouseButtonPressed event);
+template<>
+void EventHandler<MouseButtonReleased>::Dispatch(MouseButtonReleased event);
+template<>
+void EventHandler<MouseMoved>::Dispatch(MouseMoved event);
+template<>
+void EventHandler<MouseScrolled>::Dispatch(MouseScrolled event);
+
+template<>
+void EventHandler<WindowClose>::RegisterOnEventFunction(EventHandlerFn onEvent);
+template<>
+void EventHandler<WindowResize>::RegisterOnEventFunction(EventHandlerFn onEvent);
+template<>
+void EventHandler<KeyPressed>::RegisterOnEventFunction(EventHandlerFn onEvent);
+template<>
+void EventHandler<KeyReleased>::RegisterOnEventFunction(EventHandlerFn onEvent);
+template<>
+void EventHandler<MouseButtonPressed>::RegisterOnEventFunction(EventHandlerFn onEvent);
+template<>
+void EventHandler<MouseButtonReleased>::RegisterOnEventFunction(EventHandlerFn onEvent);
+template<>
+void EventHandler<MouseMoved>::RegisterOnEventFunction(EventHandlerFn onEvent);
+template<>
+void EventHandler<MouseScrolled>::RegisterOnEventFunction(EventHandlerFn onEvent);
+
 
 #endif

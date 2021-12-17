@@ -23,8 +23,8 @@ public:
     template<typename T>
     static bool HasComponent(EntityID id)
     {
-        const uint32_t index = TypeIndex<T>::value();
-        return registry.used[id] & ECS_TAG_VALUE(index);
+        ComponentStorage<T>& s = *GetComponentStorage<T>();
+        return s.Has(id);
     }
 
     template<typename T>
@@ -37,24 +37,19 @@ public:
     template<typename T>
     static T& AddComponent(EntityID id)
     {
-
         ComponentStorage<T>& s = *GetComponentStorage<T>();
+        s.entities.push_back(id);
 
         uint32_t componentIndex = TypeIndex<T>::value();
+        if (registry.used[id] & ECS_TAG_VALUE(componentIndex))
+        {
+            s.sparse[id].used = true;
+            return s.Get(id);
+        }
 
         registry.used[id] |= ECS_TAG_VALUE(componentIndex);
 
-        uint32_t packedSetID = s.components.size();
-        if (s.sparse.size() <= packedSetID)
-            s.sparse.resize(packedSetID + 10);
-
-        s.sparse[id] = packedSetID + 1;
-
-        s.components.push_back({});
-        s.entities.push_back(id);
-        T& component = s.components[packedSetID];
-
-        return component;
+        return s.Add(id);
     }
 
     template<typename T, typename... Ts>

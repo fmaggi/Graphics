@@ -32,15 +32,28 @@ struct TypeIndex
 
 struct basic_component
 {
-    std::vector<EntityID> sparse{};
+    struct sparseObject
+    {
+        uint32_t packedSetID = 0;
+        bool used = false;
+    };
+
+    std::vector<sparseObject> sparse{};
     std::vector<EntityID> entities{};
-    bool has(EntityID id)
+
+    bool Has(EntityID id)
     {
         if (id >= sparse.size())
             return false;
-        return sparse[id] != 0;
+        return sparse[id].used;
     }
-    virtual void DestroyComponent(EntityID id) = 0;
+
+    void DestroyComponent(EntityID id)
+    {
+        uint32_t componentIndex = sparse[id].packedSetID;
+        entities.erase(entities.begin() + componentIndex);
+        sparse[id].used = false;
+    }
 };
 
 template<typename T>
@@ -48,18 +61,25 @@ struct ComponentStorage : public basic_component
 {
     std::vector<T> components{};
 
-    void DestroyComponent(EntityID id) override
-    {
-        uint32_t componentIndex = sparse[id] - 1;
-        components.erase(components.begin() + componentIndex);
-        entities.erase(entities.begin() + componentIndex);
-        sparse.erase(sparse.begin() + id);
-    }
-
     T& Get(EntityID id)
     {
-        uint32_t componentIndex = sparse[id] - 1;
+        uint32_t componentIndex = sparse[id].packedSetID;
         return components[componentIndex];
+    }
+
+    T& Add(EntityID id)
+    {
+        LOG_INFO("Pushed new component");
+        uint32_t packedSetID = components.size();
+        if (sparse.size() <= packedSetID)
+            sparse.resize(packedSetID + 10);
+
+        sparse[id] = { packedSetID, true };
+
+        components.push_back({});
+        T& component = components[packedSetID];
+
+        return component;
     }
 };
 

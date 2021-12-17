@@ -37,10 +37,7 @@ void ECS::DestroyEntity(EntityID id)
         }
     }
 
-    registry.used[id] = 0;
-
-    if (registry.freeEntities.size() < 100)
-        registry.freeEntities.push_back(id);
+    registry.freeEntities.push_back(id);
 
     auto it = std::find(registry.aliveEntities.begin(), registry.aliveEntities.end(), id);
     ASSERT(it != registry.aliveEntities.end(), "Failed entity free");

@@ -19,6 +19,8 @@ ifeq ($(config), debug)
 	TARGET = $(TARGET_PREFIX)_debug
 	OBJ = obj/debug
 else
+	CFLAGS +=
+
 	TARGET = $(TARGET_PREFIX)
 	OBJ = obj/release
 endif

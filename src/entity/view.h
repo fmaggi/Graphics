@@ -37,7 +37,7 @@ public:
     }
     bool is_valid() const
     {
-        return (m_ptr == m_end) || apply([e = *m_ptr](auto& storage){ return storage->has(e); }, *m_pools);
+        return (m_ptr == m_end) || apply([e = *m_ptr](auto& storage){ return storage->Has(e); }, *m_pools);
     }
 
     IteratorView& operator++()
