@@ -6,7 +6,7 @@
 #include "glm/glm.hpp"
 
 #include "events/event.h"
-#include "events/eventDispatcher.h"
+#include "events/eventSystem.h"
 
 #include "graphics/window.h"
 #include "graphics/renderer.h"
@@ -42,12 +42,12 @@ bool SetUp(GameDef def)
     running = 1;
     LOG_TRACE("All done!");
 
-    EventSystem::RegisterOnEventFunction([&](WindowClose event){
+    EventSystem<WindowClose>::RegisterFunction([&](WindowClose event){
         running = 0;
         return true;
     });
 
-    EventSystem::RegisterOnEventFunction([](WindowResize event){
+    EventSystem<WindowResize>::RegisterFunction([](WindowResize event){
         Renderer::SetViewport(event.width, event.height);
         updateProjectionMatrix(event.width, event.height);
         return false;

@@ -6,7 +6,7 @@
 #include "log/log.h"
 
 #include "events/event.h"
-#include "events/eventDispatcher.h"
+#include "events/eventSystem.h"
 
 namespace Window {
 
@@ -27,13 +27,13 @@ void errorCallback(int error, const char* description)
 
 void windowCloseCallback(GLFWwindow* window)
 {
-    EventSystem::Dispatch(WindowClose{});
+    EventSystem<WindowClose>::Emit(WindowClose{});
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height)
 {
     WindowResize e(width, height);
-    EventSystem::Dispatch(e);
+    EventSystem<WindowResize>::Emit(e);
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -43,19 +43,19 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         case GLFW_PRESS:
         {
             KeyPressed e(key, scancode, mods, false);
-            EventSystem::Dispatch(e);
+            EventSystem<KeyPressed>::Emit(e);
             return;
         }
         case GLFW_RELEASE:
         {
             KeyReleased e(key, scancode, mods);
-            EventSystem::Dispatch(e);
+            EventSystem<KeyReleased>::Emit(e);
             return;
         }
         case GLFW_REPEAT:
         {
             KeyPressed e(key, scancode, mods, true);
-            EventSystem::Dispatch(e);
+            EventSystem<KeyPressed>::Emit(e);
             return;
         }
     }
@@ -73,13 +73,13 @@ void mouseMovedCallback(GLFWwindow* window, double x, double y)
     lastY = y;
 
     MouseMoved e(offsetX, -offsetY);
-    EventSystem::Dispatch(e);
+    EventSystem<MouseMoved>::Emit(e);
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     MouseScrolled e(xoffset, yoffset);
-    EventSystem::Dispatch(e);
+    EventSystem<MouseScrolled>::Emit(e);
 }
 
 void Create(uint32_t width, uint32_t height, const std::string& title)
@@ -115,6 +115,10 @@ void Create(uint32_t width, uint32_t height, const std::string& title)
     glfwSetCursorPosCallback(g_window, mouseMovedCallback);
 
     glfwSetWindowUserPointer(g_window, &window);
+
+#ifdef DEBUG
+    glfwSwapInterval(0);
+#endif
 
     window.g_window = g_window;
 
