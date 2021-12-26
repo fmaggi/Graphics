@@ -10,8 +10,9 @@ struct AABB;
 // Bodies should be created through the physics system. Not directly through this class
 struct Body
 {
-    glm::vec3 translation;
-    glm::vec2 velocity, impulse;
+    glm::vec2 translation;
+    glm::vec2 velocity, force;
+    float mass, Imass;
 
     uint32_t userFlags;
     void* userData;

@@ -71,17 +71,17 @@ void Physics::Step(float ts)
     for (int i = 0; i < simulation.currentBody; i++)
     {
         Body* b = simulation.bodies + i;
-        if (b->type == BodyType::Static)
+        if (!b->mass || b->type == BodyType::Static)
             continue;
 
         glm::vec2 v = b->velocity;
-        v += ts * (simulation.gravity + b->impulse);
+        v += ts * (simulation.gravity + b->force * b->Imass);
+
 
         v *= 1.0f / (1.0f + ts);
 
         b->velocity = v;
-
-        b->impulse = {0, 0};
+        b->force = {0, 0};
     }
 
     // solve velocity constraints
@@ -97,7 +97,6 @@ void Physics::Step(float ts)
 
         for (int j = 0; j < VEL_ITERATIONS; j++)
         {
-
             glm::vec2 dv = b->velocity - a->velocity;
             if (glm::dot(dv, normal) > 0.0f)
                 continue;
@@ -105,20 +104,14 @@ void Physics::Step(float ts)
             float tangentImpulse = -glm::dot(dv, tangent) * 0; // friction
             glm::vec2 pt = tangent * tangentImpulse;
 
-            float normalImpulse = glm::dot(dv, normal) * -1.3; // restitution
+            float normalImpulse = -glm::dot(dv, normal) * c->normalMass * 1.3; // restitution
+            normalImpulse = std::max(normalImpulse, 0.0f);
             glm::vec2 pn = normal * normalImpulse;
 
             glm::vec2 p = pt + pn;
 
-            if (a->type == BodyType::Dynamic)
-            {
-                a->velocity -= p;
-            }
-            if (b->type == BodyType::Dynamic)
-            {
-                b->velocity += p;
-            }
-
+            a->velocity -= p * a->Imass;
+            b->velocity += p * b->Imass;
         }
     }
 
@@ -130,7 +123,7 @@ void Physics::Step(float ts)
             continue;
 
         glm::vec2 dx = ts * b->velocity;
-        b->translation += glm::vec3(dx, 0);
+        b->translation += dx;
     }
 
     // solve translation constraints
@@ -149,7 +142,7 @@ void Physics::Step(float ts)
 
             minPenetration = std::min(minPenetration, penetrationNormal);
 
-            glm::vec3 res(minPenetration * normal, 0);
+            glm::vec2 res = minPenetration * normal;
 
             if (a->type == BodyType::Dynamic)
             {
@@ -164,17 +157,19 @@ void Physics::Step(float ts)
     }
 }
 
-Body* Physics::CreateBody(glm::vec3 translation, BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)
+Body* Physics::CreateBody(glm::vec2 translation, float mass, BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)
 {
     Body* body= simulation.bodies + simulation.currentBody++;
 
     body->translation = translation;
+    body->mass = mass;
+    body->Imass = mass ? (1 / mass) : 0;
     body->type = type;
     body->onCollision = callback;
     body->userData = userData;
     body->userFlags = userFlags;
 
-    body->impulse = {0, 0};
+    body->force = {0, 0};
     body->velocity = {0, 0};
     body->aabb = nullptr;
 
@@ -183,7 +178,7 @@ Body* Physics::CreateBody(glm::vec3 translation, BodyType type, CollisionCallbac
 
 Body* Physics::CreateBody(BodyDef& body)
 {
-    return CreateBody(body.translation, body.type, body.onCollision, body.userData, body.userFlags);
+    return CreateBody(body.translation, body.mass, body.type, body.onCollision, body.userData, body.userFlags);
 }
 
 Body* Physics::QueryContact(Body* body)

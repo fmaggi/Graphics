@@ -87,7 +87,7 @@ bool AABBManager::TestOverlap(AABB* a, AABB* b)
 }
 
 
-void AABB::Update(glm::vec3 translation)
+void AABB::Update(glm::vec2 translation)
 {
     float hWidth = radius.x;
     float hHeihgt = radius.y;

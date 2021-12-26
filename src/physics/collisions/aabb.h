@@ -8,7 +8,7 @@ struct ContactStack;
 
 struct AABB
 {
-    void Update(glm::vec3 translation);
+    void Update(glm::vec2 translation);
 
     glm::vec2 min, max, radius;
     Body* body;

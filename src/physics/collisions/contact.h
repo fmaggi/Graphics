@@ -10,6 +10,7 @@ struct Contact
     Body *left, *right;
     glm::vec2 normal, minSeparation;
     struct Contact *prev, *next;
+    float normalMass;
 };
 
 struct ContactStack

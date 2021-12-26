@@ -13,32 +13,32 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, const std::string& title
     TextureID tex = Texture::Create("test.png");
     orthoCamera({0, 0, 0}, width, height);
 
-    Physics::Init(-700);
+    Physics::Init(-9.8);
 
     EntityID e = ECS::CreateEntity();
     player = e;
 
     TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
-    t.translation = {-300,-100,0};
-    t.scale = {100, 100};
+    t.translation = {0,5,0};
+    t.scale = {1, 1};
     t.rotation = 0;
 
     SpriteComponent& s = ECS::AddComponent<SpriteComponent>(e);
     s.color = {0.86, 0.3, 0.2, 1.0};
     s.texIndex = tex;
 
-    Body* body = Physics::CreateBody(t.translation, BodyType::Dynamic);
+    Body* body = Physics::CreateBody(glm::vec2(t.translation), 10, BodyType::Dynamic);
     s_b = body;
-    Physics::AddAABB(body, 50, 50);
+    Physics::AddAABB(body, 0.5f, 0.5f);
 
-    body->velocity = {300, 0};
+    body->velocity = {0, 0};
     body->userFlags = 1;
 
     PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(e);
     p.physicsBody = body;
 
-    Body* floor = Physics::CreateBody({0, -300, 0}, BodyType::Static);
-    Physics::AddAABB(floor, 400, 25);
+    Body* floor = Physics::CreateBody({0, -3}, 0, BodyType::Static);
+    Physics::AddAABB(floor, 10, 0.25f);
 
     EventSystem<KeyPressed>::RegisterListener(this, &MyLayer::OnEvent<KeyPressed>);
     EventSystem<MouseMoved>::RegisterListener(this, &MyLayer::OnEvent<MouseMoved>);
@@ -50,7 +50,7 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, const std::string& title
 void MyLayer::OnUpdate(float ts)
 {
     if (Input::IsKeyPressed(KEY_SPACE))
-        s_b->impulse.y += 4000;
+        s_b->force.y += 4000;
     Physics::Step(ts);
 
     auto view = ECS::View<PhysicsComponent, TransformComponent>();
@@ -59,7 +59,7 @@ void MyLayer::OnUpdate(float ts)
     {
         auto [pc, tc] = view.Get(e);
         Body* b = (Body*) pc.physicsBody;
-        tc.translation = b->translation;
+        tc.translation = glm::vec3(b->translation, tc.translation.z);
     }
 }
 
@@ -73,7 +73,7 @@ void MyLayer::OnRender()
         Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, s.texIndex);
     }
 
-    Renderer::PushQuad({0, -300, 0}, 0, {800, 50}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
+    Renderer::PushQuad({0, -3, 0}, 0, {20, 0.5f}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
 }
 
 void MyLayer::OnRenderUI()

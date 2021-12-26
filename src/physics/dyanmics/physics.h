@@ -14,7 +14,8 @@ typedef void (*CollisionCallback)(Body* self, Body* other);
 struct BodyDef
 {
     BodyType type = BodyType::Static;
-    glm::vec3 translation{0,0,0};
+    glm::vec2 translation{0,0};
+    float mass;
 
     uint32_t userFlags = 0;
     void* userData = nullptr;
@@ -27,7 +28,7 @@ public:
     static void Init(float gravity);
     static void Step(float ts);
 
-    static Body* CreateBody(glm::vec3 translation, BodyType type, CollisionCallback callback=0, void* userData=0, uint32_t userFlags=0);
+    static Body* CreateBody(glm::vec2 translation, float mass, BodyType type, CollisionCallback callback=0, void* userData=0, uint32_t userFlags=0);
     static Body* CreateBody(BodyDef& body);
 
     static Body* QueryContact(Body* body);
