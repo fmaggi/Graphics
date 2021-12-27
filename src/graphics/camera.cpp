@@ -1,7 +1,6 @@
 #include "camera.h"
 
 #include "log/log.h"
-#include "game/input.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 

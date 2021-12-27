@@ -18,8 +18,9 @@ public:
 
     static void Emit(EventType event)
     {
-        for (Listener handler : m_handlers)
+        for (auto it = m_handlers.rbegin(); it != m_handlers.rend(); ++it)
         {
+            const auto& handler = *it;
             if (handler.callback(event))
                 return;
         }
@@ -28,7 +29,7 @@ public:
     template<typename L>
     static void RegisterListener(L* listener, MemberFunc<L> OnEvent)
     {
-        auto callback = [=](EventType event){
+        auto callback = [listener, OnEvent](EventType event){
             return (listener->*OnEvent)(event);
         };
 

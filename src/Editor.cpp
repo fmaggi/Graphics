@@ -1,12 +1,9 @@
-#include "game/game.h"
+#include "core/Application.h"
 #include "runtimeScript.h"
 
-GameDef Game::GetGameDef()
+int main()
 {
-    GameDef def {
-        .baseLayer = new MyLayer,
-        .width = 1200, .height = 800,
-        .title = "Engine"
-    };
-    return def;
+    auto app = Application::Create(1280, 720, "Test");
+    app->LoadModule(new MyLayer);
+    app->Run();
 }

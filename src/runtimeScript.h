@@ -3,7 +3,7 @@
 
 #include "engine.h"
 
-class MyLayer : public Layer
+class MyLayer : public Module
 {
 public:
     void OnAttach(uint32_t width, uint32_t height, const std::string& title) override;

@@ -13,8 +13,8 @@
 #include "graphics/texture.h"
 #include "graphics/camera.h"
 
-#include "game/layer.h"
-#include "game/input.h"
+#include "core/module.h"
+#include "core/input.h"
 
 #include "imgui.h"
 #include "imgui_internal.h"
