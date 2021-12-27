@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <string>
+#include <vector>
 #include "module.h"
 
 class Application
@@ -23,7 +24,7 @@ private:
     void OnRender();
 
     bool isRunning = false;
-    Module* mainModule = nullptr;
+    std::vector<Module*> m_modules;
     float m_width, m_height;
     std::string name;
 };

@@ -6,7 +6,7 @@
 class MyLayer : public Module
 {
 public:
-    void OnAttach(uint32_t width, uint32_t height, const std::string& title) override;
+    void OnAttach(uint32_t width, uint32_t height) override;
     void OnDetach() override;
 
     void OnUpdate(float ts) override;

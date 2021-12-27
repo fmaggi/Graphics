@@ -6,7 +6,7 @@
 class Module
 {
 public:
-    virtual void OnAttach(uint32_t width, uint32_t height, const std::string& title) = 0;
+    virtual void OnAttach(uint32_t width, uint32_t height) = 0;
     virtual void OnDetach() = 0;
 
     virtual void OnUpdate(float ts) = 0;

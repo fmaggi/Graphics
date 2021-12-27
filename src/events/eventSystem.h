@@ -18,6 +18,12 @@ public:
 
     static void Emit(EventType event)
     {
+        for (auto& handler : m_handlers_priority)
+        {
+            if (handler.callback(event))
+                return;
+        }
+
         for (auto it = m_handlers.rbegin(); it != m_handlers.rend(); ++it)
         {
             const auto& handler = *it;
@@ -44,6 +50,13 @@ public:
         m_handlers.push_back(l);
     }
 
+    // keep priority functions to a bare minimum. They are not removable for the moment
+    static void RegisterPriorityFunction(Func OnEvent)
+    {
+        Listener l(OnEvent, nullptr);
+        m_handlers_priority.push_back(l);
+    }
+
     template<typename L>
     static void UnregisterListener(L* listener)
     {
@@ -59,6 +72,7 @@ public:
 
 private:
     static inline std::vector<Listener> m_handlers{};
+    static inline std::vector<Listener> m_handlers_priority{};
 };
 
 #endif

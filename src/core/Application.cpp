@@ -21,8 +21,8 @@
 
 Application* Application::Create(uint32_t width, uint32_t height, const std::string& name)
 {
-    static bool created = false;
-    if (created)
+    static Application* app = nullptr;
+    if (app)
     {
         LOG_WARN("Application already created!");
         return nullptr;
@@ -30,7 +30,7 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
 
     LOG_INFO_DEBUG("DEBUG");
 
-    Application* app = new Application;
+    app = new Application;
     app->m_width = width;
     app->m_height = height;
     app->name = name;
@@ -40,9 +40,8 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
     ECS::Init();
 
     app->isRunning = 1;
-    LOG_TRACE("All done!");
 
-    EventSystem<WindowClose>::RegisterFunction([app](WindowClose event){
+    EventSystem<WindowClose>::RegisterFunction([](WindowClose event){
         app->isRunning = 0;
         return true;
     });
@@ -52,34 +51,39 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
         return false;
     });
 
+    ImGuiLayer::Init(width, height);
+
     return app;
 }
 
 void Application::LoadModule(Module* module)
 {
-    mainModule = module;
-    mainModule->OnAttach(m_width, m_height, name);
-
-    ImGuiLayer::Init(m_width, m_height);
+    m_modules.push_back(module);
+    module->OnAttach(m_width, m_height);
 }
 
 void Application::OnUpdate(float ts)
 {
-   mainModule->OnUpdate(ts);
+    for (auto module : m_modules)
+       module->OnUpdate(ts);
 }
 
 void Application::OnRender()
 {
-    mainModule->OnRender();
+    for (auto module : m_modules)
+       module->OnRender();
 
     ImGuiLayer::Begin();
-    mainModule->OnRenderUI();
+
+    for (auto module : m_modules)
+       module->OnRenderUI();
+
     ImGuiLayer::End();
 }
 
 void Application::Run()
 {
-    ASSERT(mainModule, "Module not setup!");
+    ASSERT(m_modules.size() > 0, "Module not setup!");
 
     while (isRunning)
     {
@@ -93,7 +97,9 @@ void Application::Run()
 
 void Application::Destroy()
 {
-    mainModule->OnDetach();
+    for (auto module : m_modules)
+       module->OnDetach();
+
     Renderer::Destroy();
     ECS::Destroy();
     Window::Destroy();
