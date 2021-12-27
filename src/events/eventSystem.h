@@ -18,12 +18,6 @@ public:
 
     static void Emit(EventType event)
     {
-        for (auto& handler : m_handlers_priority)
-        {
-            if (handler.callback(event))
-                return;
-        }
-
         for (auto it = m_handlers.rbegin(); it != m_handlers.rend(); ++it)
         {
             const auto& handler = *it;
@@ -39,22 +33,20 @@ public:
             return (listener->*OnEvent)(event);
         };
 
-        Listener l(callback, listener);
-        m_handlers.push_back(l);
+        m_handlers.emplace(m_handlers.begin() + m_insertIndex, callback, listener);
+        m_insertIndex++;
     }
 
     // functions which are not member functions are not removable. std::function does not support opertator== and I cannot find which function I want to remove
     static void RegisterFunction(Func OnEvent)
     {
-        Listener l(OnEvent, nullptr);
-        m_handlers.push_back(l);
+        m_handlers.emplace(m_handlers.begin() + m_insertIndex, OnEvent, nullptr);
+        m_insertIndex++;
     }
 
-    // keep priority functions to a bare minimum. They are not removable for the moment
     static void RegisterPriorityFunction(Func OnEvent)
     {
-        Listener l(OnEvent, nullptr);
-        m_handlers_priority.push_back(l);
+        m_handlers.emplace_back(OnEvent, nullptr);
     }
 
     template<typename L>
@@ -72,7 +64,7 @@ public:
 
 private:
     static inline std::vector<Listener> m_handlers{};
-    static inline std::vector<Listener> m_handlers_priority{};
+    static inline unsigned int m_insertIndex = 0;
 };
 
 #endif

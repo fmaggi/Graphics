@@ -39,10 +39,10 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
     Renderer::Init();
     ECS::Init();
 
-    app->isRunning = 1;
+    app->isRunning = true;
 
     EventSystem<WindowClose>::RegisterFunction([](WindowClose event){
-        app->isRunning = 0;
+        app->isRunning = false;
         return true;
     });
 
@@ -70,6 +70,9 @@ void Application::OnUpdate(float ts)
 
 void Application::OnRender()
 {
+    Renderer::SetClearColor(0.2, 0.2, 0.2, 1.0f);
+    Renderer::PrepareRenderer();
+
     for (auto module : m_modules)
        module->OnRender();
 

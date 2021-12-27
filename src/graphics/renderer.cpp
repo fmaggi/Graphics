@@ -159,15 +159,13 @@ namespace Renderer {
         r.quadCount = 0;
     }
 
-    void StartFrame(Camera* camera)
+    void StartFrame(Camera& camera)
     {
-        PrepareRenderer();
         r.renderCalls = 0;
-        r.camera = camera;
+        r.camera = &camera;
 
-
-        shaderSetUniformMat4(s.shaders[basicShader], camera->GetViewProjMatrix(), "projview");
-        shaderSetUniformMat4(s.shaders[uvShader],    camera->GetViewProjMatrix(), "projview");
+        shaderSetUniformMat4(s.shaders[basicShader], camera.GetViewProjMatrix(), "projview");
+        shaderSetUniformMat4(s.shaders[uvShader],    camera.GetViewProjMatrix(), "projview");
 
         // shaderSet bind the shade Restore the shader to the original one
         useShader(s.currentShader);
@@ -248,13 +246,17 @@ namespace Renderer {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void SetViewport(int width, int height)
     {
         glViewport(0, 0, width, height);
+    }
+
+    void SetClearColor(float r, float g, float b, float a)
+    {
+        glClearColor(r, g, b, a);
     }
 
 };

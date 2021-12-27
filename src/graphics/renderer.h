@@ -16,18 +16,20 @@ enum ShaderType
 
 namespace Renderer {
 
-   void Init();
-   void Destroy();
+    void Init();
+    void Destroy();
 
-   void PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec4 color, TextureID textureID = NoTexture);
+    void PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec4 color, TextureID textureID = NoTexture);
 
-   void StartFrame(Camera* camera);
-   void EndFrame();
+    void StartFrame(Camera& camera);
+    void EndFrame();
 
-   void ChangeMode();
-   void SetShader(enum ShaderType type);
+    void ChangeMode();
+    void SetShader(enum ShaderType type);
 
-   void SetViewport(int width, int height);
+    void SetViewport(int width, int height);
+    void SetClearColor(float r, float g, float b, float a);
+    void PrepareRenderer();
 
 };
 

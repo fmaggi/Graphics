@@ -1,5 +1,7 @@
 #include "runtimeScript.h"
 
+#include "ImGui/imguiLayer.h"
+
 #include <sstream>
 
 Body* s_b;
@@ -51,7 +53,7 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height)
 void MyLayer::OnUpdate(float ts)
 {
     if (Input::IsKeyPressed(KEY_SPACE))
-        s_b->force.y += 4000;
+        s_b->force.y += 400;
     Physics::Step(ts);
 
     auto view = ECS::View<PhysicsComponent, TransformComponent>();
@@ -66,18 +68,18 @@ void MyLayer::OnUpdate(float ts)
 
 void MyLayer::OnRender()
 {
-    Renderer::StartFrame(&camera);
-
-    auto view = ECS::View<SpriteComponent, TransformComponent>();
-
-    for (EntityID e : view)
+    Renderer::StartFrame(camera);
     {
-        auto [s, t] = view.Get(e);
-        Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, s.texIndex);
+        auto view = ECS::View<SpriteComponent, TransformComponent>();
+
+        for (EntityID e : view)
+        {
+            auto [s, t] = view.Get(e);
+            Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, s.texIndex);
+        }
+
+        Renderer::PushQuad({0, -3, 0}, 0, {20, 0.5f}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
     }
-
-    Renderer::PushQuad({0, -3, 0}, 0, {20, 0.5f}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
-
     Renderer::EndFrame();
 }
 
@@ -197,7 +199,7 @@ bool MyLayer::OnEvent<KeyPressed>(KeyPressed event)
         case KEY_C:
             if (event.mods & MOD_CONTROL)
             {
-                EventSystem<WindowClose>::Emit(WindowClose{});
+                EventSystem<WindowClose>::Emit({});
                 return true;
             }
             return false;
