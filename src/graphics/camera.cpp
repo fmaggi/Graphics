@@ -5,53 +5,50 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
-Camera camera;
-
-void orthoCamera(glm::vec3 translation, float width, float height)
+Camera::Camera()
 {
-    camera.zoom = 100.0f;
-    camera.translation = translation;
-    camera.width = width;
-    camera.height = height;
-    calculateViewProj();
+    m_zoom = 100.0f;
+    m_translation = {0.0f, 0.0f, 0.0f};
+    m_width = 0;
+    m_height = 0;
+    m_viewproj = glm::mat4(1.0f);
 }
 
-void moveCamera(float xoffset, float yoffset)
+void Camera::Move(glm::vec2 offset)
 {
-    camera.translation.x += xoffset / camera.zoom;
-    camera.translation.y += yoffset / camera.zoom;
-    calculateViewProj();
+    m_translation += glm::vec3(offset, 0.0f) / m_zoom;
+    CalculateViewProj();
 }
 
-void calculateViewProj()
+void Camera::CalculateViewProj()
 {
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), camera.translation);
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_translation);
     glm::mat4 view = glm::inverse(transform);
-    glm::mat4 proj = glm::ortho(-(camera.width/2) / camera.zoom, (camera.width/2) / camera.zoom, -(camera.height/2) / camera.zoom, (camera.height/2) / camera.zoom);
-    camera.projview = proj * view;
+    glm::mat4 proj = glm::ortho(-(m_width/2) / m_zoom, (m_width/2) / m_zoom, -(m_height/2) / m_zoom, (m_height/2) / m_zoom);
+    m_viewproj = proj * view;
 }
 
-void updateZoom(float zoom)
+void Camera::Zoom(float zoom)
 {
-    camera.zoom += zoom;
-    camera.zoom = std::max(0.25f, camera.zoom);
-    calculateViewProj();
+    m_zoom += zoom;
+    m_zoom = std::max(0.25f, m_zoom);
+    CalculateViewProj();
 }
 
-void updateProjectionMatrix(float width, float height)
+void Camera::SetWidthAndHeight(float width, float height)
 {
-    camera.width = width;
-    camera.height = height;
-    calculateViewProj();
+    m_width = width;
+    m_height = height;
+    CalculateViewProj();
 }
 
-bool inFrustum(float left, float right, float top, float bottom)
+bool Camera::InFrustum(float left, float right, float top, float bottom)
 {
-    bool sideToSide = right > (-camera.width/2) / camera.zoom + camera.translation.x
-                    && left < (camera.width/2) / camera.zoom + camera.translation.x;
+    bool sideToSide = right > (-m_width/2) / m_zoom + m_translation.x
+                    && left < (m_width/2) / m_zoom + m_translation.x;
 
-    bool topToBottom = top > (-camera.height/2) / camera.zoom + camera.translation.y
-                    && bottom < (camera.height/2) / camera.zoom  + camera.translation.y;
+    bool topToBottom = top > (-m_height/2) / m_zoom + m_translation.y
+                    && bottom < (m_height/2) / m_zoom  + m_translation.y;
 
     return sideToSide && topToBottom;
 }

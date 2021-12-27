@@ -19,6 +19,7 @@ private:
     TextureID t;
     EntityID player;
     bool renderUI = true;
+    Camera camera;
 };
 
 template<>

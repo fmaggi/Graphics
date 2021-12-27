@@ -10,8 +10,9 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, const std::string& title
     m_height = height;
     m_title = title;
 
+    camera.SetWidthAndHeight(width, height);
+
     TextureID tex = Texture::Create("test.png");
-    orthoCamera({0, 0, 0}, width, height);
 
     Physics::Init(-9.8);
 
@@ -65,6 +66,8 @@ void MyLayer::OnUpdate(float ts)
 
 void MyLayer::OnRender()
 {
+    Renderer::StartFrame(&camera);
+
     auto view = ECS::View<SpriteComponent, TransformComponent>();
 
     for (EntityID e : view)
@@ -74,6 +77,8 @@ void MyLayer::OnRender()
     }
 
     Renderer::PushQuad({0, -3, 0}, 0, {20, 0.5f}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
+
+    Renderer::EndFrame();
 }
 
 void MyLayer::OnRenderUI()
@@ -215,7 +220,7 @@ bool MyLayer::OnEvent<MouseMoved>(MouseMoved event)
 {
     if (Input::IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
     {
-        moveCamera(-event.dx, -event.dy);
+        camera.Move({-event.dx, -event.dy});
         return true;
     }
     return false;
@@ -224,7 +229,7 @@ bool MyLayer::OnEvent<MouseMoved>(MouseMoved event)
 template<>
 bool MyLayer::OnEvent<MouseScrolled>(MouseScrolled event)
 {
-    updateZoom(event.dy);
+    camera.Zoom(event.dy);
     return true;
 }
 
@@ -233,6 +238,7 @@ bool MyLayer::OnEvent<WindowResize>(WindowResize event)
 {
     m_width = event.width;
     m_height = event.height;
+    camera.SetWidthAndHeight(event.width, event.height);
     return false;
 }
 

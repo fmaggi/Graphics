@@ -59,6 +59,8 @@ namespace Renderer {
 
         Texture* textures[16] = {0};
         uint32_t currentTexture = 0;
+
+        Camera* camera = nullptr;
     };
 
     static rendererData r;
@@ -157,13 +159,15 @@ namespace Renderer {
         r.quadCount = 0;
     }
 
-    void StartFrame(Camera& camera)
+    void StartFrame(Camera* camera)
     {
         PrepareRenderer();
         r.renderCalls = 0;
+        r.camera = camera;
 
-        shaderSetUniformMat4(s.shaders[basicShader], camera.projview, "projview");
-        shaderSetUniformMat4(s.shaders[uvShader],    camera.projview, "projview");
+
+        shaderSetUniformMat4(s.shaders[basicShader], camera->GetViewProjMatrix(), "projview");
+        shaderSetUniformMat4(s.shaders[uvShader],    camera->GetViewProjMatrix(), "projview");
 
         // shaderSet bind the shade Restore the shader to the original one
         useShader(s.currentShader);
@@ -198,7 +202,7 @@ namespace Renderer {
         float top = translation.y + scale.y/2;
         float bottom = translation.y - scale.y/2;
 
-        if (!inFrustum(left, right, top, bottom))
+        if (!r.camera->InFrustum(left, right, top, bottom))
         {
             return;
         }

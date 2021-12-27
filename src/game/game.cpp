@@ -49,7 +49,6 @@ bool SetUp(GameDef def)
 
     EventSystem<WindowResize>::RegisterFunction([](WindowResize event){
         Renderer::SetViewport(event.width, event.height);
-        updateProjectionMatrix(event.width, event.height);
         return false;
     });
 
@@ -63,9 +62,7 @@ void OnUpdate(float ts)
 
 void OnRender()
 {
-    Renderer::StartFrame(camera);
     s_baseLayer->OnRender();
-    Renderer::EndFrame();
 
     ImGuiLayer::Begin();
     s_baseLayer->OnRenderUI();

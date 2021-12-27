@@ -3,22 +3,25 @@
 
 #include "glm/glm.hpp"
 
-struct Camera
+class Camera
 {
-    glm::vec3 translation;
-    glm::mat4 projview;
-    float width, height, zoom;
+public:
+    Camera();
+
+    void Move(glm::vec2 offset);
+    void Zoom(float zoom);
+    void SetWidthAndHeight(float width, float height);
+
+    bool InFrustum(float left, float right, float top, float bottom);
+
+    inline const glm::mat4& GetViewProjMatrix() const { return m_viewproj; }
+
+private:
+    void CalculateViewProj();
+
+    glm::vec3 m_translation;
+    glm::mat4 m_viewproj;
+    float m_width, m_height, m_zoom;
 };
-
-extern Camera camera;
-
-bool inFrustum(float left, float right, float top, float bottom);
-
-void orthoCamera(glm::vec3 pos, float width, float height);
-
-void moveCamera(float xpos, float ypos);
-void updateZoom(float zoom);
-void calculateViewProj();
-void updateProjectionMatrix(float width, float height);
 
 #endif
