@@ -47,7 +47,6 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height)
     EventSystem<MouseMoved>::RegisterListener(this, &MyLayer::OnEvent<MouseMoved>);
     EventSystem<MouseScrolled>::RegisterListener(this, &MyLayer::OnEvent<MouseScrolled>);
     EventSystem<WindowResize>::RegisterListener(this, &MyLayer::OnEvent<WindowResize>);
-
 }
 
 void MyLayer::OnUpdate(float ts)

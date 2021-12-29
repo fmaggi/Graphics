@@ -40,17 +40,8 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
 
     app->isRunning = true;
 
-    EventSystem<WindowClose>::RegisterFunction([](WindowClose event){
-        app->isRunning = false;
-        return true;
-    });
-
-    EventSystem<WindowResize>::RegisterFunction([](WindowResize event){
-        app->m_width = event.width;
-        app->m_height = event.height;
-        Renderer::SetViewport(event.width, event.height);
-        return false;
-    });
+    EventSystem<WindowClose>::RegisterListener(app, &Application::OnWindowClose);
+    EventSystem<WindowResize>::RegisterListener(app, &Application::OnWindowResize);
 
     ImGuiLayer::Init(width, height);
 
@@ -108,4 +99,18 @@ void Application::Destroy()
     ECS::Destroy();
     Window::Destroy();
     LOG_TRACE("Good bye");
+}
+
+bool Application::OnWindowClose(WindowClose event)
+{
+    isRunning = false;
+    return true;
+}
+
+bool Application::OnWindowResize(WindowResize event)
+{
+    m_width = event.width;
+    m_height = event.height;
+    Renderer::SetViewport(event.width, event.height);
+    return false;
 }
