@@ -56,6 +56,7 @@ public:
         {
             return;
         }
+
         void* handler_casted = static_cast<void*>(listener);
         auto it = std::find_if(m_handlers.begin(), m_handlers.end(), [h = handler_casted](Listener l){ return l.handler == h; });
         if (it != m_handlers.end())

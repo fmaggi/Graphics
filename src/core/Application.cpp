@@ -21,7 +21,6 @@
 
 Application* Application::Create(uint32_t width, uint32_t height, const std::string& name)
 {
-    static Application* app = nullptr;
     if (app)
     {
         LOG_WARN("Application already created!");
@@ -47,6 +46,8 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
     });
 
     EventSystem<WindowResize>::RegisterFunction([](WindowResize event){
+        app->m_width = event.width;
+        app->m_height = event.height;
         Renderer::SetViewport(event.width, event.height);
         return false;
     });
