@@ -19,7 +19,7 @@
 #include "log/log.h"
 #include "log/timer.h"
 
-basic_event_system* EventSystem::internal_e::event_system = nullptr;
+basic_event_system* EventSystem::internal::event_system = nullptr;
 
 Application* Application::Create(uint32_t width, uint32_t height, const std::string& name)
 {
@@ -39,9 +39,9 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
     Window::Create(width, height, name);
     Renderer::Init();
     ECS::Init();
-    EventSystem::internal_e::event_system = new basic_event_system;
 
     app->isRunning = true;
+    EventSystem::internal::event_system = new basic_event_system;
 
     EventSystem::RegisterListener<&Application::OnWindowClose>(app);
     EventSystem::RegisterListener<&Application::OnWindowResize>(app);
@@ -101,7 +101,7 @@ void Application::Destroy()
     Renderer::Destroy();
     ECS::Destroy();
     Window::Destroy();
-    delete EventSystem::internal_e::event_system;
+    delete EventSystem::internal::event_system;
     LOG_TRACE("Good bye");
 }
 
