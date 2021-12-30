@@ -46,7 +46,7 @@ public:
     {
         using E = func_traits<decltype(OnEvent)>::Event;
         event_handler<E>* handler = GetHandler<E>();
-        handler->template RegisterListener<OnEvent>();
+        handler->template RegisterListenerPriotity<OnEvent>();
     }
 
     template<auto OnEvent, typename L>
