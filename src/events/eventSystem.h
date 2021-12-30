@@ -2,6 +2,7 @@
 #define INTERFACE_EVENT_SYSTEM
 
 #include "basic_event_system.h"
+#include "event.h"
 
 #include "log/log.h"
 
