@@ -6,18 +6,20 @@
 #include "glm/glm.hpp"
 
 #include "events/event.h"
-#include "events/eventSystem.h"
 
 #include "graphics/window.h"
 #include "graphics/renderer.h"
 #include "graphics/camera.h"
 
-#include "entity/ECS.h"
+#include "ECS/ECS.h"
 
 #include "ImGui/imguiLayer.h"
 
 #include "log/log.h"
 #include "log/timer.h"
+
+static float t = 0;
+static long int frames = 0;
 
 basic_event_system* EventSystem::internal::event_system = nullptr;
 
@@ -40,8 +42,10 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
     Renderer::Init();
     ECS::Init();
 
+    EventSystem::internal::event_system = &app->event_system;
+
     app->isRunning = true;
-    EventSystem::internal::event_system = new basic_event_system;
+
 
     EventSystem::RegisterListener<&Application::OnWindowClose>(app);
     EventSystem::RegisterListener<&Application::OnWindowResize>(app);
@@ -101,7 +105,6 @@ void Application::Destroy()
     Renderer::Destroy();
     ECS::Destroy();
     Window::Destroy();
-    delete EventSystem::internal::event_system;
     LOG_TRACE("Good bye");
 }
 

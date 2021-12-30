@@ -6,12 +6,12 @@
 
 #include "log/log.h"
 
-#define TYPE_ASSERT_PASS(type) template<> bool constexpr assertType<type>() { return true; }
+#define TYPE_ASSERT_PASS(type) template<> constexpr bool assertType<type>() { return true; }
 
 // Event system singleton interface
 // I'm not sure about this. However, before I had a bunch of std::vectors allocated statically. Now I have a single pointer
 // engine events are limited to those seven types.
-// to support more event types you need to instantiate your own game event system
+// To support more event types you need to instantiate your own game event system
 namespace EventSystem {
 
     namespace internal {
@@ -19,7 +19,7 @@ namespace EventSystem {
     };
 
     template<typename E>
-    bool constexpr assertType()
+    constexpr bool assertType()
     {
         return false;
     }

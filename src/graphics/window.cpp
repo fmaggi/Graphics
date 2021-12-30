@@ -82,7 +82,7 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     EventSystem::Emit(e);
 }
 
-void Create(uint32_t width, uint32_t height, const std::string& title)
+void Create(uint32_t width, uint32_t height, const std::string& title, bool vsync)
 {
     if (window.created)
     {
@@ -116,9 +116,7 @@ void Create(uint32_t width, uint32_t height, const std::string& title)
 
     glfwSetWindowUserPointer(g_window, &window);
 
-#ifdef DEBUG
-    glfwSwapInterval(0);
-#endif
+    glfwSwapInterval(vsync);
 
     window.g_window = g_window;
 

@@ -1,7 +1,5 @@
 #include "runtimeScript.h"
 
-#include "ImGui/imguiLayer.h"
-
 #include <sstream>
 
 Body* s_b;

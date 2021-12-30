@@ -1,7 +1,7 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#include "entity/ECS.h"
+#include "ECS/ECS.h"
 
 #include "events/event.h"
 #include "events/eventSystem.h"
