@@ -31,6 +31,13 @@ static bool MouseCallback(E event)
     return io.WantCaptureMouse;
 }
 
+static bool WindowResizeCallback(WindowResize event)
+{
+    s_width = event.width;
+    s_height = event.height;
+    return false;
+}
+
 void ImGuiLayer::Init(float width, float height)
 {
     LOG_TRACE("Initializing ImGui");
@@ -65,18 +72,14 @@ void ImGuiLayer::Init(float width, float height)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    EventSystem<WindowResize>::RegisterListenerPriotity([](WindowResize event){
-        s_width = event.width;
-        s_height = event.height;
-        return false;
-    });
+    EventSystem::RegisterListenerPriotity<WindowResizeCallback>();
 
-    EventSystem<KeyPressed>::RegisterListenerPriotity(KeyboardCallback<KeyPressed>);
-    EventSystem<KeyReleased>::RegisterListenerPriotity(KeyboardCallback<KeyReleased>);
-    EventSystem<MouseButtonPressed>::RegisterListenerPriotity(MouseCallback<MouseButtonPressed>);
-    EventSystem<MouseButtonReleased>::RegisterListenerPriotity(MouseCallback<MouseButtonReleased>);
-    EventSystem<MouseMoved>::RegisterListenerPriotity(MouseCallback<MouseMoved>);
-    EventSystem<MouseScrolled>::RegisterListenerPriotity(MouseCallback<MouseScrolled>);
+    EventSystem::RegisterListenerPriotity<KeyboardCallback<KeyPressed>>();
+    EventSystem::RegisterListenerPriotity<KeyboardCallback<KeyReleased>>();
+    EventSystem::RegisterListenerPriotity<MouseCallback<MouseButtonPressed>>();
+    EventSystem::RegisterListenerPriotity<MouseCallback<MouseButtonReleased>>();
+    EventSystem::RegisterListenerPriotity<MouseCallback<MouseMoved>>();
+    EventSystem::RegisterListenerPriotity<MouseCallback<MouseScrolled>>();
 }
 
 void ImGuiLayer::Destroy()

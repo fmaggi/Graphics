@@ -27,13 +27,13 @@ void errorCallback(int error, const char* description)
 
 void windowCloseCallback(GLFWwindow* window)
 {
-    EventSystem<WindowClose>::Emit(WindowClose{});
+    EventSystem::Emit(WindowClose{});
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height)
 {
     WindowResize e(width, height);
-    EventSystem<WindowResize>::Emit(e);
+    EventSystem::Emit(e);
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -43,19 +43,19 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         case GLFW_PRESS:
         {
             KeyPressed e(key, scancode, mods, false);
-            EventSystem<KeyPressed>::Emit(e);
+            EventSystem::Emit(e);
             return;
         }
         case GLFW_RELEASE:
         {
             KeyReleased e(key, scancode, mods);
-            EventSystem<KeyReleased>::Emit(e);
+            EventSystem::Emit(e);
             return;
         }
         case GLFW_REPEAT:
         {
             KeyPressed e(key, scancode, mods, true);
-            EventSystem<KeyPressed>::Emit(e);
+            EventSystem::Emit(e);
             return;
         }
     }
@@ -73,13 +73,13 @@ void mouseMovedCallback(GLFWwindow* window, double x, double y)
     lastY = y;
 
     MouseMoved e(offsetX, -offsetY);
-    EventSystem<MouseMoved>::Emit(e);
+    EventSystem::Emit(e);
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     MouseScrolled e(xoffset, yoffset);
-    EventSystem<MouseScrolled>::Emit(e);
+    EventSystem::Emit(e);
 }
 
 void Create(uint32_t width, uint32_t height, const std::string& title)

@@ -1,19 +1,22 @@
 #ifndef EVENT_L_H
 #define EVENT_L_H
 
-#include <functional>
-
-template<typename EventType>
+template<typename E>
 struct EventListener
 {
-    using EventCallback = std::function<bool (EventType)>;
+    using EventCallback = bool (*)(void*, E);
 
     EventListener(EventCallback callback_, void* handler_)
         : callback(callback_), handler(handler_)
     {}
 
+    bool operator()(E event)
+    {
+        return callback(handler, event);
+    }
+
     EventCallback callback;
-    const void* handler;
+    void* handler;
 };
 
 #endif
