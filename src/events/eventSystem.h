@@ -4,6 +4,7 @@
 #include "basic_event_system.h"
 
 // Event system singleton interface
+// I'm not sure about this. However, before I had a bunch of std::vectors allocated statically. Now I have a single pointer
 namespace EventSystem {
 
     namespace internal_e {

@@ -6,12 +6,6 @@
 
 Body* s_b;
 
-static bool Test(KeyPressed event)
-{
-    LOG_INFO("hello %c", event.key);
-    return false;
-}
-
 void MyLayer::OnAttach(uint32_t width, uint32_t height)
 {
     m_width = width;

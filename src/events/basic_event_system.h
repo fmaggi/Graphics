@@ -3,6 +3,8 @@
 
 #include "event_handler.h"
 
+#include <unordered_map>
+
 class basic_event_system
 {
 public:
@@ -74,6 +76,19 @@ private:
         basic_event_handler* b = m_handlers[index];
         event_handler<E>* handlers = static_cast<event_handler<E>*>(b);
         return handlers;
+    }
+
+    template<auto Fn, typename E>
+    static bool wrap(void* instance, E event)
+    {
+        return Fn(event);
+    }
+
+    template<auto Fn, typename L, typename E>
+    static bool wrapMember(void* instance, E event)
+    {
+        L* l_instance = static_cast<L*>(instance);
+        return (l_instance->*Fn)(event);
     }
 
     std::vector<basic_event_handler*> m_handlers{};
