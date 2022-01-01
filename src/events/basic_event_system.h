@@ -26,7 +26,7 @@ public:
     template<auto OnEvent, typename L>
     void RegisterListener(L* listener)
     {
-        using E = func_traits<decltype(OnEvent)>::Event;
+        using E = typename func_traits<decltype(OnEvent)>::Event;
 
         event_handler<E>* handler = GetHandler<E>();
         handler->template RegisterListener<OnEvent, L>(listener);
@@ -35,7 +35,7 @@ public:
     template<auto OnEvent>
     void RegisterListener()
     {
-        using E = func_traits<decltype(OnEvent)>::Event;
+        using E = typename func_traits<decltype(OnEvent)>::Event;
 
         event_handler<E>* handler = GetHandler<E>();
         handler->template RegisterListener<OnEvent>();
@@ -44,7 +44,7 @@ public:
     template<auto OnEvent>
     void RegisterListenerPriotity()
     {
-        using E = func_traits<decltype(OnEvent)>::Event;
+        using E = typename func_traits<decltype(OnEvent)>::Event;
         event_handler<E>* handler = GetHandler<E>();
         handler->template RegisterListenerPriotity<OnEvent>();
     }
@@ -52,7 +52,7 @@ public:
     template<auto OnEvent, typename L>
     void UnregisterListener(L* instance)
     {
-        using E = func_traits<decltype(OnEvent)>::Event;
+        using E = typename func_traits<decltype(OnEvent)>::Event;
         event_handler<E>* handler = GetHandler<E>();
         handler->template UnregisterListener<OnEvent>(instance);
     }
@@ -60,7 +60,7 @@ public:
     template<auto OnEvent>
     void UnregisterListener()
     {
-        using E = func_traits<decltype(OnEvent)>::Event;
+        using E = typename func_traits<decltype(OnEvent)>::Event;
         event_handler<E>* handler = GetHandler<E>();
         handler->template UnregisterListener<OnEvent>();
     }

@@ -7,24 +7,6 @@
 
 #include <tuple>
 
-// this could probably be optimized
-template<typename Fn, typename Tuple, size_t index>
-static constexpr bool apply_impl(Fn func, Tuple& tuple)
-{
-    auto& element = std::get<index>(tuple);
-    if constexpr (index)
-        return func(element) && apply_impl<Fn, Tuple, index-1>(func, tuple);
-    else
-        return func(element);
-}
-
-template<typename Fn, typename Tuple>
-static constexpr bool apply(Fn func, Tuple& tuple)
-{
-    constexpr size_t size = std::tuple_size<Tuple>{};
-    return apply_impl<Fn, Tuple, size-1>(func, tuple);
-}
-
 template<typename... Ts>
 class IteratorView
 {
@@ -37,7 +19,7 @@ public:
     }
     bool is_valid() const
     {
-        return (m_ptr == m_end) || apply([e = *m_ptr](auto& storage){ return storage->Has(e); }, *m_pools);
+        return (m_ptr == m_end) || std::apply([e = *m_ptr](auto*... storage){ return (storage->Has(e) && ...); }, *m_pools);
     }
 
     IteratorView& operator++()
@@ -134,7 +116,7 @@ template<typename T>
 class view<T>
 {
 public:
-    using Iterator = std::vector<T>::iterator;
+    using Iterator = typename std::vector<T>::iterator;
 public:
     view(ComponentStorage<T>* baseComponent)
         : m_baseComponent(baseComponent)

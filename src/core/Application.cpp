@@ -5,7 +5,7 @@
 
 #include "glm/glm.hpp"
 
-#include "events/event.h"
+#include "events/eventSystem.h"
 
 #include "graphics/window.h"
 #include "graphics/renderer.h"

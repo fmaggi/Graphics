@@ -43,7 +43,7 @@ namespace EventSystem {
     template<auto OnEvent, typename L>
     void RegisterListener(L* listener)
     {
-        using Event = func_traits<decltype(OnEvent)>::Event;
+        using Event = typename func_traits<decltype(OnEvent)>::Event;
         static_assert(assertType<Event>(), "Invalid Event type!");
 
         internal::event_system->template RegisterListener<OnEvent, L>(listener);
@@ -52,7 +52,7 @@ namespace EventSystem {
     template<auto OnEvent>
     void RegisterListener()
     {
-        using Event = func_traits<decltype(OnEvent)>::Event;
+        using Event = typename func_traits<decltype(OnEvent)>::Event;
         static_assert(assertType<Event>(), "Invalid Event type!");
 
         internal::event_system->template RegisterListener<OnEvent>();
@@ -61,7 +61,7 @@ namespace EventSystem {
     template<auto OnEvent>
     void RegisterListenerPriotity()
     {
-        using Event = func_traits<decltype(OnEvent)>::Event;
+        using Event = typename func_traits<decltype(OnEvent)>::Event;
         static_assert(assertType<Event>(), "Invalid Event type!");
 
         internal::event_system->template RegisterListenerPriotity<OnEvent>();
@@ -70,7 +70,7 @@ namespace EventSystem {
     template<auto OnEvent, typename L>
     void UnregisterListener(L* instance)
     {
-        using Event = func_traits<decltype(OnEvent)>::Event;
+        using Event = typename func_traits<decltype(OnEvent)>::Event;
         static_assert(assertType<Event>(), "Invalid Event type!");
 
         internal::event_system->template UnregisterListener<OnEvent, L>(instance);
@@ -79,7 +79,7 @@ namespace EventSystem {
     template<auto OnEvent>
     void UnregisterListener()
     {
-        using Event = func_traits<decltype(OnEvent)>::Event;
+        using Event = typename func_traits<decltype(OnEvent)>::Event;
         static_assert(assertType<Event>(), "Invalid Event type!");
 
         internal::event_system->template UnregisterListener<OnEvent>();

@@ -6,14 +6,15 @@
 #include "stdlib.h"
 #include "string.h"
 
-typedef struct shader
-{
-    uint32_t vertexID;
-    uint32_t fragmentID;
-    uint32_t programID;
-} Shader;
+#include <tuple>
 
-uint32_t compileShader(const char* path, uint32_t type)
+ShaderProps defaultShaderProps = {
+    .blend = BlendFunc::Aplha_Src_OneMinusSrc,
+    .depthTest = true,
+    .fill = FillMode::Fill
+};
+
+static uint32_t compileShader(const char* path, uint32_t type)
 {
     char buf[256] = {0};
     strcpy(buf, "res/shaders/");
@@ -56,7 +57,7 @@ uint32_t compileShader(const char* path, uint32_t type)
     return shader;
 }
 
-uint32_t linkShader(uint32_t vertexID, uint32_t fragmentID)
+static uint32_t linkShader(uint32_t vertexID, uint32_t fragmentID)
 {
     uint32_t shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexID);
@@ -76,51 +77,82 @@ uint32_t linkShader(uint32_t vertexID, uint32_t fragmentID)
     return shaderProgram;
 }
 
-Shader* createShader(const char* vertexPath, const char* fragmentPath)
+static auto constexpr GetGLBlendFunc(BlendFunc func)
 {
-    Shader* shader = (Shader*) malloc(sizeof(Shader));
-    if(shader == NULL)
-        LOG_WARN("Memory allocation failed: shader");
-    shader->vertexID = compileShader(vertexPath, GL_VERTEX_SHADER);
-    shader->fragmentID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
-    shader->programID = linkShader(shader->vertexID, shader->fragmentID);
-    return shader;
+    switch (func)
+    {
+    case BlendFunc::None: return std::tuple(0, 0);
+    case BlendFunc::Aplha_Src_OneMinusSrc: return std::tuple(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    LOG_WARN("Invalid Blend function!");
+    return std::tuple(0, 0);
 }
 
-void destroyShader(Shader* shader)
+static auto constexpr GetGLFillMode(FillMode mode)
 {
-    glDeleteShader(shader->vertexID);
-    glDeleteShader(shader->fragmentID);
-    glDeleteProgram(shader->fragmentID);
-    free(shader);
+    switch (mode)
+    {
+    case FillMode::Fill: return GL_FILL;
+    case FillMode::Line: return GL_LINE;
+    }
+
+    LOG_WARN("Invalid Blend function!");
+    return GL_FILL;
 }
 
-int getUniformLocation(Shader* shader, const char* name)
+Shader::Shader(const char* vertexPath, const char* fragmentPath, ShaderProps props)
 {
-    int location = glGetUniformLocation(shader->programID, name);
+    m_shaderProps = props;
+    m_VertexID = compileShader(vertexPath, GL_VERTEX_SHADER);
+    m_FragmentID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
+    m_ProgramID = linkShader(m_VertexID, m_FragmentID);
+}
+
+Shader::~Shader()
+{
+    glDeleteShader(m_VertexID);
+    glDeleteShader(m_FragmentID);
+    glDeleteProgram(m_ProgramID);
+}
+
+void Shader::Bind()
+{
+    glUseProgram(m_ProgramID);
+
+    if (m_shaderProps.depthTest)
+        glEnable(GL_DEPTH_TEST);
+
+    if (m_shaderProps.blend != BlendFunc::None)
+    {
+        glEnable(GL_BLEND);
+        auto [first, second] = GetGLBlendFunc(m_shaderProps.blend);
+        glBlendFunc( first, second );
+    }
+
+    glPolygonMode(GL_FRONT_AND_BACK, GetGLFillMode(m_shaderProps.fill));
+}
+
+int32_t Shader::GetUniformLocation(const char* name)
+{
+    int location = glGetUniformLocation(m_ProgramID, name);
     if (location == -1)
         LOG_WARN("Invalid uniform: %s", name);
     return location;
 }
 
-void shaderSetUniformMat4(Shader* shader, glm::mat4 mat, const char* name)
+void Shader::SetUniformMat4(glm::mat4 mat, const char* name)
 {
-    glUseProgram(shader->programID);
-    int location = getUniformLocation(shader, name);
+    glUseProgram(m_ProgramID);
+    int location = GetUniformLocation(name);
     glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&mat[0][0]);
 }
 
-
-void shaderSetTextureSlot(Shader* shader,const char* name)
+void Shader::SetIntArray(const char* name, size_t size)
 {
-    glUseProgram(shader->programID);
-    int location = getUniformLocation(shader, name);
+    glUseProgram(m_ProgramID);
+    int location = GetUniformLocation(name);
     GLint slots[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
     glUniform1iv(location, 16, slots);
-}
-
-void useShader(Shader* shader)
-{
-    glUseProgram(shader->programID);
 }
 

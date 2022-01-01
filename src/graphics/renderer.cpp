@@ -70,10 +70,10 @@ namespace Renderer {
     void Init()
     {
         LOG_TRACE("Starting the renderer");
-        s.shaders[basicShader] = createShader("vertex.glsl", "fragment.glsl");
+        s.shaders[basicShader] = new Shader("vertex.glsl", "fragment.glsl");
 
-        s.shaders[uvShader]    = createShader("texV.glsl", "texF.glsl");
-        shaderSetTextureSlot(s.shaders[uvShader], "u_texture");
+        s.shaders[uvShader]    = new Shader("texV.glsl", "texF.glsl");
+        s.shaders[uvShader]->SetIntArray("u_texture", 0);
 
         s.currentShader = s.shaders[basicShader];
         s.type = basicShader;
@@ -113,7 +113,7 @@ namespace Renderer {
         }
 
         r.ibo = new IndexBuffer(maxIndices, indices);
-        delete indices;
+        delete[] indices;
 
         v.vertexPositions[0] = {-0.5f, -0.5f}; // bottom left
         v.vertexPositions[1] = { 0.5f, -0.5f}; // bottom right
@@ -128,8 +128,8 @@ namespace Renderer {
 
     void Destroy()
     {
-        destroyShader(s.shaders[basicShader]);
-        destroyShader(s.shaders[uvShader]);
+        delete s.shaders[basicShader];
+        delete s.shaders[uvShader];
         delete r.vao;
         delete r.vbo;
         delete r.ibo;
@@ -164,11 +164,11 @@ namespace Renderer {
         r.renderCalls = 0;
         r.camera = &camera;
 
-        shaderSetUniformMat4(s.shaders[basicShader], camera.GetViewProjMatrix(), "projview");
-        shaderSetUniformMat4(s.shaders[uvShader],    camera.GetViewProjMatrix(), "projview");
+        s.shaders[basicShader]->SetUniformMat4(camera.GetViewProjMatrix(), "projview");
+        s.shaders[uvShader]->SetUniformMat4(camera.GetViewProjMatrix(), "projview");
 
         // shaderSet bind the shade Restore the shader to the original one
-        useShader(s.currentShader);
+        s.currentShader->Bind();
 
         StartBatch();
     }
@@ -238,14 +238,11 @@ namespace Renderer {
         s.currentShader = s.shaders[type];
         s.type = type;
 
-        useShader(s.currentShader);
+        s.currentShader->Bind();
     }
 
     void PrepareRenderer()
     {
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 

@@ -1,10 +1,10 @@
-CC = g++
+CC = clang++
 TARGET_PREFIX = graphicsExe
 
 DEPS = dependencies
 
-CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/glm/ -I$(DEPS)/stb -I$(DEPS)/imgui -Isrc -D_FORTIFY_SOURCE=2 -std=c++20
-LFLAGS = $(DEPS)/glad/glad.o $(DEPS)/GLFW/src/libglfw3.a $(DEPS)/glm/glm/libglm_static.a $(DEPS)/imgui/libImguiStatic.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
+CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/glm/ -I$(DEPS)/stb -I$(DEPS)/imgui -Isrc -D_FORTIFY_SOURCE=2 -std=c++20 -O2
+LFLAGS = $(DEPS)/glad/glad.o $(DEPS)/GLFW/src/libglfw3.a $(DEPS)/imgui/libImguiStatic.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
 
 SRC  = $(wildcard src/*.cpp) $(wildcard src/**/*.cpp) $(wildcard src/**/**/*.cpp) $(wildcard src/**/**/**/*.cpp)
 
@@ -19,7 +19,6 @@ ifeq ($(config), debug)
 	TARGET = $(TARGET_PREFIX)_debug
 	OBJ = obj/debug
 else
-	CFLAGS +=
 
 	TARGET = $(TARGET_PREFIX)
 	OBJ = obj/release
