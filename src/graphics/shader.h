@@ -30,6 +30,10 @@ struct ShaderProps
 
 extern ShaderProps defaultShaderProps;
 
+// This shader class probably does a little to much, but whatevs
+// Shaders (obviously)
+// general pipeline stuff like wether depth test is enabled
+// material stuff
 struct Shader
 {
     Shader(const char* vertexPath, const char* fragmentPath, ShaderProps props = defaultShaderProps);
@@ -45,7 +49,6 @@ struct Shader
     UniformInfo GetUniformInfo(const std::string& name);
     template<typename T>
     void SetData(const std::string& uniformName, const T& value);
-
 
     ShaderProps m_shaderProps;
 
