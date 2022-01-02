@@ -213,9 +213,18 @@ void Shader::CommitUniforms()
                 glUniform4f(info.location, data.x, data.y, data.z, data.w);
                 break;
             }
-            // I can do this with mats because the gl function asks for a pointer.
             case ShaderDataType::Mat2:
+            {
+                uint8_t* data = uniforms.data.ReadBytes(info.bytesOffset);
+                glUniformMatrix2fv(info.location, 1, GL_FALSE, (float*)data);
+                break;
+            }
             case ShaderDataType::Mat3:
+            {
+                uint8_t* data = uniforms.data.ReadBytes(info.bytesOffset);
+                glUniformMatrix3fv(info.location, 1, GL_FALSE, (float*)data);
+                break;
+            }
             case ShaderDataType::Mat4:
             {
                 uint8_t* data = uniforms.data.ReadBytes(info.bytesOffset);
