@@ -55,4 +55,31 @@ static inline void log_vec3(char* name, glm::vec3 v)
     LOG_INFO("%s: %.2f %.2f %.2f", name, v.x, v.y, v.z);
 }
 
+static inline void log_mat4(char* name, const glm::mat4& m)
+{
+    LOG_INFO("%s", name);
+    for (int i = 0; i < 4; i++)
+    {
+        printf("\t\t%.2f %.2f %.2f %.2f\n", m[i][0], m[i][1], m[i][2], m[i][3]);
+    }
+}
+
+static inline void log_mat3(char* name, const glm::mat3& m)
+{
+    LOG_INFO("%s", name);
+    for (int i = 0; i < 3; i++)
+    {
+        printf("\t\t%.2f %.2f %.2f\n", m[i][0], m[i][1], m[i][2]);
+    }
+}
+
+static inline void log_mat2(char* name, const glm::mat2& m)
+{
+    LOG_INFO("%s", name);
+    for (int i = 0; i < 2; i++)
+    {
+        printf("\t\t%.2f %.2ff\n", m[i][0], m[i][1]);
+    }
+}
+
 #endif

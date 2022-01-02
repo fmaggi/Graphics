@@ -5,8 +5,6 @@
 #include "shader.h"
 #include "texture.h"
 #include "gfx.h"
-#include "material.h"
-
 #include "log/log.h"
 
 #include "stdlib.h"
@@ -72,9 +70,7 @@ namespace Renderer {
     {
         LOG_TRACE("Starting the renderer");
         s.shaders[basicShader] = new Shader("vertex.glsl", "fragment.glsl");
-
         s.shaders[uvShader]    = new Shader("texV.glsl", "texF.glsl");
-        s.shaders[uvShader]->SetIntArray("u_texture", 0);
 
         s.currentShader = s.shaders[basicShader];
         s.type = basicShader;
@@ -165,13 +161,13 @@ namespace Renderer {
         r.renderCalls = 0;
         r.camera = &camera;
 
-        s.shaders[basicShader]->SetUniformMat4(camera.GetViewProjMatrix(), "projview");
-        s.shaders[uvShader]->SetUniformMat4(camera.GetViewProjMatrix(), "projview");
+        s.shaders[basicShader]->SetData("projview", camera.GetViewProjMatrix());
+        s.shaders[uvShader]->SetData("projview", camera.GetViewProjMatrix());
 
-        // shaderSet bind the shade Restore the shader to the original one
         s.currentShader->Bind();
 
         StartBatch();
+
     }
 
     void Flush()

@@ -4,9 +4,10 @@
 #include "glm/glm.hpp"
 #include <string>
 
-#include <unordered_map>
+#include "shaderUniforms.h"
 
-#include "shaderData.h"
+#include <iostream>
+#include "log/log.h"
 
 enum class BlendFunc
 {
@@ -37,23 +38,42 @@ struct Shader
     void Bind();
     void Unbind();
 
-    void SetUniformMat4(glm::mat4, const char* name);
-    void SetIntArray(const char* name, size_t size);
+    void CommitUniforms();
 
     int32_t GetUniformLocation(const char* name);
 
     UniformInfo GetUniformInfo(const std::string& name);
+    template<typename T>
+    void SetData(const std::string& uniformName, const T& value);
 
-    // return how many uniforms in shader
-    uint32_t Tell();
 
     ShaderProps m_shaderProps;
-private:
+
     uint32_t m_ProgramID;
     uint32_t m_VertexID;
     uint32_t m_FragmentID;
-
-    std::unordered_map<std::string, UniformInfo> m_uniforms{};
+private:
+    void introspection();
+    Uniforms uniforms;
 };
+
+template<typename T>
+void Shader::SetData(const std::string& uniformName, const T& value)
+{
+    UniformInfo info = GetUniformInfo(uniformName);
+    if (info.location == -1)
+    {
+        LOG_INFO("Invalid uniform name!");
+        return;
+    }
+
+    if (info.type != shaderDataType<T>())
+    {
+        LOG_INFO("Invalid data type!");
+        return;
+    }
+
+    uniforms.data.Write(value, info.bytesOffset);
+}
 
 #endif // SHADER_H

@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in float rotation;
 layout (location = 2) in vec2 scale;
@@ -20,5 +20,6 @@ void main()
     mat2 scaleMat = mat2(scale.x, 0, 0, scale.y);
     mat2 rotMat = mat2(cos(rotation), sin(rotation), -sin(rotation), cos(rotation));
     vec2 pos = aPos.xy + (scaleMat * rotMat * base);
+
     gl_Position = projview * vec4(pos, aPos.z, 1.0);
 }

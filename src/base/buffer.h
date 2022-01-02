@@ -22,23 +22,23 @@ class Buffer
     ~Buffer() { delete[] m_data; }
 
     template<typename T>
-    void Write(T& data, size_t offset)
+    void Write(const T& data, size_t offset)
     {
         size_t bytes = sizeof(T);
-        uint8_t* b_data = reinterpret_cast<uint8_t*>(&data);
+        const uint8_t* b_data = reinterpret_cast<const uint8_t*>(&data);
         memcpy(m_data + offset, b_data, bytes);
     }
 
     template<typename T>
-    void Write(T* data, uint32_t count, size_t offset)
+    void Write(const T* data, uint32_t count, size_t offset)
     {
         size_t bytes = sizeof(T) * count;
-        uint8_t* b_data = reinterpret_cast<uint8_t*>(data);
+        const uint8_t* b_data = reinterpret_cast<const uint8_t*>(data);
         memcpy(m_data + offset, b_data, bytes);
     }
 
     template<typename T>
-    T& Read(size_t at)
+    T& ReadAs(size_t at)
     {
         T* data = reinterpret_cast<T*>(m_data + at);
         return *data;

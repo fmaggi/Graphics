@@ -96,8 +96,8 @@ void Create(uint32_t width, uint32_t height, const std::string& title, bool vsyn
     glfwSetErrorCallback(errorCallback);
 
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* g_window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);

@@ -19,6 +19,7 @@ enum class ShaderDataType
 // Default is invalid uniform
 struct UniformInfo
 {
+    std::string name;
     int32_t location = -1;
     ShaderDataType type = ShaderDataType::None;
     uint32_t size = 0;
@@ -27,14 +28,14 @@ struct UniformInfo
 
 size_t ShaderTypeSize(ShaderDataType type);
 
-template<typename T> constexpr ShaderDataType shaderType()  { return ShaderDataType::None;  }
+template<typename T> constexpr ShaderDataType shaderDataType()  { return ShaderDataType::None;  }
 
-template<> constexpr ShaderDataType shaderType<float>()     { return ShaderDataType::Float; }
-template<> constexpr ShaderDataType shaderType<glm::vec2>() { return ShaderDataType::Vec2;  }
-template<> constexpr ShaderDataType shaderType<glm::vec3>() { return ShaderDataType::Vec3;  }
-template<> constexpr ShaderDataType shaderType<glm::vec4>() { return ShaderDataType::Vec4;  }
-template<> constexpr ShaderDataType shaderType<glm::mat2>() { return ShaderDataType::Mat2;  }
-template<> constexpr ShaderDataType shaderType<glm::mat3>() { return ShaderDataType::Mat3;  }
-template<> constexpr ShaderDataType shaderType<glm::mat4>() { return ShaderDataType::Mat4;  }
+template<> constexpr ShaderDataType shaderDataType<float>()     { return ShaderDataType::Float; }
+template<> constexpr ShaderDataType shaderDataType<glm::vec2>() { return ShaderDataType::Vec2;  }
+template<> constexpr ShaderDataType shaderDataType<glm::vec3>() { return ShaderDataType::Vec3;  }
+template<> constexpr ShaderDataType shaderDataType<glm::vec4>() { return ShaderDataType::Vec4;  }
+template<> constexpr ShaderDataType shaderDataType<glm::mat2>() { return ShaderDataType::Mat2;  }
+template<> constexpr ShaderDataType shaderDataType<glm::mat3>() { return ShaderDataType::Mat3;  }
+template<> constexpr ShaderDataType shaderDataType<glm::mat4>() { return ShaderDataType::Mat4;  }
 
 #endif

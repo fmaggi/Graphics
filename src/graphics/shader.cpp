@@ -14,6 +14,23 @@ ShaderProps defaultShaderProps = {
     .fill = FillMode::Fill
 };
 
+ShaderDataType GLto_Types(uint32_t type)
+{
+    switch (type)
+    {
+    case GL_FLOAT:      return ShaderDataType::Float;
+    case GL_FLOAT_VEC2: return ShaderDataType::Vec2;
+    case GL_FLOAT_VEC3: return ShaderDataType::Vec3;
+    case GL_FLOAT_VEC4: return ShaderDataType::Vec4;
+    case GL_FLOAT_MAT2: return ShaderDataType::Mat2;
+    case GL_FLOAT_MAT3: return ShaderDataType::Mat3;
+    case GL_FLOAT_MAT4: return ShaderDataType::Mat4;
+    }
+
+    LOG_WARN("Invalid shader data type");
+    return ShaderDataType::None;
+}
+
 size_t ShaderTypeSize(ShaderDataType type)
 {
     switch (type)
@@ -125,6 +142,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath, ShaderProps pro
     m_VertexID = compileShader(vertexPath, GL_VERTEX_SHADER);
     m_FragmentID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
     m_ProgramID = linkShader(m_VertexID, m_FragmentID);
+    introspection();
 }
 
 Shader::~Shader()
@@ -132,6 +150,7 @@ Shader::~Shader()
     glDeleteShader(m_VertexID);
     glDeleteShader(m_FragmentID);
     glDeleteProgram(m_ProgramID);
+    delete[] uniforms.info;
 }
 
 void Shader::Bind()
@@ -149,6 +168,7 @@ void Shader::Bind()
     }
 
     glPolygonMode(GL_FRONT_AND_BACK, GetGLFillMode(m_shaderProps.fill));
+    CommitUniforms();
 }
 
 void Shader::Unbind()
@@ -156,6 +176,55 @@ void Shader::Unbind()
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     glUseProgram(0);
+}
+
+void Shader::CommitUniforms()
+{
+    for (int i = 0; i < uniforms.count; i++)
+    {
+        UniformInfo& info = uniforms.info[i];
+
+        switch (info.type)
+        {
+            case ShaderDataType::None:
+                break;
+
+            case ShaderDataType::Float:
+            {
+                float data = uniforms.data.ReadAs<float>(info.bytesOffset);
+                glUniform1f(info.location, data);
+                break;
+            }
+            case ShaderDataType::Vec2:
+            {
+                glm::vec2 data = uniforms.data.ReadAs<glm::vec2>(info.bytesOffset);
+                glUniform2f(info.location, data.x, data.y);
+                break;
+            }
+            case ShaderDataType::Vec3:
+            {
+                glm::vec3 data = uniforms.data.ReadAs<glm::vec3>(info.bytesOffset);
+                glUniform3f(info.location, data.x, data.y, data.z);
+                break;
+            }
+            case ShaderDataType::Vec4:
+            {
+                glm::vec4 data = uniforms.data.ReadAs<glm::vec4>(info.bytesOffset);
+                glUniform4f(info.location, data.x, data.y, data.z, data.w);
+                break;
+            }
+            // I can do this with mats because the gl function asks for a pointer.
+            case ShaderDataType::Mat2:
+            case ShaderDataType::Mat3:
+            case ShaderDataType::Mat4:
+            {
+                uint8_t* data = uniforms.data.ReadBytes(info.bytesOffset);
+                glUniformMatrix4fv(info.location, 1, GL_FALSE, (float*)data);
+                break;
+            }
+            default: LOG_WARN("Invalid shader data type!");
+        }
+    }
 }
 
 int32_t Shader::GetUniformLocation(const char* name)
@@ -166,32 +235,66 @@ int32_t Shader::GetUniformLocation(const char* name)
     return location;
 }
 
-void Shader::SetUniformMat4(glm::mat4 mat, const char* name)
-{
-    glUseProgram(m_ProgramID);
-    int location = GetUniformLocation(name);
-    glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&mat[0][0]);
-}
-
-void Shader::SetIntArray(const char* name, size_t size)
-{
-    glUseProgram(m_ProgramID);
-    int location = GetUniformLocation(name);
-    GLint slots[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
-    glUniform1iv(location, 16, slots);
-}
-
 UniformInfo Shader::GetUniformInfo(const std::string& name)
 {
-    auto it = m_uniforms.find(name);
-    if (it == m_uniforms.end())
-        return UniformInfo{};
-
-    return m_uniforms[name];
+    for (uint32_t i = 0; i < uniforms.count; i++)
+    {
+        if (name == uniforms.info[i].name)
+            return uniforms.info[i];
+    }
+    return UniformInfo{};
 }
 
-uint32_t Shader::Tell()
+void Shader::introspection()
 {
-    return m_uniforms.size();
+    constexpr uint8_t block = 0;
+    constexpr uint8_t t = 1;
+    constexpr uint8_t nameL = 2;
+    constexpr uint8_t loc = 3;
+
+    uint32_t current = 0;
+
+    GLint numUniforms = 0;
+    glGetProgramInterfaceiv(m_ProgramID, GL_UNIFORM, GL_ACTIVE_RESOURCES, &numUniforms);
+    uniforms.count = numUniforms;
+    uniforms.info = new UniformInfo[numUniforms];
+
+    const GLenum properties[4] = {GL_BLOCK_INDEX, GL_TYPE, GL_NAME_LENGTH, GL_LOCATION};
+
+    uint32_t uniformsTotalSize = 0;
+
+    for(int unif = 0; unif < numUniforms; ++unif)
+    {
+        GLint values[4];
+        glGetProgramResourceiv(m_ProgramID, GL_UNIFORM, unif, 4, properties, 4, NULL, values);
+        // Skip any uniforms that are in a block or samplers.
+        if(values[block] != -1 ||values[t] == GL_SAMPLER_2D)
+        {
+            uniforms.count--; // This might lead to a bit of wasted mem. But as long as there arent too many samplers or block in the shader its fine
+            continue;
+        }
+
+        int nameLength = values[nameL];
+
+        ShaderDataType type = GLto_Types(values[t]);
+        uint32_t uniformSize = ShaderTypeSize(type);
+
+        std::string nameData;
+        nameData.resize(nameLength);
+        glGetProgramResourceName(m_ProgramID, GL_UNIFORM, unif, nameLength, NULL, &nameData[0]);
+
+        UniformInfo info;
+        info.name = std::string(nameData.begin(), nameData.end() - 1);
+        info.location = values[loc],
+        info.type = type,
+        info.size = uniformSize,
+        info.bytesOffset = uniformsTotalSize;
+
+        uniforms.info[current++] = info;
+
+        uniformsTotalSize += uniformSize;
+    }
+
+    uniforms.data.Resize(uniformsTotalSize);
 }
 
