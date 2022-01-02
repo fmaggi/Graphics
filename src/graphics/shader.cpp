@@ -138,36 +138,36 @@ static auto constexpr GetGLFillMode(FillMode mode)
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath, ShaderProps props)
 {
-    m_shaderProps = props;
-    m_VertexID = compileShader(vertexPath, GL_VERTEX_SHADER);
-    m_FragmentID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
-    m_ProgramID = linkShader(m_VertexID, m_FragmentID);
+    shaderProps = props;
+    VertexID = compileShader(vertexPath, GL_VERTEX_SHADER);
+    FragmentID = compileShader(fragmentPath, GL_FRAGMENT_SHADER);
+    ProgramID = linkShader(VertexID, FragmentID);
     introspection();
 }
 
 Shader::~Shader()
 {
-    glDeleteShader(m_VertexID);
-    glDeleteShader(m_FragmentID);
-    glDeleteProgram(m_ProgramID);
+    glDeleteShader(VertexID);
+    glDeleteShader(FragmentID);
+    glDeleteProgram(ProgramID);
     delete[] uniforms.info;
 }
 
 void Shader::Bind()
 {
-    glUseProgram(m_ProgramID);
+    glUseProgram(ProgramID);
 
-    if (m_shaderProps.depthTest)
+    if (shaderProps.depthTest)
         glEnable(GL_DEPTH_TEST);
 
-    if (m_shaderProps.blend != BlendFunc::None)
+    if (shaderProps.blend != BlendFunc::None)
     {
         glEnable(GL_BLEND);
-        auto [first, second] = GetGLBlendFunc(m_shaderProps.blend);
+        auto [first, second] = GetGLBlendFunc(shaderProps.blend);
         glBlendFunc( first, second );
     }
 
-    glPolygonMode(GL_FRONT_AND_BACK, GetGLFillMode(m_shaderProps.fill));
+    glPolygonMode(GL_FRONT_AND_BACK, GetGLFillMode(shaderProps.fill));
     CommitUniforms();
 }
 
@@ -229,7 +229,7 @@ void Shader::CommitUniforms()
 
 int32_t Shader::GetUniformLocation(const char* name)
 {
-    int location = glGetUniformLocation(m_ProgramID, name);
+    int location = glGetUniformLocation(ProgramID, name);
     if (location == -1)
         LOG_WARN("Invalid uniform: %s", name);
     return location;
@@ -255,7 +255,7 @@ void Shader::introspection()
     uint32_t current = 0;
 
     GLint numUniforms = 0;
-    glGetProgramInterfaceiv(m_ProgramID, GL_UNIFORM, GL_ACTIVE_RESOURCES, &numUniforms);
+    glGetProgramInterfaceiv(ProgramID, GL_UNIFORM, GL_ACTIVE_RESOURCES, &numUniforms);
     uniforms.count = numUniforms;
     uniforms.info = new UniformInfo[numUniforms];
 
@@ -266,7 +266,7 @@ void Shader::introspection()
     for(int unif = 0; unif < numUniforms; ++unif)
     {
         GLint values[4];
-        glGetProgramResourceiv(m_ProgramID, GL_UNIFORM, unif, 4, properties, 4, NULL, values);
+        glGetProgramResourceiv(ProgramID, GL_UNIFORM, unif, 4, properties, 4, NULL, values);
         // Skip any uniforms that are in a block or samplers.
         if(values[block] != -1 ||values[t] == GL_SAMPLER_2D)
         {
@@ -281,7 +281,7 @@ void Shader::introspection()
 
         std::string nameData;
         nameData.resize(nameLength);
-        glGetProgramResourceName(m_ProgramID, GL_UNIFORM, unif, nameLength, NULL, &nameData[0]);
+        glGetProgramResourceName(ProgramID, GL_UNIFORM, unif, nameLength, NULL, &nameData[0]);
 
         UniformInfo info;
         info.name = std::string(nameData.begin(), nameData.end() - 1);

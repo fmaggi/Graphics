@@ -50,11 +50,11 @@ struct Shader
     template<typename T>
     void SetData(const std::string& uniformName, const T& value);
 
-    ShaderProps m_shaderProps;
+    ShaderProps shaderProps;
 
-    uint32_t m_ProgramID;
-    uint32_t m_VertexID;
-    uint32_t m_FragmentID;
+    uint32_t ProgramID;
+    uint32_t VertexID;
+    uint32_t FragmentID;
 private:
     void introspection();
     Uniforms uniforms;
