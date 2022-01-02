@@ -285,18 +285,21 @@ void Shader::introspection()
 
         int nameLength = values[nameL];
 
-        ShaderDataType type = GLto_Types(values[t]);
-        uint32_t uniformSize = ShaderTypeSize(type);
 
         std::string nameData;
         nameData.resize(nameLength);
         glGetProgramResourceName(ProgramID, GL_UNIFORM, unif, nameLength, NULL, &nameData[0]);
 
         UniformInfo info;
+
         info.name = std::string(nameData.begin(), nameData.end() - 1);
-        info.location = values[loc],
-        info.type = type,
-        info.size = uniformSize,
+        info.location = values[loc];
+
+        ShaderDataType type = GLto_Types(values[t]);
+        info.type = type;
+
+        uint32_t uniformSize = ShaderTypeSize(type);
+        info.size = uniformSize;
         info.bytesOffset = uniformsTotalSize;
 
         uniforms.info[current++] = info;

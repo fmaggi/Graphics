@@ -10,7 +10,7 @@
 
 struct Uniforms
 {
-    UniformInfo* info;
+    UniformInfo* info = nullptr;
     Buffer data;
     uint32_t count = 0;
 };
