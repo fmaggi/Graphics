@@ -8,6 +8,16 @@
 
 #include "base/buffer.h"
 
+// Default is invalid uniform
+struct UniformInfo
+{
+    std::string name;
+    int32_t location = -1;
+    ShaderDataType type = ShaderDataType::None;
+    uint32_t size = 0;
+    uint32_t bytesOffset = 0;
+};
+
 struct Uniforms
 {
     UniformInfo* info = nullptr;
