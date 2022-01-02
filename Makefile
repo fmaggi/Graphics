@@ -27,7 +27,7 @@ endif
 OBJECTS  = $(SRC:src/%.cpp=$(OBJ)/%.o)
 OBJDIRS = $(dir $(OBJECTS))
 
-all: $(TARGET)
+all: dirs $(TARGET)
 
 fresh: clean setup $(TARGET)
 

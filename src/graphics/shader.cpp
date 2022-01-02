@@ -14,6 +14,24 @@ ShaderProps defaultShaderProps = {
     .fill = FillMode::Fill
 };
 
+size_t ShaderTypeSize(ShaderDataType type)
+{
+    switch (type)
+    {
+    case ShaderDataType::None:  return 0;
+    case ShaderDataType::Float: return sizeof(float);
+    case ShaderDataType::Vec2:  return sizeof(float) * 2;
+    case ShaderDataType::Vec3:  return sizeof(float) * 3;
+    case ShaderDataType::Vec4:  return sizeof(float) * 4;
+    case ShaderDataType::Mat2:  return sizeof(float) * 2 * 2;
+    case ShaderDataType::Mat3:  return sizeof(float) * 3 * 3;
+    case ShaderDataType::Mat4:  return sizeof(float) * 4 * 4;
+    }
+
+    LOG_WARN("Invalid shader data type");
+    return 0;
+}
+
 static uint32_t compileShader(const char* path, uint32_t type)
 {
     char buf[256] = {0};
@@ -133,6 +151,13 @@ void Shader::Bind()
     glPolygonMode(GL_FRONT_AND_BACK, GetGLFillMode(m_shaderProps.fill));
 }
 
+void Shader::Unbind()
+{
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    glUseProgram(0);
+}
+
 int32_t Shader::GetUniformLocation(const char* name)
 {
     int location = glGetUniformLocation(m_ProgramID, name);
@@ -154,5 +179,19 @@ void Shader::SetIntArray(const char* name, size_t size)
     int location = GetUniformLocation(name);
     GLint slots[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
     glUniform1iv(location, 16, slots);
+}
+
+UniformInfo Shader::GetUniformInfo(const std::string& name)
+{
+    auto it = m_uniforms.find(name);
+    if (it == m_uniforms.end())
+        return UniformInfo{};
+
+    return m_uniforms[name];
+}
+
+uint32_t Shader::Tell()
+{
+    return m_uniforms.size();
 }
 

@@ -1,5 +1,5 @@
-#ifndef BUFFER_H
-#define BUFFER_H
+#ifndef G_BUFFER_H
+#define G_BUFFER_H
 
 #include "stdint.h"
 

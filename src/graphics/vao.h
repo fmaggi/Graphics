@@ -1,7 +1,7 @@
 #ifndef VertexArray_H
 #define VertexArray_H
 
-#include "buffer.h"
+typedef unsigned int uint32_t;
 
 class VertexArray
 {

@@ -1,10 +1,11 @@
 #include "renderer.h"
 
 #include "vao.h"
-#include "buffer.h"
+#include "graphicsBuffer.h"
 #include "shader.h"
 #include "texture.h"
 #include "gfx.h"
+#include "material.h"
 
 #include "log/log.h"
 

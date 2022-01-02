@@ -4,6 +4,10 @@
 #include "glm/glm.hpp"
 #include <string>
 
+#include <unordered_map>
+
+#include "shaderData.h"
+
 enum class BlendFunc
 {
     None = 0,
@@ -25,24 +29,31 @@ struct ShaderProps
 
 extern ShaderProps defaultShaderProps;
 
-class Shader
+struct Shader
 {
-public:
     Shader(const char* vertexPath, const char* fragmentPath, ShaderProps props = defaultShaderProps);
     ~Shader();
 
     void Bind();
+    void Unbind();
 
     void SetUniformMat4(glm::mat4, const char* name);
     void SetIntArray(const char* name, size_t size);
 
     int32_t GetUniformLocation(const char* name);
-private:
-    ShaderProps m_shaderProps;
 
+    UniformInfo GetUniformInfo(const std::string& name);
+
+    // return how many uniforms in shader
+    uint32_t Tell();
+
+    ShaderProps m_shaderProps;
+private:
     uint32_t m_ProgramID;
     uint32_t m_VertexID;
     uint32_t m_FragmentID;
+
+    std::unordered_map<std::string, UniformInfo> m_uniforms{};
 };
 
 #endif // SHADER_H

@@ -1,4 +1,4 @@
-#include "buffer.h"
+#include "graphicsBuffer.h"
 
 #include "gfx.h"
 
