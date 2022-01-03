@@ -3,6 +3,9 @@
 
 typedef unsigned int uint32_t;
 
+#include "vertexBuffer.h"
+#include "indexBuffer.h"
+
 class VertexArray
 {
 public:

@@ -1,9 +1,5 @@
 #include "renderer.h"
 
-#include "vao.h"
-#include "graphicsBuffer.h"
-#include "shader.h"
-#include "texture.h"
 #include "gfx.h"
 #include "log/log.h"
 
@@ -215,6 +211,14 @@ namespace Renderer {
         }
         r.indexCount += 6;
         r.quadCount  += 1;
+    }
+
+    void DrawIndexed(VertexArray* vao, Shader* shader, uint32_t count)
+    {
+        shader->Bind();
+        vao->Bind();
+
+        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
     }
 
     /**

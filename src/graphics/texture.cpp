@@ -27,7 +27,7 @@ TextureID Texture::Create(const std::string& name)
     t->m_slot = usedSlot++;
 
     char path[512];
-    getcwd(path, sizeof(path));
+    char* buffer = getcwd(path, sizeof(path));
     strcat(path, "/res/textures/");
     strcat(path, name.c_str());
 

@@ -1,12 +1,16 @@
 CC = clang++
-TARGET_PREFIX = graphicsExe
+LL = llvm-ar
+
+ENGINE = libEngine.a
+EDITOR = Editor
 
 DEPS = dependencies
 
 CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/glm/ -I$(DEPS)/stb -I$(DEPS)/imgui -Isrc -D_FORTIFY_SOURCE=2 -std=c++20 -O2
-LFLAGS = $(DEPS)/glad/glad.o $(DEPS)/GLFW/src/libglfw3.a $(DEPS)/imgui/libImguiStatic.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
+LFLAGS = src/$(ENGINE) $(DEPS)/glad/glad.o $(DEPS)/GLFW/src/libglfw3.a $(DEPS)/imgui/libImguiStatic.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
 
-SRC  = $(wildcard src/*.cpp) $(wildcard src/**/*.cpp) $(wildcard src/**/**/*.cpp) $(wildcard src/**/**/**/*.cpp)
+ENGINE_SRC = $(wildcard src/*.cpp) $(wildcard src/**/*.cpp) $(wildcard src/**/**/*.cpp) $(wildcard src/**/**/**/*.cpp)
+EDITOR_SRC = $(wildcard editor/*.cpp) $(wildcard editor/**/*.cpp) $(wildcard editor/**/**/*.cpp) $(wildcard editor/**/**/**/*.cpp)
 
 ifndef config
 	config=release
@@ -16,30 +20,36 @@ ifeq ($(config), debug)
 	CFLAGS += -DDEBUG -g -pg
 	LFLAGS += -pg -g
 
-	TARGET = $(TARGET_PREFIX)_debug
 	OBJ = obj/debug
 else
-
-	TARGET = $(TARGET_PREFIX)
 	OBJ = obj/release
 endif
 
-OBJECTS  = $(SRC:src/%.cpp=$(OBJ)/%.o)
-OBJDIRS = $(dir $(OBJECTS))
+ENGINE_OBJECTS  = $(ENGINE_SRC:src/%.cpp=$(OBJ)/%.o)
+EDITOR_OBJECTS  = $(EDITOR_SRC:editor/%.cpp=$(OBJ)/%.o)
+OBJDIRS = $(dir $(ENGINE_OBJECTS)) $(dir $(EDITOR_OBJECTS))
 
-all: dirs $(TARGET)
+all: dirs engine editor
 
-fresh: clean setup $(TARGET)
+fresh: clean dirs engine editor
 
 setup: dirs libs
 
-$(TARGET): $(OBJECTS)
-	@echo [EXE] $(TARGET)
-	@$(CC) -o $@  $^ $(LFLAGS)
+engine: $(ENGINE_OBJECTS)
+	@echo [LIB] $(ENGINE)
+	@$(LL) rcs src/$(ENGINE) $(ENGINE_OBJECTS)
 
 $(OBJ)/%.o: src/%.cpp
 	@echo [CC] $<
 	@$(CC) -o $@ -c $< $(CFLAGS)
+
+$(OBJ)/%.o: editor/%.cpp
+	@echo [CC] $<
+	@$(CC) -o $@ -c $< $(CFLAGS)
+
+editor: $(EDITOR_OBJECTS)
+	@echo [EXE] $(EDITOR)
+	@$(CC) -o $(EDITOR) $(EDITOR_OBJECTS) $(LFLAGS)
 
 libs:
 	@echo
@@ -61,7 +71,7 @@ dirs:
 	@mkdir -p ./$(OBJDIRS)
 
 clean:
-	@rm -rf ./obj $(TARGET)
+	@rm -rf ./obj src/$(ENGINE) $(EDITOR)
 
 run:
-	@ ./$(TARGET)
+	@ ./$(EDITOR)

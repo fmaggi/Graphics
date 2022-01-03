@@ -1,4 +1,5 @@
-#include "graphicsBuffer.h"
+#include "vertexBuffer.h"
+#include "indexBuffer.h"
 
 #include "gfx.h"
 

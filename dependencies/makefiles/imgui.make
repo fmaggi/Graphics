@@ -1,4 +1,4 @@
-CC = g++
+CC = clang++
 TARGET = libImguiStatic.a
 
 BUILD = build
@@ -13,5 +13,5 @@ all: lib
 	@$(CC) -o $@ -c $< $(CFLAGS)
 
 lib: $(OBJECTS)
-	ar -rcs $(TARGET) $(OBJECTS)
+	llvm-ar rcs $(TARGET) $(OBJECTS)
 	rm *.o

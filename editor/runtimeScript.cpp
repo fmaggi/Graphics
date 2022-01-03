@@ -119,7 +119,7 @@ void MyLayer::OnRenderUI()
     {
         std::stringstream s;
         s << "Entity " << e;
-		bool opened = UI::TreeNode((void*)e, s.str());
+		bool opened = UI::TreeNode((void*)(uint64_t)e, s.str());
 
 		if (ImGui::IsItemClicked())
         {

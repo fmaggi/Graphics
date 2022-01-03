@@ -57,7 +57,7 @@ namespace UI
         static const ImGuiTreeNodeFlags defaultTreeNodeFlags = ImGuiTreeNodeFlags_SpanAvailWidth;
         flags |= defaultTreeNodeFlags;
 
-        return ImGui::TreeNodeEx(id, flags, name.c_str());
+        return ImGui::TreeNodeEx(id, flags, "%s", name.c_str());
     }
 
 };

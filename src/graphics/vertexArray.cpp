@@ -1,4 +1,4 @@
-#include "vao.h"
+#include "vertexArray.h"
 
 #include "gfx.h"
 

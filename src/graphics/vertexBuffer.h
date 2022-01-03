@@ -1,5 +1,5 @@
-#ifndef G_BUFFER_H
-#define G_BUFFER_H
+#ifndef V_BUFFER_H
+#define V_BUFFER_H
 
 #include "stdint.h"
 
@@ -24,18 +24,6 @@ private:
     uint32_t m_stride;
     uint32_t m_index;
     uint64_t m_offset;
-};
-
-class IndexBuffer
-{
-public:
-    IndexBuffer(uint32_t count, uint32_t* data);
-    ~IndexBuffer();
-
-    void Bind();
-private:
-    uint32_t m_ID;
-    uint32_t m_vertexCount;
 };
 
 #endif
