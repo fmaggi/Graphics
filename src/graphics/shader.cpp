@@ -67,6 +67,9 @@ static uint32_t compileShader(const char* path, uint32_t type)
     rewind(srcFile);
     char* src = (char*)malloc(size * sizeof(char) + 1);
     size_t actuallyRead = fread(src, 1, size, srcFile);
+    if (actuallyRead != size)
+        return 0;
+
     fclose(srcFile);
     src[size] = 0;
 

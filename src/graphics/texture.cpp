@@ -28,6 +28,9 @@ TextureID Texture::Create(const std::string& name)
 
     char path[512];
     char* buffer = getcwd(path, sizeof(path));
+    if (!buffer)
+        return NoTexture;
+
     strcat(path, "/res/textures/");
     strcat(path, name.c_str());
 

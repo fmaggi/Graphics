@@ -3,7 +3,7 @@
 
 #include "glm/glm.hpp"
 
-class Body;
+struct Body;
 struct ContactStack;
 
 struct AABB

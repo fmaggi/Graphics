@@ -18,9 +18,6 @@
 #include "log/log.h"
 #include "log/timer.h"
 
-static float t = 0;
-static long int frames = 0;
-
 basic_event_system* EventSystem::internal::event_system = nullptr;
 
 Application* Application::Create(uint32_t width, uint32_t height, const std::string& name)

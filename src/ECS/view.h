@@ -96,8 +96,8 @@ private:
         return c;
     }
 private:
-    std::tuple<ComponentStorage<Ts>*...> m_pools;
     ComponentStorage<T>* m_baseComponent;
+    std::tuple<ComponentStorage<Ts>*...> m_pools;
 
     EntityID* m_base;
     size_t m_size;
