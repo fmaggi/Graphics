@@ -15,7 +15,7 @@ struct Camera
     void CalculateViewProj();
 
     glm::vec3 translation;
-    glm::mat4 viewproj;
+    glm::mat4 ViewProjectionMatrix;
     float width, height, zoom;
 };
 

@@ -10,7 +10,7 @@ Camera::Camera()
     translation = {0.0f, 0.0f, 0.0f};
     width = 0;
     height = 0;
-    viewproj = glm::mat4(1.0f);
+    ViewProjectionMatrix = glm::mat4(1.0f);
 }
 
 void Camera::Move(glm::vec2 offset)
@@ -24,7 +24,7 @@ void Camera::CalculateViewProj()
     glm::mat4 transform = glm::translate(glm::mat4(1.0f), translation);
     glm::mat4 view = glm::inverse(transform);
     glm::mat4 proj = glm::ortho(-(width/2) / zoom, (width/2) / zoom, -(height/2) / zoom, (height/2) / zoom);
-    viewproj = proj * view;
+    ViewProjectionMatrix = proj * view;
 }
 
 void Camera::Zoom(float zoom_)

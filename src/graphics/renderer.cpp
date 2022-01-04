@@ -157,8 +157,8 @@ namespace Renderer {
         r.renderCalls = 0;
         r.camera = &camera;
 
-        s.shaders[basicShader]->SetData("projview", camera.viewproj);
-        s.shaders[uvShader]->SetData("projview", camera.viewproj);
+        s.shaders[basicShader]->SetData("projview", camera.ViewProjectionMatrix);
+        s.shaders[uvShader]->SetData("projview", camera.ViewProjectionMatrix);
 
         s.currentShader->Bind();
 
