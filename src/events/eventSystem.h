@@ -87,4 +87,6 @@ namespace EventSystem {
 
 };
 
+#undef TYPE_ASSERT_PASS
+
 #endif

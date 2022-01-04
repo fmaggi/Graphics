@@ -24,7 +24,7 @@ float mandelbrot(vec2 coord){
     if (n > 99) return 0; // make sure center is black;
 
     n -= log2(log2(dot(z,z))); // got this from shader toy to smoother the values https://www.shadertoy.com/view/4df3Rn
-    n += 4;
+    n += 8;
 
     return n/30;
 }
