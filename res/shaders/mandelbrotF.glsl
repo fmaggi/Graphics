@@ -17,24 +17,41 @@ float mandelbrot(vec2 coord){
     float n = 0;
 	for(int i=0;i<100;i++){
 		z = squared(z) + coord;
-		if(dot(z, z) > 100*100) break;
+		if(dot(z, z) > 100*100) break; // we aleady reached infinity
         n += 1;
 	}
 
     if (n > 99) return 0; // make sure center is black;
 
-	return n/50; // This handles color intensity
+    n -= log2(log2(dot(z,z))); // got this from shader toy to smoother the values https://www.shadertoy.com/view/4df3Rn
+    n += 4;
+
+    return n/30;
 }
 
 void main()
 {
     float ar = width / height;
+    vec2 res = vec2(width, height);
 
-    vec2 uv = vec2(gl_FragCoord.xy) / zoom * 100;
+    vec2 uv = vec2(gl_FragCoord.xy);
+
+    // transpose to center an zoom;
+    uv -= res / 2;
+    uv /= zoom / 100;
+    uv += res / 2;
+
+    // [0, wh] -> [0, 1]
     uv.x = uv.x / width;
     uv.y = uv.y / height;
-    uv += -1 + pos.xy / 3;
+
+    // [0, 1] -> [-1, 1]
+    uv = -1 + uv * 2;
+
+    // apply camera pos
+    uv += pos.xy / 3;
+
     uv.x *= ar;
     float N = mandelbrot(uv);
-    FragColor = 0.1 + vec4(0.1*N, 0.6*N, N, 1);
+    FragColor = 0.1 + vec4(0.1*N, 0.6*N*N, N*0.8, 1);
 };

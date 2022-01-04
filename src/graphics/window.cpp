@@ -17,26 +17,26 @@ struct WindowInternal
     uint32_t width, height;
 };
 
-static WindowInternal window = {0, 0};
+static WindowInternal window = {0, 0, 0, 0};
 
-void errorCallback(int error, const char* description)
+static void errorCallback(int error, const char* description)
 {
     LOG_ERROR("OpenGL Error: {%i}:", error);
     LOG("  %s", description);
 }
 
-void windowCloseCallback(GLFWwindow* window)
+static void windowCloseCallback(GLFWwindow* window)
 {
     EventSystem::Emit(WindowClose{});
 }
 
-void windowResizeCallback(GLFWwindow* window, int width, int height)
+static void windowResizeCallback(GLFWwindow* window, int width, int height)
 {
     WindowResize e(width, height);
     EventSystem::Emit(e);
 }
 
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     switch (action)
     {
@@ -61,7 +61,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     }
 }
 
-void mouseMovedCallback(GLFWwindow* window, double x, double y)
+static void mouseMovedCallback(GLFWwindow* window, double x, double y)
 {
     static float lastX = 0;
     static float lastY = 0;
@@ -76,10 +76,15 @@ void mouseMovedCallback(GLFWwindow* window, double x, double y)
     EventSystem::Emit(e);
 }
 
-void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     MouseScrolled e(xoffset, yoffset);
     EventSystem::Emit(e);
+}
+
+static void windowMaximizeCallback(GLFWwindow* window, int maximized)
+{
+    glfwSetWindowAttrib(window, GLFW_DECORATED, !maximized);
 }
 
 void Create(uint32_t width, uint32_t height, const std::string& title, bool vsync)
@@ -114,6 +119,7 @@ void Create(uint32_t width, uint32_t height, const std::string& title, bool vsyn
     glfwSetScrollCallback(g_window, scrollCallback);
     glfwSetCursorPosCallback(g_window, mouseMovedCallback);
 
+    glfwSetWindowMaximizeCallback(g_window, windowMaximizeCallback);
     glfwSetWindowUserPointer(g_window, &window);
 
     glfwSwapInterval(vsync);

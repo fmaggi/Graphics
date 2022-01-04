@@ -29,8 +29,8 @@ void Camera::CalculateViewProj()
 
 void Camera::Zoom(float zoom_)
 {
-    zoom += zoom_ * 10;
-    zoom = std::max(0.25f, zoom);
+    zoom += zoom_ * zoom / 10;
+    // zoom = std::max(0.25f, zoom);
     CalculateViewProj();
 }
 
