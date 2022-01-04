@@ -6,6 +6,8 @@
 class MyLayer : public Module
 {
 public:
+    ~MyLayer() override {}
+
     void OnAttach(uint32_t width, uint32_t height) override;
     void OnDetach() override;
 

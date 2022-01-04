@@ -157,8 +157,8 @@ namespace Renderer {
         r.renderCalls = 0;
         r.camera = &camera;
 
-        s.shaders[basicShader]->SetData("projview", camera.GetViewProjMatrix());
-        s.shaders[uvShader]->SetData("projview", camera.GetViewProjMatrix());
+        s.shaders[basicShader]->SetData("projview", camera.viewproj);
+        s.shaders[uvShader]->SetData("projview", camera.viewproj);
 
         s.currentShader->Bind();
 
@@ -213,10 +213,10 @@ namespace Renderer {
         r.quadCount  += 1;
     }
 
-    void DrawIndexed(VertexArray* vao, Shader* shader, uint32_t count)
+    void DrawIndexed(VertexBuffer* vbo, Shader* shader, uint32_t count)
     {
         shader->Bind();
-        vao->Bind();
+        vbo->Bind();
 
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
     }

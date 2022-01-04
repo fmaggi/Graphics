@@ -22,7 +22,7 @@ namespace Renderer {
     void Destroy();
 
     void PushQuad(glm::vec3 translation, float rotation, glm::vec2 scale, glm::vec4 color, TextureID textureID = NoTexture);
-    void DrawIndexed(VertexArray* vao, Shader* shader, uint32_t count);
+    void DrawIndexed(VertexBuffer* vbo, Shader* shader, uint32_t count);
 
     void StartFrame(Camera& camera);
     void EndFrame();

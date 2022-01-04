@@ -66,7 +66,7 @@ void Shader::SetData(const std::string& uniformName, const T& value)
     UniformInfo info = GetUniformInfo(uniformName);
     if (info.location == -1)
     {
-        LOG_INFO("Invalid uniform name!");
+        LOG_INFO("Invalid uniform name: %s!", uniformName.c_str());
         return;
     }
 
