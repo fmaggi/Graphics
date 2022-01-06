@@ -66,8 +66,8 @@ void Application::OnUpdate(float ts)
 
 void Application::OnRender()
 {
-    Renderer::SetClearColor(0.2, 0.2, 0.2, 1.0f);
     Renderer::PrepareRenderer();
+    Renderer::SetClearColor(0.2, 0.2, 0.2, 1.0f);
 
     for (auto m : m_modules)
        m->OnRender();
