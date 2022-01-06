@@ -1,3 +1,7 @@
+# Physics branch
+
+On this branch I will do a major refactor to the physics system.
+
 # Graphics
 
 Just a little program to experiment with computer graphics using OpenGL, GLFW, and Glad.
