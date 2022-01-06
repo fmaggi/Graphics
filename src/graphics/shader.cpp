@@ -280,7 +280,7 @@ void Shader::introspection()
         GLint values[4];
         glGetProgramResourceiv(ProgramID, GL_UNIFORM, unif, 4, properties, 4, NULL, values);
         // Skip any uniforms that are in a block or samplers.
-        if(values[block] != -1 ||values[t] == GL_SAMPLER_2D)
+        if(values[block] != -1 || values[t] == GL_SAMPLER_2D)
         {
             uniforms.count--; // This might lead to a bit of wasted mem. But as long as there arent too many samplers or block in the shader its fine
             continue;

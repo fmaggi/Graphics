@@ -3,9 +3,8 @@
 
 #include "stdint.h"
 
-class VertexBuffer
+struct VertexBuffer
 {
-public:
     enum class BufferType
     {
         Static = 0, Dynamic
@@ -17,9 +16,9 @@ public:
     void PushData(uint32_t size, const void* data);
 
     void AddAttribute(uint32_t size);
+    const BufferType m_type;
 private:
     uint32_t m_ID;
-    BufferType m_type;
 
     uint32_t m_stride;
     uint32_t m_index;

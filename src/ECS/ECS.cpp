@@ -24,7 +24,7 @@ void ECS::Init()
 void ECS::Destroy()
 {
     for (auto c : registry.componentsList)
-        free(c);
+        delete c;
 }
 
 void ECS::DestroyEntity(EntityID id)

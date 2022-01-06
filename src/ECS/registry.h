@@ -32,6 +32,7 @@ struct TypeIndex
 
 struct basic_component
 {
+    virtual ~basic_component() = default;
     struct sparseObject
     {
         uint32_t packedSetID = 0;

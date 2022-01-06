@@ -5,11 +5,13 @@ EDITOR_SRC = $(wildcard editor/*.cpp) $(wildcard editor/**/*.cpp) $(wildcard edi
 EDITOR_OBJECTS  = $(EDITOR_SRC:editor/%.cpp=$(OBJ)/%.o)
 E_OBJDIRS = $(dir $(EDITOR_OBJECTS))
 
+editor: $(EDITOR)
+
 $(OBJ)/%.o: editor/%.cpp
 	@echo [CC] $<
 	@$(CC) -o $@ -c $< $(CFLAGS)
 
-editor: editor_libs $(EDITOR_OBJECTS)
+$(EDITOR): editor_libs $(EDITOR_OBJECTS)
 	@echo [EXE] $(EDITOR)
 	@$(CC) -o $(EDITOR) $(EDITOR_OBJECTS) $(LFLAGS)
 

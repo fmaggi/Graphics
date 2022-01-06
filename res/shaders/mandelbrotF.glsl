@@ -5,6 +5,7 @@ uniform float height;
 uniform float zoom;
 
 uniform vec3 pos;
+uniform vec2 base;
 
 out vec4 FragColor;
 
@@ -13,7 +14,7 @@ vec2 squared(vec2 z) {
 }
 
 float mandelbrot(vec2 coord){
-	vec2 z = vec2(0,0);
+	vec2 z = base / vec2(width, height) * 2 / zoom * 100;
     float n = 0;
 	for(int i=0;i<100;i++){
 		z = squared(z) + coord;
@@ -42,8 +43,7 @@ void main()
     uv += res / 2;
 
     // [0, wh] -> [0, 1]
-    uv.x = uv.x / width;
-    uv.y = uv.y / height;
+    uv /= res;
 
     // [0, 1] -> [-1, 1]
     uv = -1 + uv * 2;

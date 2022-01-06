@@ -4,11 +4,12 @@
 #include <cstring>
 #include <stdint.h>
 
+#include "log/log.h"
+
 // General purpose buffer. Fairly dangerous to work with but fun :)
 class Buffer
 {
-    public:
-
+public:
     Buffer() = default;
 
     Buffer(size_t size)
@@ -21,15 +22,15 @@ class Buffer
 
     ~Buffer() { delete[] m_data; }
 
-    template<typename T>
+    // Not the best to pass float for example by const &, but I dont know how to change it
+    template <typename T>
     void Write(const T& data, size_t offset)
     {
-        size_t bytes = sizeof(T);
-        const uint8_t* b_data = reinterpret_cast<const uint8_t*>(&data);
-        memcpy(m_data + offset, b_data, bytes);
+        T* b_data = reinterpret_cast<T*>(m_data + offset);
+        *b_data = data;
     }
 
-    template<typename T>
+    template <typename T>
     void Write(const T* data, uint32_t count, size_t offset)
     {
         size_t bytes = sizeof(T) * count;
@@ -37,10 +38,10 @@ class Buffer
         memcpy(m_data + offset, b_data, bytes);
     }
 
-    template<typename T>
+    template <typename T>
     T& ReadAs(size_t at)
     {
-        T* data = reinterpret_cast<T*>(m_data + at);
+        T *data = reinterpret_cast<T*>(m_data + at);
         return *data;
     }
 
@@ -65,7 +66,7 @@ class Buffer
 
 private:
     size_t m_size = 0;
-    uint8_t* m_data = nullptr;
+    uint8_t *m_data = nullptr;
 };
 
 #endif

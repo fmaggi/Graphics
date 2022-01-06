@@ -6,15 +6,13 @@ typedef unsigned int uint32_t;
 #include "vertexBuffer.h"
 #include "indexBuffer.h"
 
-class VertexArray
+struct VertexArray
 {
-public:
     VertexArray();
     ~VertexArray();
 
     void Bind();
-private:
-    uint32_t m_ID;
+    uint32_t ID;
 };
 
 #endif

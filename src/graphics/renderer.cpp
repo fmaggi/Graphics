@@ -126,7 +126,7 @@ namespace Renderer {
         delete r.vao;
         delete r.vbo;
         delete r.ibo;
-        delete v.vertices;
+        delete[] v.vertices;
 
         for (int i = 0; i < r.currentTexture; i++)
         {

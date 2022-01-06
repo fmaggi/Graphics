@@ -47,17 +47,17 @@ static inline char* getFormattedTime()
 
 #define ASSERT(x, m) if (!(x)) { LOG_ERROR((m)); exit(-1); }
 
-static inline void log_vec2(char* name, glm::vec2 v)
+static inline void log_vec2(const char* name, glm::vec2 v)
 {
     LOG_INFO("%s: %.2f %.2f", name, v.x, v.y);
 }
 
-static inline void log_vec3(char* name, glm::vec3 v)
+static inline void log_vec3(const char* name, glm::vec3 v)
 {
     LOG_INFO("%s: %.2f %.2f %.2f", name, v.x, v.y, v.z);
 }
 
-static inline void log_mat4(char* name, const glm::mat4& m)
+static inline void log_mat4(const char* name, const glm::mat4& m)
 {
     LOG_INFO("%s", name);
     for (int i = 0; i < 4; i++)
@@ -66,7 +66,7 @@ static inline void log_mat4(char* name, const glm::mat4& m)
     }
 }
 
-static inline void log_mat3(char* name, const glm::mat3& m)
+static inline void log_mat3(const char* name, const glm::mat3& m)
 {
     LOG_INFO("%s", name);
     for (int i = 0; i < 3; i++)
@@ -75,7 +75,7 @@ static inline void log_mat3(char* name, const glm::mat3& m)
     }
 }
 
-static inline void log_mat2(char* name, const glm::mat2& m)
+static inline void log_mat2(const char* name, const glm::mat2& m)
 {
     LOG_INFO("%s", name);
     for (int i = 0; i < 2; i++)

@@ -30,8 +30,10 @@ static void windowCloseCallback(GLFWwindow* window)
     EventSystem::Emit(WindowClose{});
 }
 
-static void windowResizeCallback(GLFWwindow* window, int width, int height)
+static void windowResizeCallback(GLFWwindow* g_window, int width, int height)
 {
+    window.width = width;
+    window.height = height;
     WindowResize e(width, height);
     EventSystem::Emit(e);
 }
@@ -118,8 +120,8 @@ void Create(uint32_t width, uint32_t height, const std::string& title, bool vsyn
     glfwSetKeyCallback(g_window, keyCallback);
     glfwSetScrollCallback(g_window, scrollCallback);
     glfwSetCursorPosCallback(g_window, mouseMovedCallback);
-
     glfwSetWindowMaximizeCallback(g_window, windowMaximizeCallback);
+
     glfwSetWindowUserPointer(g_window, &window);
 
     glfwSwapInterval(vsync);
@@ -164,7 +166,7 @@ void GetCursorPos(double* x, double* y)
     // Origin is at the center
     glfwGetCursorPos(window.g_window, x, y);
     *y = window.height/2 - *y;
-    *x = -window.width/2 + *x;
+    *x = - (float)window.width/2 + *x;
 }
 
 void* GetNativeWindow()

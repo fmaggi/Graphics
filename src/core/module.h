@@ -6,7 +6,7 @@
 class Module
 {
 public:
-    virtual ~Module() {}
+    virtual ~Module() = default;
 
     virtual void OnAttach(uint32_t width, uint32_t height) = 0;
     virtual void OnDetach() {};

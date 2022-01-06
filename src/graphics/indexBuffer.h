@@ -3,16 +3,16 @@
 
 #include "stdint.h"
 
-class IndexBuffer
+struct IndexBuffer
 {
-public:
     IndexBuffer(uint32_t count, uint32_t* data);
     ~IndexBuffer();
 
     void Bind();
+
+    const uint32_t vertexCount;
 private:
-    uint32_t m_ID;
-    uint32_t m_vertexCount;
+    uint32_t ID;
 };
 
 

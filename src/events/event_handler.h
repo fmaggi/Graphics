@@ -8,7 +8,9 @@
 #include "event_traits.h"
 
 // this is just so that I can store templates together
-class basic_event_handler {};
+struct basic_event_handler {
+    virtual ~basic_event_handler() = default;
+};
 
 template<typename EventType>
 class event_handler : public basic_event_handler

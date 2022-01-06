@@ -27,6 +27,7 @@ struct Mandelbrot : public Module
         EventSystem::RegisterListener<&Mandelbrot::OnMouseMoved>(this);
         EventSystem::RegisterListener<&Mandelbrot::OnMouseScrolled>(this);
         EventSystem::RegisterListener<&Mandelbrot::OnWindowResize>(this);
+        EventSystem::RegisterListener<&Mandelbrot::OnKeyPressed>(this);
     }
 
     void OnRender() override
@@ -38,6 +39,9 @@ struct Mandelbrot : public Module
         shader->SetData<float>("height", m_height);
         shader->SetData<float>("zoom", camera.zoom);
         shader->SetData("pos", camera.translation);
+
+        glm::vec2 base = Input::GetCursorPosition();
+        shader->SetData("base", base);
 
         Renderer::DrawIndexed(vbo, shader, 6);
     }
@@ -61,6 +65,25 @@ struct Mandelbrot : public Module
         m_width = event.width;
         m_height = event.height;
         return false;
+    }
+
+    bool OnKeyPressed(KeyPressed event)
+    {
+        if (event.key == KEY_R)
+        {
+            delete shader;
+            shader = new Shader("mandelbrotV.glsl", "mandelbrotF.glsl");
+            return true;
+        }
+        return false;
+    }
+
+    void OnDetach() override
+    {
+        delete shader;
+        delete vbo;
+        delete vao;
+        delete ibo;
     }
 
     Camera camera;

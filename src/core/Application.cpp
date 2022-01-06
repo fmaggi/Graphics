@@ -52,16 +52,16 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
     return app;
 }
 
-void Application::LoadModule(Module* module)
+void Application::LoadModule(Module* m)
 {
-    m_modules.push_back(module);
-    module->OnAttach(m_width, m_height);
+    m_modules.push_back(m);
+    m->OnAttach(m_width, m_height);
 }
 
 void Application::OnUpdate(float ts)
 {
-    for (auto module : m_modules)
-       module->OnUpdate(ts);
+    for (auto m : m_modules)
+       m->OnUpdate(ts);
 }
 
 void Application::OnRender()
@@ -69,13 +69,13 @@ void Application::OnRender()
     Renderer::SetClearColor(0.2, 0.2, 0.2, 1.0f);
     Renderer::PrepareRenderer();
 
-    for (auto module : m_modules)
-       module->OnRender();
+    for (auto m : m_modules)
+       m->OnRender();
 
     ImGuiLayer::Begin();
 
-    for (auto module : m_modules)
-       module->OnRenderUI();
+    for (auto m : m_modules)
+       m->OnRenderUI();
 
     ImGuiLayer::End();
 }
@@ -96,8 +96,11 @@ void Application::Run()
 
 void Application::Destroy()
 {
-    for (auto module : m_modules)
-       module->OnDetach();
+    for (auto m : m_modules)
+    {
+        m->OnDetach();
+        delete m;
+    }
 
     Renderer::Destroy();
     ECS::Destroy();

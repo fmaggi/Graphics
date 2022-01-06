@@ -17,13 +17,13 @@ static inline GLenum GetGLType(VertexBuffer::BufferType type)
 }
 
 VertexBuffer::VertexBuffer(uint32_t vertexSize, uint32_t vertexCount, BufferType type, const void* data)
+    : m_type(type)
 {
     glGenBuffers(1, &m_ID);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_ID);
     glBufferData(GL_ARRAY_BUFFER, vertexSize * vertexCount, data, GetGLType(type));
 
-    m_type = type;
     m_stride = vertexSize;
     m_offset = 0;
     m_index = 0;
@@ -55,21 +55,20 @@ void VertexBuffer::AddAttribute(uint32_t size)
 }
 
 IndexBuffer::IndexBuffer(uint32_t count, uint32_t* data)
+    : vertexCount(count)
 {
-    glGenBuffers(1, &m_ID);
+    glGenBuffers(1, &ID);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), data, GL_STATIC_DRAW);
-
-    m_vertexCount = count;
 }
 
 IndexBuffer::~IndexBuffer()
 {
-    glDeleteBuffers(1, &m_ID);
+    glDeleteBuffers(1, &ID);
 }
 
 void IndexBuffer::Bind()
 {
-    glBindBuffer(GL_ARRAY_BUFFER, m_ID);
+    glBindBuffer(GL_ARRAY_BUFFER, ID);
 }
