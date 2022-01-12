@@ -2,14 +2,15 @@
 #define LAYER_H
 
 #include <string>
+#include "events/eventSystem.h"
 
 class Module
 {
 public:
     virtual ~Module() = default;
 
-    virtual void OnAttach(uint32_t width, uint32_t height) = 0;
-    virtual void OnDetach() {};
+    virtual void OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem) = 0;
+    virtual void OnDetach(EventSystem* eventSystem) {};
 
     virtual void OnUpdate(float ts) {}
     virtual void OnRender() {}

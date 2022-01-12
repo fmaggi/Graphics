@@ -4,7 +4,7 @@
 
 Body* s_b;
 
-void MyLayer::OnAttach(uint32_t width, uint32_t height)
+void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem)
 {
     m_width = width;
     m_height = height;
@@ -41,10 +41,10 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height)
     Body* floor = Physics::CreateBody({0, -3}, 0, BodyType::Static);
     Physics::AddAABB(floor, 10, 0.25f);
 
-    EventSystem::RegisterListener<&MyLayer::OnEvent<KeyPressed>>(this);
-    EventSystem::RegisterListener<&MyLayer::OnEvent<MouseMoved>>(this);
-    EventSystem::RegisterListener<&MyLayer::OnEvent<MouseScrolled>>(this);
-    EventSystem::RegisterListener<&MyLayer::OnEvent<WindowResize>>(this);
+    eventSystem->RegisterListener<&MyLayer::OnEvent<KeyPressed>>(this);
+    eventSystem->RegisterListener<&MyLayer::OnEvent<MouseMoved>>(this);
+    eventSystem->RegisterListener<&MyLayer::OnEvent<MouseScrolled>>(this);
+    eventSystem->RegisterListener<&MyLayer::OnEvent<WindowResize>>(this);
 }
 
 void MyLayer::OnUpdate(float ts)
@@ -194,11 +194,11 @@ bool MyLayer::OnEvent<KeyPressed>(KeyPressed event)
     switch (event.key)
     {
         case KEY_C:
-            if (event.mods & MOD_CONTROL)
-            {
-                EventSystem::Emit(WindowClose{});
-                return true;
-            }
+            // if (event.mods & MOD_CONTROL)
+            // {
+            //     EventSystem::Emit(WindowClose{});
+            //     return true;
+            // }
             return false;
 
         case KEY_U:
@@ -241,6 +241,6 @@ bool MyLayer::OnEvent<WindowResize>(WindowResize event)
     return false;
 }
 
-void MyLayer::OnDetach()
+void MyLayer::OnDetach(EventSystem* eventSystem)
 {
 }

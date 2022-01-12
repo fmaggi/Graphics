@@ -1,92 +1,99 @@
-#ifndef INTERFACE_EVENT_SYSTEM
-#define INTERFACE_EVENT_SYSTEM
+#ifndef EVENT_SYSTEM_H
+#define EVENT_SYSTEM_H
 
-#include "basic_event_system.h"
-#include "event.h"
+#include "event_handler.h"
 
-#include "log/log.h"
+#include <unordered_map>
 
-#define TYPE_ASSERT_PASS(type) template<> constexpr bool assertType<type>() { return true; }
+class EventSystem
+{
+public:
 
-// Event system singleton interface
-// I'm not sure about this. However, before I had a bunch of std::vectors allocated statically. Now I have a single pointer
-// engine events are limited to those seven types.
-// To support more event types you need to instantiate your own game event system
-namespace EventSystem {
-
-    namespace internal {
-        extern basic_event_system* event_system;
-    };
-
-    template<typename E>
-    constexpr bool assertType()
+    EventSystem() = default;
+    ~EventSystem()
     {
-        return false;
+        for (basic_event_handler* h : m_handlers)
+            delete h;
     }
-
-    TYPE_ASSERT_PASS(WindowClose);
-    TYPE_ASSERT_PASS(WindowResize);
-    TYPE_ASSERT_PASS(KeyPressed);
-    TYPE_ASSERT_PASS(KeyReleased);
-    TYPE_ASSERT_PASS(MouseButtonPressed);
-    TYPE_ASSERT_PASS(MouseButtonReleased);
-    TYPE_ASSERT_PASS(MouseMoved);
-    TYPE_ASSERT_PASS(MouseScrolled);
 
     template<typename E>
     void Emit(E event)
     {
-        static_assert(assertType<E>(), "Invalid Event type!");
-        internal::event_system->Emit(event);
+        event_handler<E>* handler = GetHandler<E>();
+        handler->Emit(event);
     }
 
     template<auto OnEvent, typename L>
     void RegisterListener(L* listener)
     {
-        using Event = typename func_traits<decltype(OnEvent)>::Event;
-        static_assert(assertType<Event>(), "Invalid Event type!");
+        using E = typename func_traits<decltype(OnEvent)>::Event;
 
-        internal::event_system->template RegisterListener<OnEvent, L>(listener);
+        event_handler<E>* handler = GetHandler<E>();
+        handler->template RegisterListener<OnEvent, L>(listener);
     }
 
     template<auto OnEvent>
     void RegisterListener()
     {
-        using Event = typename func_traits<decltype(OnEvent)>::Event;
-        static_assert(assertType<Event>(), "Invalid Event type!");
+        using E = typename func_traits<decltype(OnEvent)>::Event;
 
-        internal::event_system->template RegisterListener<OnEvent>();
+        event_handler<E>* handler = GetHandler<E>();
+        handler->template RegisterListener<OnEvent>();
     }
 
     template<auto OnEvent>
     void RegisterListenerPriotity()
     {
-        using Event = typename func_traits<decltype(OnEvent)>::Event;
-        static_assert(assertType<Event>(), "Invalid Event type!");
-
-        internal::event_system->template RegisterListenerPriotity<OnEvent>();
+        using E = typename func_traits<decltype(OnEvent)>::Event;
+        event_handler<E>* handler = GetHandler<E>();
+        handler->template RegisterListenerPriotity<OnEvent>();
     }
 
     template<auto OnEvent, typename L>
     void UnregisterListener(L* instance)
     {
-        using Event = typename func_traits<decltype(OnEvent)>::Event;
-        static_assert(assertType<Event>(), "Invalid Event type!");
-
-        internal::event_system->template UnregisterListener<OnEvent, L>(instance);
+        using E = typename func_traits<decltype(OnEvent)>::Event;
+        event_handler<E>* handler = GetHandler<E>();
+        handler->template UnregisterListener<OnEvent>(instance);
     }
 
     template<auto OnEvent>
     void UnregisterListener()
     {
-        using Event = typename func_traits<decltype(OnEvent)>::Event;
-        static_assert(assertType<Event>(), "Invalid Event type!");
-
-        internal::event_system->template UnregisterListener<OnEvent>();
+        using E = typename func_traits<decltype(OnEvent)>::Event;
+        event_handler<E>* handler = GetHandler<E>();
+        handler->template UnregisterListener<OnEvent>();
     }
 
-};
+private:
+    template<typename E>
+    event_handler<E>* GetHandler()
+    {
+        uint32_t index = EventIndex<E>::value();
+        if (index >= m_handlers.size()) {
+            m_handlers.resize(index + 1);
+            m_handlers[index] = new event_handler<E>;
+        }
 
-#undef TYPE_ASSERT_PASS
+        basic_event_handler* b = m_handlers[index];
+        event_handler<E>* handlers = static_cast<event_handler<E>*>(b);
+        return handlers;
+    }
+
+    template<auto Fn, typename E>
+    static bool wrap(void* instance, E event)
+    {
+        return Fn(event);
+    }
+
+    template<auto Fn, typename L, typename E>
+    static bool wrapMember(void* instance, E event)
+    {
+        L* l_instance = static_cast<L*>(instance);
+        return (l_instance->*Fn)(event);
+    }
+
+    std::vector<basic_event_handler*> m_handlers{};
+};
 
 #endif

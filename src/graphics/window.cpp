@@ -15,6 +15,7 @@ struct WindowInternal
     GLFWwindow* g_window;
     bool created;
     uint32_t width, height;
+    EventSystem* eventSystem;
 };
 
 static WindowInternal window = {0, 0, 0, 0};
@@ -27,37 +28,42 @@ static void errorCallback(int error, const char* description)
 
 static void windowCloseCallback(GLFWwindow* window)
 {
-    EventSystem::Emit(WindowClose{});
+    WindowInternal* w = (WindowInternal*) glfwGetWindowUserPointer(window);
+    w->eventSystem->Emit(WindowClose{});
 }
 
-static void windowResizeCallback(GLFWwindow* g_window, int width, int height)
+static void windowResizeCallback(GLFWwindow* window, int width, int height)
 {
-    window.width = width;
-    window.height = height;
+    WindowInternal* w = (WindowInternal*) glfwGetWindowUserPointer(window);
+
+    w->width = width;
+    w->height = height;
     WindowResize e(width, height);
-    EventSystem::Emit(e);
+    w->eventSystem->Emit(e);
 }
 
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    WindowInternal* w = (WindowInternal*) glfwGetWindowUserPointer(window);
+
     switch (action)
     {
         case GLFW_PRESS:
         {
             KeyPressed e(key, scancode, mods, false);
-            EventSystem::Emit(e);
+            w->eventSystem->Emit(e);
             return;
         }
         case GLFW_RELEASE:
         {
             KeyReleased e(key, scancode, mods);
-            EventSystem::Emit(e);
+            w->eventSystem->Emit(e);
             return;
         }
         case GLFW_REPEAT:
         {
             KeyPressed e(key, scancode, mods, true);
-            EventSystem::Emit(e);
+            w->eventSystem->Emit(e);
             return;
         }
     }
@@ -65,6 +71,8 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 static void mouseMovedCallback(GLFWwindow* window, double x, double y)
 {
+    WindowInternal* w = (WindowInternal*) glfwGetWindowUserPointer(window);
+
     static float lastX = 0;
     static float lastY = 0;
 
@@ -75,13 +83,15 @@ static void mouseMovedCallback(GLFWwindow* window, double x, double y)
     lastY = y;
 
     MouseMoved e(offsetX, -offsetY);
-    EventSystem::Emit(e);
+    w->eventSystem->Emit(e);
 }
 
 static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    WindowInternal* w = (WindowInternal*) glfwGetWindowUserPointer(window);
+
     MouseScrolled e(xoffset, yoffset);
-    EventSystem::Emit(e);
+    w->eventSystem->Emit(e);
 }
 
 static void windowMaximizeCallback(GLFWwindow* window, int maximized)
@@ -89,7 +99,7 @@ static void windowMaximizeCallback(GLFWwindow* window, int maximized)
     glfwSetWindowAttrib(window, GLFW_DECORATED, !maximized);
 }
 
-void Create(uint32_t width, uint32_t height, const std::string& title, bool vsync)
+void Create(uint32_t width, uint32_t height, const std::string& title, EventSystem* eventSystem, bool vsync)
 {
     if (window.created)
     {
@@ -138,6 +148,7 @@ void Create(uint32_t width, uint32_t height, const std::string& title, bool vsyn
 
     window.width = width;
     window.height = height;
+    window.eventSystem = eventSystem;
 }
 
 void Destroy()

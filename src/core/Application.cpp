@@ -5,6 +5,7 @@
 
 #include "glm/glm.hpp"
 
+#include "events/event.h"
 #include "events/eventSystem.h"
 
 #include "graphics/window.h"
@@ -17,8 +18,6 @@
 
 #include "log/log.h"
 #include "log/timer.h"
-
-basic_event_system* EventSystem::internal::event_system = nullptr;
 
 Application* Application::Create(uint32_t width, uint32_t height, const std::string& name)
 {
@@ -35,19 +34,16 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
     app->m_height = height;
     app->name = name;
 
-    Window::Create(width, height, name);
+    Window::Create(width, height, name, &app->eventSystem);
     Renderer::Init();
     ECS::Init();
 
-    EventSystem::internal::event_system = &app->event_system;
-
     app->isRunning = true;
 
+    app->eventSystem.RegisterListener<&Application::OnWindowClose>(app);
+    app->eventSystem.RegisterListener<&Application::OnWindowResize>(app);
 
-    EventSystem::RegisterListener<&Application::OnWindowClose>(app);
-    EventSystem::RegisterListener<&Application::OnWindowResize>(app);
-
-    ImGuiLayer::Init(width, height);
+    ImGuiLayer::Init(width, height, &app->eventSystem);
 
     return app;
 }
@@ -55,7 +51,7 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
 void Application::LoadModule(Module* m)
 {
     m_modules.push_back(m);
-    m->OnAttach(m_width, m_height);
+    m->OnAttach(m_width, m_height, &eventSystem);
 }
 
 void Application::OnUpdate(float ts)
@@ -98,7 +94,7 @@ void Application::Destroy()
 {
     for (auto m : m_modules)
     {
-        m->OnDetach();
+        m->OnDetach(&eventSystem);
         delete m;
     }
 

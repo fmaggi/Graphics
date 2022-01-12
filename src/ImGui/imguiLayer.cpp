@@ -1,7 +1,6 @@
 #include "imguiLayer.h"
 
 #include "events/event.h"
-#include "events/eventSystem.h"
 #include "graphics/window.h"
 
 #include "log/log.h"
@@ -38,7 +37,7 @@ static bool WindowResizeCallback(WindowResize event)
     return false;
 }
 
-void ImGuiLayer::Init(float width, float height)
+void ImGuiLayer::Init(float width, float height, EventSystem* eventSystem)
 {
     LOG_TRACE("Initializing ImGui");
 
@@ -72,14 +71,14 @@ void ImGuiLayer::Init(float width, float height)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    EventSystem::RegisterListenerPriotity<WindowResizeCallback>();
+    eventSystem->RegisterListenerPriotity<WindowResizeCallback>();
 
-    EventSystem::RegisterListenerPriotity<KeyboardCallback<KeyPressed>>();
-    EventSystem::RegisterListenerPriotity<KeyboardCallback<KeyReleased>>();
-    EventSystem::RegisterListenerPriotity<MouseCallback<MouseButtonPressed>>();
-    EventSystem::RegisterListenerPriotity<MouseCallback<MouseButtonReleased>>();
-    EventSystem::RegisterListenerPriotity<MouseCallback<MouseMoved>>();
-    EventSystem::RegisterListenerPriotity<MouseCallback<MouseScrolled>>();
+    eventSystem->RegisterListenerPriotity<KeyboardCallback<KeyPressed>>();
+    eventSystem->RegisterListenerPriotity<KeyboardCallback<KeyReleased>>();
+    eventSystem->RegisterListenerPriotity<MouseCallback<MouseButtonPressed>>();
+    eventSystem->RegisterListenerPriotity<MouseCallback<MouseButtonReleased>>();
+    eventSystem->RegisterListenerPriotity<MouseCallback<MouseMoved>>();
+    eventSystem->RegisterListenerPriotity<MouseCallback<MouseScrolled>>();
 }
 
 void ImGuiLayer::Destroy()

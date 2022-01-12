@@ -2,7 +2,7 @@ struct Mandelbrot : public Module
 {
     ~Mandelbrot() override {}
 
-    void OnAttach(uint32_t width, uint32_t height) override
+    void OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem) override
     {
         m_width = width, m_height = height;
         camera.Move({-50, 0});
@@ -24,10 +24,10 @@ struct Mandelbrot : public Module
         ibo = new IndexBuffer(6, indices);
         vbo->AddAttribute(2);
 
-        EventSystem::RegisterListener<&Mandelbrot::OnMouseMoved>(this);
-        EventSystem::RegisterListener<&Mandelbrot::OnMouseScrolled>(this);
-        EventSystem::RegisterListener<&Mandelbrot::OnWindowResize>(this);
-        EventSystem::RegisterListener<&Mandelbrot::OnKeyPressed>(this);
+        eventSystem->RegisterListener<&Mandelbrot::OnMouseMoved>(this);
+        eventSystem->RegisterListener<&Mandelbrot::OnMouseScrolled>(this);
+        eventSystem->RegisterListener<&Mandelbrot::OnWindowResize>(this);
+        eventSystem->RegisterListener<&Mandelbrot::OnKeyPressed>(this);
     }
 
     void OnRender() override
@@ -78,7 +78,7 @@ struct Mandelbrot : public Module
         return false;
     }
 
-    void OnDetach() override
+    void OnDetach(EventSystem* eventSystem) override
     {
         delete shader;
         delete vbo;

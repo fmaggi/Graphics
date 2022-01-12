@@ -8,8 +8,8 @@ class MyLayer : public Module
 public:
     ~MyLayer() override {}
 
-    void OnAttach(uint32_t width, uint32_t height) override;
-    void OnDetach() override;
+    void OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem) override;
+    void OnDetach(EventSystem* eventSystem) override;
 
     void OnUpdate(float ts) override;
     void OnRender() override;

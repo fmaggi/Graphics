@@ -5,6 +5,7 @@
 #include <vector>
 #include "module.h"
 
+#include "events/event.h"
 #include "events/eventSystem.h"
 
 class Application
@@ -28,7 +29,7 @@ private:
     bool OnWindowResize(WindowResize event);
 
 private:
-    basic_event_system event_system;
+    EventSystem eventSystem;
 
     bool isRunning = false;
     std::vector<Module*> m_modules;
