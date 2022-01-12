@@ -34,7 +34,7 @@ void Camera::Zoom(float zoom_)
     CalculateViewProj();
 }
 
-void Camera::SetWidthAndHeight(float width_, float height_)
+void Camera::SetViewport(float width_, float height_)
 {
     width = width_;
     height = height_;

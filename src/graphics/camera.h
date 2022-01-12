@@ -9,7 +9,7 @@ struct Camera
 
     void Move(glm::vec2 offset);
     void Zoom(float zoom);
-    void SetWidthAndHeight(float width, float height);
+    void SetViewport(float width, float height);
 
     bool InFrustum(float left, float right, float top, float bottom);
     void CalculateViewProj();

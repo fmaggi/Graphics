@@ -4,13 +4,14 @@
 
 Body* s_b;
 
-void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem)
+void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem_)
 {
     m_width = width;
     m_height = height;
     m_title = "Editor";
+    eventSystem = eventSystem_;
 
-    camera.SetWidthAndHeight(width, height);
+    camera.SetViewport(width, height);
 
     TextureID tex = Texture::Create("test.png");
 
@@ -194,11 +195,11 @@ bool MyLayer::OnEvent<KeyPressed>(KeyPressed event)
     switch (event.key)
     {
         case KEY_C:
-            // if (event.mods & MOD_CONTROL)
-            // {
-            //     EventSystem::Emit(WindowClose{});
-            //     return true;
-            // }
+            if (event.mods & MOD_CONTROL)
+            {
+                eventSystem->Emit(WindowClose{});
+                return true;
+            }
             return false;
 
         case KEY_U:
@@ -237,7 +238,7 @@ bool MyLayer::OnEvent<WindowResize>(WindowResize event)
 {
     m_width = event.width;
     m_height = event.height;
-    camera.SetWidthAndHeight(event.width, event.height);
+    camera.SetViewport(event.width, event.height);
     return false;
 }
 

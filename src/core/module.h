@@ -17,7 +17,7 @@ public:
 
     virtual void OnRenderUI() {}
 
-    // OnEvent functions need to be defined by te user and registered to the EventHandler
+    // OnEvent functions need to be defined by te user and registered to the eventSystem
     /*
     bool OnEvent(ExampleEvent event)
     {

@@ -22,6 +22,7 @@ private:
     EntityID player;
     bool renderUI = true;
     Camera camera;
+    EventSystem* eventSystem;
 };
 
 template<>
