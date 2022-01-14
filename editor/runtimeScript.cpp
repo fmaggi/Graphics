@@ -15,7 +15,7 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
 
     TextureID tex = Texture::Create("test.png");
 
-    Physics::Init(-9.8);
+    world.gravity = { 0, -9.8 };
 
     EntityID e = ECS::CreateEntity();
     player = e;
@@ -29,18 +29,21 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
     s.color = {0.86, 0.3, 0.2, 1.0};
     s.texIndex = tex;
 
-    Body* body = Physics::CreateBody(glm::vec2(t.translation), 10, BodyType::Dynamic);
+    Body* body = world.CreateBody(glm::vec2(t.translation), 10, BodyType::Dynamic);
     s_b = body;
-    Physics::AddAABB(body, 0.5f, 0.5f);
+    world.AddAABB(body, 0.5f, 0.5f);
 
     body->velocity = {0, 0};
     body->userFlags = 1;
 
+    LOG_INFO("b: %p", s_b);
+
     PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(e);
     p.physicsBody = body;
 
-    Body* floor = Physics::CreateBody({0, -3}, 0, BodyType::Static);
-    Physics::AddAABB(floor, 10, 0.25f);
+    Body* floor = world.CreateBody({0, -3}, 0, BodyType::Static);
+    world.AddAABB(floor, 10, 0.25f);
+    LOG_INFO("f: %p", floor);
 
     eventSystem->RegisterListener<&MyLayer::OnEvent<KeyPressed>>(this);
     eventSystem->RegisterListener<&MyLayer::OnEvent<MouseMoved>>(this);
@@ -52,7 +55,7 @@ void MyLayer::OnUpdate(float ts)
 {
     if (Input::IsKeyPressed(KEY_SPACE))
         s_b->force.y += 400;
-    Physics::Step(ts);
+    world.Step(ts);
 
     auto view = ECS::View<PhysicsComponent, TransformComponent>();
 

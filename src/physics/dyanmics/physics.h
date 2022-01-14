@@ -22,17 +22,24 @@ struct BodyDef
     CollisionCallback onCollision = nullptr;
 };
 
-class Physics
+struct PhysicsWorld
 {
-public:
-    static void Init(float gravity);
-    static void Step(float ts);
+    glm::vec2 gravity = {0,0};
 
-    static Body* CreateBody(glm::vec2 translation, float mass, BodyType type, CollisionCallback callback=0, void* userData=0, uint32_t userFlags=0);
-    static Body* CreateBody(BodyDef& body);
+    PhysicsWorld(size_t maxBodies = 2000);
 
-    static Body* QueryContact(Body* body);
-    static void AddAABB(Body* body, float halfWidth, float halfHeight);
+    void Step(float ts);
+
+    Body* CreateBody(glm::vec2 translation, float mass, BodyType type, CollisionCallback callback=0, void* userData=0, uint32_t userFlags=0);
+    Body* CreateBody(BodyDef& body);
+
+    void AddAABB(Body* body, float halfWidth, float halfHeight);
+
+private:
+    Body* memory;
+    Body* bodies = nullptr;
+    size_t bodyCount = 0;
+    Body* freeBodies = nullptr;
 };
 
 #endif

@@ -20,6 +20,7 @@ struct Body
     void (*onCollision)(Body* self, Body* other);
     BodyType type;
     AABB* aabb;
+    Body* next = nullptr;
 };
 
 #endif

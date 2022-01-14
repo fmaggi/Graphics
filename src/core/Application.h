@@ -36,7 +36,7 @@ private:
     float m_width, m_height;
     std::string name;
 
-    static inline Application* app;
+    static inline Application* app = nullptr;
 };
 
 #endif

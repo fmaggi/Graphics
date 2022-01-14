@@ -23,6 +23,8 @@ private:
     bool renderUI = true;
     Camera camera;
     EventSystem* eventSystem;
+
+    PhysicsWorld world;
 };
 
 template<>

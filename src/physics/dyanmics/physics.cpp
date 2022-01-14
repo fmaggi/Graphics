@@ -9,23 +9,57 @@
 #define VEL_ITERATIONS 5
 #define POS_ITERATIONS 2
 
-struct Simulation
+static void integrate_velocities(Body* bodies, glm::vec2 gravity, float ts)
 {
-    Body* bodies;
-    uint32_t currentBody;
-    glm::vec2 gravity;
-};
-static Simulation simulation;
+    Body* b = bodies;
+    while (b != nullptr)
+    {
+        if (!b->mass || b->type == BodyType::Static)
+        {
+            b = b->next;
+            continue;
+        }
 
-void Physics::Init(float gravity)
-{
-    static Body bodies[32];
-    simulation.currentBody = 0;
-    simulation.gravity = { 0, gravity };
-    simulation.bodies = bodies;
+        glm::vec2 v = b->velocity;
+        v += ts * (gravity + b->force * b->Imass);
+        v *= 1.0f / (1.0f + ts);
+
+        b->velocity = v;
+        b->force = {0, 0};
+
+        b = b->next;
+    }
 }
 
-void Physics::Step(float ts)
+static void integrate_positions(Body* bodies, float ts)
+{
+    Body* b = bodies;
+    while (b != nullptr)
+    {
+        if (b->type == BodyType::Static)
+        {
+            b = b->next;
+            continue;
+        }
+
+        glm::vec2 dx = ts * b->velocity;
+        b->translation += dx;
+        b = b->next;
+    }
+}
+
+PhysicsWorld::PhysicsWorld(size_t maxBodies)
+    : memory(new Body[maxBodies])
+{
+    for (size_t i = 0; i < maxBodies-1; ++i)
+    {
+        Body* b = memory + i;
+        b->next = memory + i + 1;
+    }
+    freeBodies = memory;
+}
+
+void PhysicsWorld::Step(float ts)
 {
     static ContactStack stack;
     Contact contacts[10000] = {{ 0 }};
@@ -33,9 +67,8 @@ void Physics::Step(float ts)
     stack.count = 0;
     stack.size = 10000;
 
-    for (int i = 0; i < simulation.currentBody; i++)
+    for (Body* b = bodies; b != nullptr; b = b->next)
     {
-        Body* b = simulation.bodies + i;
         b->aabb->Update(b->translation);
     }
 
@@ -67,22 +100,7 @@ void Physics::Step(float ts)
 
     // This part of the code was inspired by erin catto's Box2d physiscs engine. (https://www.box2d.org/)
 
-    //integrate velocity
-    for (int i = 0; i < simulation.currentBody; i++)
-    {
-        Body* b = simulation.bodies + i;
-        if (!b->mass || b->type == BodyType::Static)
-            continue;
-
-        glm::vec2 v = b->velocity;
-        v += ts * (simulation.gravity + b->force * b->Imass);
-
-
-        v *= 1.0f / (1.0f + ts);
-
-        b->velocity = v;
-        b->force = {0, 0};
-    }
+    integrate_velocities(bodies, gravity, ts);
 
     // solve velocity constraints
     for (Contact* c = stack.contacts; c->next != NULL; c = c->next)
@@ -115,16 +133,7 @@ void Physics::Step(float ts)
         }
     }
 
-    // integrate translation
-    for (int i = 0; i < simulation.currentBody; i ++)
-    {
-        Body* b = simulation.bodies + i;
-        if (b->type == BodyType::Static)
-            continue;
-
-        glm::vec2 dx = ts * b->velocity;
-        b->translation += dx;
-    }
+    integrate_positions(bodies, ts);
 
     // solve translation constraints
     for (Contact* c = stack.contacts; c->next != NULL; c = c->next)
@@ -157,9 +166,11 @@ void Physics::Step(float ts)
     }
 }
 
-Body* Physics::CreateBody(glm::vec2 translation, float mass, BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)
+Body* PhysicsWorld::CreateBody(glm::vec2 translation, float mass, BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)
 {
-    Body* body= simulation.bodies + simulation.currentBody++;
+    if (!freeBodies)
+        return nullptr;
+    Body* body = freeBodies;
 
     body->translation = translation;
     body->mass = mass;
@@ -173,21 +184,21 @@ Body* Physics::CreateBody(glm::vec2 translation, float mass, BodyType type, Coll
     body->velocity = {0, 0};
     body->aabb = nullptr;
 
+    bodyCount++;
+    freeBodies = body->next;
+
+    body->next = bodies;
+    bodies = body;
+
     return body;
 }
 
-Body* Physics::CreateBody(BodyDef& body)
+Body* PhysicsWorld::CreateBody(BodyDef& body)
 {
     return CreateBody(body.translation, body.mass, body.type, body.onCollision, body.userData, body.userFlags);
 }
 
-Body* Physics::QueryContact(Body* body)
-{
-    body->aabb->Update(body->translation);
-    return (Body*) AABBManager::QueryOverlap(body->aabb);
-}
-
-void Physics::AddAABB(Body* body, float halfWidth, float halfHeight)
+void PhysicsWorld::AddAABB(Body* body, float halfWidth, float halfHeight)
 {
     if (body->aabb)
         LOG_WARN("Body already has an AABB\n");
