@@ -7,20 +7,26 @@
 
 struct Contact
 {
-    Body *left, *right;
+    Body *left = nullptr, *right = nullptr;
     glm::vec2 normal, minSeparation;
-    struct Contact *prev, *next;
+    Contact *prev, *next;
     float normalMass;
 };
 
 struct ContactStack
 {
-    struct Contact* contacts;
-    uint32_t count, size;
+    Contact* NewContact();
+    void DestroyContact(Contact* contact);
+
+    Contact* contacts = nullptr;
+    Contact* unused = nullptr;
+    Contact* alloc = nullptr;
+    uint32_t count = 0, size = 0;
 };
 
-void destroyContact(struct ContactStack* stack, struct Contact* c);
-void collide(struct Contact* c);
+void reset_contact_stack(ContactStack* stack, uint32_t size);
+
+void collide(Contact* c);
 
 glm::vec2 getPenetration(Body* a, Body* b, glm::vec2 minSeparation);
 

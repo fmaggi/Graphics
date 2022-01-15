@@ -1,7 +1,51 @@
 #include "contact.h"
 #include "string.h"
 
-void destroyContact(struct ContactStack* stack, struct Contact* c)
+#include "log/log.h"
+
+void reset_contact_stack(ContactStack* stack, uint32_t size)
+{
+    stack->size = size;
+    stack->count = 0;
+
+    delete[] stack->alloc;
+    stack->alloc = new Contact[size];
+
+    stack->alloc->prev = nullptr;
+    stack->alloc->next = stack->alloc + 1;
+    for (int i = 1; i < size-1; i++)
+    {
+        Contact* c = stack->alloc + i;
+        c->next = stack->alloc + i + 1;
+        c->prev = stack->alloc + i - 1;
+    }
+
+    stack->unused = stack->alloc;
+    stack->contacts = nullptr;
+}
+
+Contact* ContactStack::NewContact()
+{
+    if (!unused)
+        return nullptr;
+
+    count++;
+
+    // get contact from unused link list
+    Contact* c = unused;
+    unused = c->next;
+    unused->prev = nullptr;
+
+    // add contact to used linked list
+    c->next = contacts;
+    if (contacts)
+        contacts->prev = c;
+    c->prev = nullptr;
+    contacts = c;
+    return c;
+}
+
+void ContactStack::DestroyContact(Contact* c)
 {
     if (c->prev)
     {
@@ -11,11 +55,18 @@ void destroyContact(struct ContactStack* stack, struct Contact* c)
     {
         c->next->prev = c->prev;
     }
-    if (c == stack->contacts)
+    if (c == contacts)
     {
-        stack->contacts = c->next;
-        stack->size -= 1;
+        contacts = c->next;
     }
+
+
+    count--;
+    c->next = unused;
+    c->prev = nullptr;
+    if (unused)
+        unused->prev = c;
+    unused = c;
 }
 
 void collide(struct Contact* c)

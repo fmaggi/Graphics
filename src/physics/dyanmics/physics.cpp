@@ -48,62 +48,10 @@ static void integrate_positions(Body* bodies, float ts)
     }
 }
 
-PhysicsWorld::PhysicsWorld(size_t maxBodies)
-    : memory(new Body[maxBodies])
+static void solve_velocity_constraints(Contact* contact, int iterations)
 {
-    for (size_t i = 0; i < maxBodies-1; ++i)
-    {
-        Body* b = memory + i;
-        b->next = memory + i + 1;
-    }
-    freeBodies = memory;
-}
-
-void PhysicsWorld::Step(float ts)
-{
-    static ContactStack stack;
-    Contact contacts[10000] = {{ 0 }};
-    stack.contacts = contacts;
-    stack.count = 0;
-    stack.size = 10000;
-
-    for (Body* b = bodies; b != nullptr; b = b->next)
-    {
-        b->aabb->Update(b->translation);
-    }
-
-    AABBManager::SweepAndPrune(stack);
-
-    int calls = 0;
-    for (Contact* c = stack.contacts; c->next != NULL; c = c->next)
-    {
-        Body* a = c->left;
-        Body* b = c->right;
-        if (b->type == BodyType::Static && a->type == BodyType::Static)
-        {
-            Contact* d = c;
-            destroyContact(&stack, d);
-            continue;
-        }
-
-        calls++;
-        bool collided = AABBManager::TestOverlap(a->aabb, b->aabb);
-        if (!collided)
-        {
-            Contact* d = c;
-            destroyContact(&stack, d);
-            continue;
-        }
-        collide(c);
-    }
-    LOG_INFO_DEBUG("collide calls: %i\n", calls);
-
-    // This part of the code was inspired by erin catto's Box2d physiscs engine. (https://www.box2d.org/)
-
-    integrate_velocities(bodies, gravity, ts);
-
-    // solve velocity constraints
-    for (Contact* c = stack.contacts; c->next != NULL; c = c->next)
+    Contact* c = contact;
+    while (c)
     {
         Body *a = c->left;
         Body *b = c->right;
@@ -113,11 +61,11 @@ void PhysicsWorld::Step(float ts)
             -normal.y, normal.x
         };
 
-        for (int j = 0; j < VEL_ITERATIONS; j++)
+        for (int j = 0; j < iterations; j++)
         {
             glm::vec2 dv = b->velocity - a->velocity;
             if (glm::dot(dv, normal) > 0.0f)
-                continue;
+                break;
 
             float tangentImpulse = -glm::dot(dv, tangent) * 0; // friction
             glm::vec2 pt = tangent * tangentImpulse;
@@ -131,12 +79,14 @@ void PhysicsWorld::Step(float ts)
             a->velocity -= p * a->Imass;
             b->velocity += p * b->Imass;
         }
+        c = c->next;
     }
+}
 
-    integrate_positions(bodies, ts);
-
-    // solve translation constraints
-    for (Contact* c = stack.contacts; c->next != NULL; c = c->next)
+static void solve_position_constraints(Contact* contacts, int iterations)
+{
+    Contact* c = contacts;
+    while(c)
     {
         float minPenetration = 0.0f;
         Body *a = c->left;
@@ -144,7 +94,7 @@ void PhysicsWorld::Step(float ts)
 
         glm::vec2 normal = c->normal;
 
-        for (int i = 0; i < POS_ITERATIONS; i++)
+        for (int i = 0; i < iterations; i++)
         {
             glm::vec2 penetration = getPenetration(a, b, c->minSeparation);
             float penetrationNormal = glm::dot(penetration, normal);
@@ -163,7 +113,75 @@ void PhysicsWorld::Step(float ts)
             }
 
         }
+        c = c->next;
     }
+}
+
+static void filter_contacts(ContactStack* stack)
+{
+    int calls = 0;
+    Contact* c = stack->contacts;
+    while(c)
+    {
+        Body* a = c->left;
+        Body* b = c->right;
+        if (b->type == BodyType::Static && a->type == BodyType::Static)
+        {
+            Contact* d = c;
+            c = c->next;
+            stack->DestroyContact(d);
+            continue;
+        }
+
+        calls++;
+        bool collided = AABBManager::TestOverlap(a->aabb, b->aabb);
+        if (!collided)
+        {
+            Contact* d = c;
+            c = c->next;
+            stack->DestroyContact(d);
+            continue;
+        }
+
+        collide(c);
+        c = c->next;
+    }
+    LOG_INFO_DEBUG("collide calls: %i\n", calls);
+}
+
+PhysicsWorld::PhysicsWorld(size_t maxBodies)
+    : memory(new Body[maxBodies])
+{
+    for (size_t i = 0; i < maxBodies-1; ++i)
+    {
+        Body* b = memory + i;
+        b->next = memory + i + 1;
+    }
+    freeBodies = memory;
+}
+
+void PhysicsWorld::Step(float ts)
+{
+    static ContactStack stack;
+    reset_contact_stack(&stack, 1000);
+
+    for (Body* b = bodies; b != nullptr; b = b->next)
+    {
+        b->aabb->Update(b->translation);
+    }
+
+    AABBManager::SweepAndPrune(stack);
+    // This part of the code was inspired by erin catto's Box2d physiscs engine. (https://www.box2d.org/)
+
+    filter_contacts(&stack);
+
+    integrate_velocities(bodies, gravity, ts);
+
+    solve_velocity_constraints(stack.contacts, VEL_ITERATIONS);
+
+    integrate_positions(bodies, ts);
+
+    solve_position_constraints(stack.contacts, 1);
 }
 
 Body* PhysicsWorld::CreateBody(glm::vec2 translation, float mass, BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)

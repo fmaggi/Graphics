@@ -16,34 +16,55 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
     TextureID tex = Texture::Create("test.png");
 
     world.gravity = { 0, -9.8 };
+    {
+        EntityID e = ECS::CreateEntity();
+        player = e;
 
-    EntityID e = ECS::CreateEntity();
-    player = e;
+        TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
+        t.translation = {0,5,0};
+        t.scale = {1, 1};
+        t.rotation = 0;
 
-    TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
-    t.translation = {0,5,0};
-    t.scale = {1, 1};
-    t.rotation = 0;
+        SpriteComponent& s = ECS::AddComponent<SpriteComponent>(e);
+        s.color = {0.86, 0.3, 0.2, 1.0};
+        s.texIndex = tex;
 
-    SpriteComponent& s = ECS::AddComponent<SpriteComponent>(e);
-    s.color = {0.86, 0.3, 0.2, 1.0};
-    s.texIndex = tex;
+        Body* body = world.CreateBody(glm::vec2(t.translation), 10, BodyType::Dynamic);
+        s_b = body;
+        world.AddAABB(body, 0.5f, 0.5f);
 
-    Body* body = world.CreateBody(glm::vec2(t.translation), 10, BodyType::Dynamic);
-    s_b = body;
-    world.AddAABB(body, 0.5f, 0.5f);
+        body->velocity = {0, 0};
+        body->userFlags = 1;
 
-    body->velocity = {0, 0};
-    body->userFlags = 1;
+        PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(e);
+        p.physicsBody = body;
 
-    LOG_INFO("b: %p", s_b);
+        Body* floor = world.CreateBody({0, -3}, 0, BodyType::Static);
+        world.AddAABB(floor, 10, 0.25f);
+    }
 
-    PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(e);
-    p.physicsBody = body;
+    for (int i = 0; i < 5; i++)
+    {
+        EntityID id = ECS::CreateEntity();
 
-    Body* floor = world.CreateBody({0, -3}, 0, BodyType::Static);
-    world.AddAABB(floor, 10, 0.25f);
-    LOG_INFO("f: %p", floor);
+        TransformComponent& ts = ECS::AddComponent<TransformComponent>(id);
+        ts.translation = {(i-2) * 2,5,0};
+        ts.scale = {1, 1};
+        ts.rotation = 0;
+
+        SpriteComponent& ss = ECS::AddComponent<SpriteComponent>(id);
+        ss.color = {0.86, 0.3, 0.2, 1.0};
+        ss.texIndex = tex;
+
+        Body* body = world.CreateBody(glm::vec2(ts.translation), 10, BodyType::Dynamic);
+        world.AddAABB(body, 0.5f, 0.5f);
+
+        body->velocity = {0, 0};
+        body->userFlags = 1;
+
+        PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(id);
+        p.physicsBody = body;
+    }
 
     eventSystem->RegisterListener<&MyLayer::OnEvent<KeyPressed>>(this);
     eventSystem->RegisterListener<&MyLayer::OnEvent<MouseMoved>>(this);
@@ -55,6 +76,12 @@ void MyLayer::OnUpdate(float ts)
 {
     if (Input::IsKeyPressed(KEY_SPACE))
         s_b->force.y += 400;
+
+    if (Input::IsKeyPressed(KEY_A))
+        s_b->force.x -= 200;
+    else if (Input::IsKeyPressed(KEY_D))
+        s_b->force.x += 200;
+
     world.Step(ts);
 
     auto view = ECS::View<PhysicsComponent, TransformComponent>();

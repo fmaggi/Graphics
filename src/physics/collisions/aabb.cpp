@@ -43,12 +43,10 @@ void AABBManager::SweepAndPrune(ContactStack& results)
     Sort();
     int active[32] = {-1};
     int index = 0;
-    Contact* c = results.contacts;
-    c->prev = NULL;
     for (int i = 0; i < aabbs.current; i++)
     {
         active[index] = i;
-        for (int j = 0; j < index; j++) // check from right to left if it intersects anything in the interval.
+        for (int j = 0; j < index; j++)
         {
             if (active[j] == -1)
                 continue;
@@ -56,20 +54,17 @@ void AABBManager::SweepAndPrune(ContactStack& results)
             AABB* a = aabbs.sorted[active[j]];
             if (b->min.x < a->max.x)
             {
-                c->left = a->body;
-                c->right = b->body;
-                c->minSeparation.x = fabs(a->radius.x + b->radius.x);
-                c->minSeparation.y = fabs(a->radius.y + b->radius.y);
-
-                c->next = results.contacts + (++results.count);
-                c->next->prev = c;
-                c = c->next;
-
-                if (results.count == results.size)
+                Contact* c = results.NewContact();
+                if (!c)
                 {
                     LOG_WARN("Reached contact limit");
                     return;
                 }
+
+                c->left = a->body;
+                c->right = b->body;
+                c->minSeparation.x = fabs(a->radius.x + b->radius.x);
+                c->minSeparation.y = fabs(a->radius.y + b->radius.y);
             }
             else
             {
