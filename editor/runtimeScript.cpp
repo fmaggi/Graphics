@@ -29,7 +29,7 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
         s.color = {0.86, 0.3, 0.2, 1.0};
         s.texIndex = tex;
 
-        Body* body = world.CreateBody(glm::vec2(t.translation), 10, BodyType::Dynamic);
+        Body* body = world.CreateBody(glm::vec2(t.translation), 10, BodyType::Dynamic, 0, 0, 1);
         s_b = body;
         world.AddAABB(body, 0.5f, 0.5f);
 
@@ -43,25 +43,25 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
         world.AddAABB(floor, 10, 0.25f);
     }
 
-    for (int i = 0; i < 5; i++)
+    // for (int i = 0; i < 5; i++)
     {
         EntityID id = ECS::CreateEntity();
 
         TransformComponent& ts = ECS::AddComponent<TransformComponent>(id);
-        ts.translation = {(i-2) * 2,5,0};
+        ts.translation = {-3,5,0};
         ts.scale = {1, 1};
         ts.rotation = 0;
 
         SpriteComponent& ss = ECS::AddComponent<SpriteComponent>(id);
-        ss.color = {0.86, 0.3, 0.2, 1.0};
+        ss.color = {0.3, 0.91, 0.5, 1.0};
         ss.texIndex = tex;
 
-        Body* body = world.CreateBody(glm::vec2(ts.translation), 10, BodyType::Dynamic);
+        Body* body = world.CreateBody(glm::vec2(ts.translation), 10, BodyType::Dynamic, 0, 0, 0);
         world.AddAABB(body, 0.5f, 0.5f);
 
         body->velocity = {0, 0};
-        body->userFlags = 1;
 
+        LOG_WARN("%p %p", s_b, body);
         PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(id);
         p.physicsBody = body;
     }

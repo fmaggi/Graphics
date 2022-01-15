@@ -9,7 +9,7 @@
 #define VEL_ITERATIONS 5
 #define POS_ITERATIONS 2
 
-static void integrate_velocities(Body* bodies, glm::vec2 gravity, float ts)
+static void integrate_forces(Body* bodies, glm::vec2 gravity, float ts)
 {
     Body* b = bodies;
     while (b != nullptr)
@@ -31,7 +31,7 @@ static void integrate_velocities(Body* bodies, glm::vec2 gravity, float ts)
     }
 }
 
-static void integrate_positions(Body* bodies, float ts)
+static void integrate_velocities(Body* bodies, float ts)
 {
     Body* b = bodies;
     while (b != nullptr)
@@ -97,9 +97,10 @@ static void solve_position_constraints(Contact* contacts, int iterations)
         for (int i = 0; i < iterations; i++)
         {
             glm::vec2 penetration = getPenetration(a, b, c->minSeparation);
-            float penetrationNormal = glm::dot(penetration, normal);
 
-            minPenetration = std::min(minPenetration, penetrationNormal);
+            float penetrationNormal = fabs(glm::dot(penetration, normal));
+
+            minPenetration = std::min(minPenetration, -penetrationNormal);
 
             glm::vec2 res = minPenetration * normal;
 
@@ -111,7 +112,6 @@ static void solve_position_constraints(Contact* contacts, int iterations)
             {
                 b->translation -= res;
             }
-
         }
         c = c->next;
     }
@@ -175,11 +175,11 @@ void PhysicsWorld::Step(float ts)
 
     filter_contacts(&stack);
 
-    integrate_velocities(bodies, gravity, ts);
+    integrate_forces(bodies, gravity, ts);
 
     solve_velocity_constraints(stack.contacts, VEL_ITERATIONS);
 
-    integrate_positions(bodies, ts);
+    integrate_velocities(bodies, ts);
 
     solve_position_constraints(stack.contacts, 1);
 }
