@@ -13,18 +13,22 @@ struct Contact
     float normalMass;
 };
 
-struct ContactStack
+struct ContactAllocator
 {
-    Contact* NewContact();
-    void DestroyContact(Contact* contact);
+    ContactAllocator(uint32_t size = 1000)
+        : alloc(new Contact[size]), size(size) {}
+    ~ContactAllocator();
 
-    Contact* contacts = nullptr;
+    Contact* NewContact();
+
     Contact* unused = nullptr;
     Contact* alloc = nullptr;
     uint32_t count = 0, size = 0;
 };
 
-void reset_contact_stack(ContactStack* stack, uint32_t size);
+void reset_contact_allocator(ContactAllocator* stack);
+
+void DestroyContact(Contact* contact, Contact** root);
 
 void collide(Contact* c);
 

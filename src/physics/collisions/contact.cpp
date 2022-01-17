@@ -3,28 +3,43 @@
 
 #include "log/log.h"
 
-void reset_contact_stack(ContactStack* stack, uint32_t size)
+void reset_contact_allocator(ContactAllocator* stack)
 {
-    stack->size = size;
     stack->count = 0;
-
-    delete[] stack->alloc;
-    stack->alloc = new Contact[size];
 
     stack->alloc->prev = nullptr;
     stack->alloc->next = stack->alloc + 1;
-    for (int i = 1; i < size-1; i++)
+    for (int i = 1; i < stack->size-1; i++)
     {
         Contact* c = stack->alloc + i;
         c->next = stack->alloc + i + 1;
         c->prev = stack->alloc + i - 1;
     }
-
     stack->unused = stack->alloc;
-    stack->contacts = nullptr;
 }
 
-Contact* ContactStack::NewContact()
+// ContactAllocator::ContactAllocator(ContactAllocator&& other)
+// {
+//     LOG_INFO("MOVE");
+//     this->alloc = other.alloc;
+//     other.alloc = nullptr;
+
+//     this->contacts = other.contacts;
+//     other.contacts = nullptr;
+
+//     this->unused = other.unused;
+//     other.unused = nullptr;
+
+//     this->count = other.count;
+//     this->size = other.size;
+// }
+
+ContactAllocator::~ContactAllocator()
+{
+    delete[] alloc;
+}
+
+Contact* ContactAllocator::NewContact()
 {
     if (!unused)
         return nullptr;
@@ -37,15 +52,10 @@ Contact* ContactStack::NewContact()
     unused->prev = nullptr;
 
     // add contact to used linked list
-    c->next = contacts;
-    if (contacts)
-        contacts->prev = c;
-    c->prev = nullptr;
-    contacts = c;
     return c;
 }
 
-void ContactStack::DestroyContact(Contact* c)
+void DestroyContact(Contact* c, Contact** root)
 {
     if (c->prev)
     {
@@ -55,18 +65,10 @@ void ContactStack::DestroyContact(Contact* c)
     {
         c->next->prev = c->prev;
     }
-    if (c == contacts)
+    if (c == *root)
     {
-        contacts = c->next;
+        *root = c->next;
     }
-
-
-    count--;
-    c->next = unused;
-    c->prev = nullptr;
-    if (unused)
-        unused->prev = c;
-    unused = c;
 }
 
 void collide(struct Contact* c)

@@ -6,6 +6,7 @@ Body* s_b;
 
 void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem_)
 {
+    renderUI = false;
     m_width = width;
     m_height = height;
     m_title = "Editor";
@@ -15,49 +16,60 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
 
     TextureID tex = Texture::Create("test.png");
 
-    world.gravity = { 0, -9.8 };
+    world.gravity = { 0, 0 };
     {
         EntityID e = ECS::CreateEntity();
         player = e;
 
         TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
-        t.translation = {0,5,0};
-        t.scale = {1, 1};
+        t.translation = {0,0,0};
+        t.scale = {0.5, 0.5};
         t.rotation = 0;
 
         SpriteComponent& s = ECS::AddComponent<SpriteComponent>(e);
         s.color = {0.86, 0.3, 0.2, 1.0};
         s.texIndex = tex;
 
-        Body* body = world.CreateBody(glm::vec2(t.translation), 10, BodyType::Dynamic, 0, 0, 1);
+        Body* body = world.CreateBody(glm::vec2(t.translation), 100, BodyType::Dynamic, 0, 0, 1);
         s_b = body;
-        world.AddAABB(body, 0.5f, 0.5f);
-
+        world.AddAABB(body, 0.25, 0.25);
         body->velocity = {0, 0};
+        body->force = { 150, -300 };
         body->userFlags = 1;
 
         PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(e);
         p.physicsBody = body;
-
-        Body* floor = world.CreateBody({0, -3}, 0, BodyType::Static);
-        world.AddAABB(floor, 10, 0.25f);
     }
+
+        Body* floor = world.CreateBody({0, -3.5}, 0, BodyType::Static);
+        world.AddAABB(floor, 6.75, 0.25f);
+
+        Body* roof = world.CreateBody({0, 3.5}, 0, BodyType::Static);
+        world.AddAABB(roof, 6.75, 0.25f);
+
+        Body* left = world.CreateBody({-6.5, 0}, 0, BodyType::Static);
+        world.AddAABB(left, 0.25, 3.5);
+
+        Body* right = world.CreateBody({6.5, 0}, 0, BodyType::Static);
+        world.AddAABB(right, 0.25, 3.5);
+
+
 
     // for (int i = 0; i < 5; i++)
     {
         EntityID id = ECS::CreateEntity();
 
         TransformComponent& ts = ECS::AddComponent<TransformComponent>(id);
-        ts.translation = {-3,5,0};
-        ts.scale = {1, 1};
+        ts.translation = {-3,0,0};
+        ts.scale = {0.5, 0.5};
         ts.rotation = 0;
 
         SpriteComponent& ss = ECS::AddComponent<SpriteComponent>(id);
         ss.color = {0.3, 0.91, 0.5, 1.0};
         ss.texIndex = tex;
 
-        Body* body = world.CreateBody(glm::vec2(ts.translation), 10, BodyType::Dynamic, 0, 0, 0);
-        world.AddAABB(body, 0.5f, 0.5f);
+        Body* body = world.CreateBody(glm::vec2(ts.translation), 1, BodyType::Dynamic, 0, 0, 1);
+        world.AddAABB(body, 0.25, 0.25);
 
         body->velocity = {0, 0};
 
@@ -106,7 +118,10 @@ void MyLayer::OnRender()
             Renderer::PushQuad(t.translation, t.rotation, t.scale, s.color, s.texIndex);
         }
 
-        Renderer::PushQuad({0, -3, 0}, 0, {20, 0.5f}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
+        Renderer::PushQuad({0, -3.5, 0}, 0, {12.5, 0.5f}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
+        Renderer::PushQuad({-6.5, 0, 0}, 0, {0.5f, 7}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
+        Renderer::PushQuad({0,  3.5, 0}, 0, {12.5, 0.5f}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
+        Renderer::PushQuad({ 6.5, 0, 0}, 0, {0.5f, 7}, {0.3, 0.6, 0.8, 1.0}, NoTexture);
     }
     Renderer::EndFrame();
 }

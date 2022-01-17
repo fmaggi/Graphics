@@ -2,6 +2,7 @@
 #define PHYSICS_H
 
 #include "glm/glm.hpp"
+struct BroadPhaseData;
 
 struct Body;
 enum class BodyType
@@ -40,6 +41,8 @@ private:
     Body* bodies = nullptr;
     size_t bodyCount = 0;
     Body* freeBodies = nullptr;
+
+    BroadPhaseData* broad_phase_data;
 };
 
 #endif

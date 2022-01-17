@@ -4,7 +4,6 @@
 #include "glm/glm.hpp"
 
 struct Body;
-struct ContactStack;
 
 struct AABB
 {
@@ -12,24 +11,14 @@ struct AABB
 
     glm::vec2 min, max, radius;
     Body* body;
+    AABB* next = nullptr;
+    AABB* prev = nullptr;
 };
 
-class AABBManager
+inline bool TestOverlap(AABB* a, AABB* b)
 {
-public:
-    static AABB* Create(glm::vec2 center, glm::vec2 halfExtents, Body* bodyID);
-    static void SweepAndPrune(ContactStack& results);
-    static bool TestOverlap(AABB* a, AABB* b);
-    static Body* QueryOverlap(AABB* aabb);
-private:
-    static void Sort();
-    struct AABBs
-    {
-        AABB aabbs[32];
-        AABB* sorted[32];
-        uint32_t current = 0;
-    };
-    static AABBs aabbs;
-};
+    return a->min.x < b->max.x && a->max.x > b->min.x
+        && a->min.y < b->max.y && a->max.y > b->min.y;
+}
 
 #endif
