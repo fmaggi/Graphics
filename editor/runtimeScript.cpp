@@ -33,9 +33,7 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
         Body* body = world.CreateBody(glm::vec2(t.translation), 100, BodyType::Dynamic, 0, 0, 1);
         s_b = body;
         world.AddAABB(body, 0.25, 0.25);
-        body->velocity = {0, 0};
         body->force = { 150, -300 };
-        body->userFlags = 1;
 
         PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(e);
         p.physicsBody = body;
@@ -68,12 +66,9 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
         ss.color = {0.3, 0.91, 0.5, 1.0};
         ss.texIndex = tex;
 
-        Body* body = world.CreateBody(glm::vec2(ts.translation), 1, BodyType::Dynamic, 0, 0, 1);
+        Body* body = world.CreateBody(glm::vec2(ts.translation), 1, BodyType::Dynamic);
         world.AddAABB(body, 0.25, 0.25);
 
-        body->velocity = {0, 0};
-
-        LOG_WARN("%p %p", s_b, body);
         PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(id);
         p.physicsBody = body;
     }

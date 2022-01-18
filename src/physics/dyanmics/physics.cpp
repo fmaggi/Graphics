@@ -208,7 +208,6 @@ Body* PhysicsWorld::CreateBody(glm::vec2 translation, float mass, BodyType type,
 
     body->next = bodies;
     bodies = body;
-
     return body;
 }
 

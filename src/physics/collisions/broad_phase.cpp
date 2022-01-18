@@ -79,48 +79,60 @@ static void Sort(AABB** aabbs, uint32_t count)
 Contact* BroadPhase(BroadPhaseData* data)
 {
     Sort(data->aabbs, data->count);
+    AABB** aabbs = data->aabbs;
+
     reset_contact_allocator(&(data->contacts));
+
     Contact* c = nullptr;
     Contact* root = nullptr;
-    int active[32] = {-1};
-    int index = 0;
-    for (int i = 0; i < data->count; i++)
+
+    AABB* active_aabbs = aabbs[0];
+    float max_x = active_aabbs->max.x;
+    active_aabbs->next = nullptr; // clear the next pointer to avoid infinit loop
+
+    for (int i = 1; i < data->count; ++i)
     {
-        active[index] = i;
-        for (int j = 0; j < index; j++)
+        AABB* a = aabbs[i];
+        a->next = nullptr; // clear the next pointer to avoid infinit loop
+        if (a->min.x < max_x)
         {
-            if (active[j] == -1)
-                continue;
-            AABB* b = data->aabbs[active[index]];
-            AABB* a = data->aabbs[active[j]];
-            if (b->min.x < a->max.x)
+            AABB* b = active_aabbs;
+            while(b)
             {
-                Contact* temp = data->contacts.NewContact();
-                if (!temp)
+                if (a->min.x < b->max.x)
                 {
-                    LOG_WARN("Reached contact limit");
-                    return root;
+                    Contact* temp = data->contacts.NewContact();
+                    if (!temp)
+                    {
+                        LOG_WARN("Reached contact limit");
+                        return root;
+                    }
+                    temp->next = nullptr;
+                    temp->prev = c;
+                    if (!c)
+                        root = temp;
+                    else
+                        c->next = temp;
+                    c = temp;
+
+                    c->left = b->body;
+                    c->right = a->body;
+                    c->minSeparation.x = fabs(a->radius.x + b->radius.x);
+                    c->minSeparation.y = fabs(a->radius.y + b->radius.y);
                 }
-                temp->next = nullptr;
-                temp->prev = c;
-                if (!c)
-                    root = temp;
-                else
-                    c->next = temp;
-                c = temp;
-
-                c->left = a->body;
-                c->right = b->body;
-                c->minSeparation.x = fabs(a->radius.x + b->radius.x);
-                c->minSeparation.y = fabs(a->radius.y + b->radius.y);
-
+                b = b->next;
             }
-            else
-            {
-                active[j] = -1;
-            }
+            if (a->max.x > max_x)
+                max_x = a->max.x;
+            a->next = active_aabbs;
+            active_aabbs = a;
         }
-        index++;
+        else
+        {
+            active_aabbs = a;
+            max_x = a->max.x;
+        }
     }
+
     return root;
 }
