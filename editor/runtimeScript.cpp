@@ -16,7 +16,7 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
 
     TextureID tex = Texture::Create("test.png");
 
-    world.gravity = { 0, 0 };
+    world.gravity = { 0, -9.8 };
     {
         EntityID e = ECS::CreateEntity();
         player = e;
@@ -30,7 +30,7 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
         s.color = {0.86, 0.3, 0.2, 1.0};
         s.texIndex = tex;
 
-        Body* body = world.CreateBody(glm::vec2(t.translation), 100, BodyType::Dynamic, 0, 0, 1);
+        Body* body = world.CreateBody(glm::vec2(t.translation), 10, BodyType::Dynamic, 0, 0, 2);
         s_b = body;
         world.AddAABB(body, 0.25, 0.25);
         body->force = { 150, -300 };
@@ -51,8 +51,6 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
         Body* right = world.CreateBody({6.5, 0}, 0, BodyType::Static);
         world.AddAABB(right, 0.25, 3.5);
 
-
-
     // for (int i = 0; i < 5; i++)
     {
         EntityID id = ECS::CreateEntity();
@@ -66,11 +64,12 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
         ss.color = {0.3, 0.91, 0.5, 1.0};
         ss.texIndex = tex;
 
-        Body* body = world.CreateBody(glm::vec2(ts.translation), 1, BodyType::Dynamic);
+        Body* body = world.CreateBody(glm::vec2(ts.translation), 10, BodyType::Dynamic, 0, 0, 1);
         world.AddAABB(body, 0.25, 0.25);
 
         PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(id);
         p.physicsBody = body;
+        LOG_WARN("%p", s_b);
     }
 
     eventSystem->RegisterListener<&MyLayer::OnEvent<KeyPressed>>(this);
@@ -82,14 +81,15 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
 void MyLayer::OnUpdate(float ts)
 {
     if (Input::IsKeyPressed(KEY_SPACE))
-        s_b->force.y += 400;
+        s_b->force.y += 300;
 
     if (Input::IsKeyPressed(KEY_A))
-        s_b->force.x -= 200;
+        s_b->force.x -= 20;
     else if (Input::IsKeyPressed(KEY_D))
-        s_b->force.x += 200;
+        s_b->force.x += 20;
 
-    world.Step(ts);
+    if (!pause)
+        world.Step(ts);
 
     auto view = ECS::View<PhysicsComponent, TransformComponent>();
 
@@ -250,6 +250,10 @@ bool MyLayer::OnEvent<KeyPressed>(KeyPressed event)
             renderUI = !renderUI;
             return true;
 
+        case KEY_P:
+            pause = !pause;
+            return true;
+
         default:
             return false;
     }
@@ -284,4 +288,5 @@ bool MyLayer::OnEvent<WindowResize>(WindowResize event)
 
 void MyLayer::OnDetach(EventSystem* eventSystem)
 {
+    LOG_WARN("%p", s_b);
 }

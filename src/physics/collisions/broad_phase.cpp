@@ -93,13 +93,12 @@ Contact* BroadPhase(BroadPhaseData* data)
     for (int i = 1; i < data->count; ++i)
     {
         AABB* a = aabbs[i];
-        a->next = nullptr; // clear the next pointer to avoid infinit loop
         if (a->min.x < max_x)
         {
             AABB* b = active_aabbs;
             while(b)
             {
-                if (a->min.x < b->max.x)
+                if (TestOverlap(a, b))
                 {
                     Contact* temp = data->contacts.NewContact();
                     if (!temp)
@@ -122,13 +121,13 @@ Contact* BroadPhase(BroadPhaseData* data)
                 }
                 b = b->next;
             }
-            if (a->max.x > max_x)
-                max_x = a->max.x;
+            max_x = a->max.x > max_x ? a->max.x : max_x;
             a->next = active_aabbs;
             active_aabbs = a;
         }
         else
         {
+            a->next = nullptr;
             active_aabbs = a;
             max_x = a->max.x;
         }

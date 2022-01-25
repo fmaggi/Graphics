@@ -11,6 +11,11 @@
 #define VEL_ITERATIONS 5
 #define POS_ITERATIONS 2
 
+static float max(float a, float b)
+{
+    return a > b ? a : b;
+}
+
 static void integrate_forces(Body* bodies, glm::vec2 gravity, float ts)
 {
     Body* b = bodies;
@@ -49,7 +54,7 @@ static void integrate_velocities(Body* bodies, float ts)
     }
 }
 
-static void solve_velocity_constraints(Contact* contact, int iterations)
+static void solve_velocity_constraints(Contact* contact)
 {
     Contact* c = contact;
     while (c)
@@ -61,30 +66,31 @@ static void solve_velocity_constraints(Contact* contact, int iterations)
         glm::vec2 tangent = {
             -normal.y, normal.x
         };
+        float normalMass = c->normalMass;
 
-        for (int j = 0; j < iterations; j++)
-        {
-            glm::vec2 dv = b->velocity - a->velocity;
-            if (glm::dot(dv, normal) > 0.0f)
-                break;
+        glm::vec2 dv = b->velocity - a->velocity;
 
-            float tangentImpulse = -glm::dot(dv, tangent) * 0; // friction
-            glm::vec2 pt = tangent * tangentImpulse;
+        float tangentImpulse = -glm::dot(dv, tangent) * 0.3; // friction
+        glm::vec2 pt = tangent * tangentImpulse;
 
-            float normalImpulse = -glm::dot(dv, normal) * c->normalMass * 2; // restitution
-            normalImpulse = std::max(normalImpulse, 0.0f);
-            glm::vec2 pn = normal * normalImpulse;
+        float dvn = glm::dot(dv, normal);
+        float normalImpulse = dvn * -normalMass * 2; // restitution
 
-            glm::vec2 p = pt + pn;
+        float newImpulse = max(normalImpulse + c->normalImpulse, 0.0f);
+        normalImpulse = newImpulse - c->normalImpulse;
+        c->normalImpulse = newImpulse;
 
-            a->velocity -= p * a->Imass;
-            b->velocity += p * b->Imass;
-        }
+        glm::vec2 pn = normal * normalImpulse;
+
+        glm::vec2 p = pt + pn;
+
+        a->velocity -= p * a->Imass;
+        b->velocity += p * b->Imass;
         c = c->next;
     }
 }
 
-static void solve_position_constraints(Contact* contacts, int iterations)
+static void solve_position_constraints(Contact* contacts)
 {
     Contact* c = contacts;
     while(c)
@@ -94,26 +100,25 @@ static void solve_position_constraints(Contact* contacts, int iterations)
         Body *b = c->right;
 
         glm::vec2 normal = c->normal;
+        float K = 1 / c->normalMass;
 
-        for (int i = 0; i < iterations; i++)
-        {
-            glm::vec2 penetration = getPenetration(a, b, c->minSeparation);
+        glm::vec2 penetration = getPenetration(a, b, c->minSeparation);
 
-            float penetrationNormal = fabs(glm::dot(penetration, normal));
+        float penetrationNormal = fabs(glm::dot(penetration, normal));
 
-            minPenetration = std::min(minPenetration, -penetrationNormal);
+        minPenetration = std::min(minPenetration, -penetrationNormal);
 
-            glm::vec2 res = minPenetration * normal;
+        // black magic from erin catto at box2d. Dont know why we divide penetration with normal mass
+        // this fixes "vibrations" when one box stands on another
+        // I guess is to make them separate from each other relative to their masses
+        // also, why is it an impulse?
+        float impulse = K > 0.0f ? minPenetration / K : 0.0f;
 
-            if (a->type == BodyType::Dynamic)
-            {
-                a->translation += res;
-            }
-            if (b->type == BodyType::Dynamic)
-            {
-                b->translation -= res;
-            }
-        }
+        glm::vec2 res = impulse * normal;
+
+        a->translation += res * a->Imass;
+        b->translation -= res * b->Imass;
+
         c = c->next;
     }
 }
@@ -136,14 +141,14 @@ static Contact* filter_contacts(Contact* contacts)
         }
 
         calls++;
-        bool collided = TestOverlap(a->aabb, b->aabb);
-        if (!collided)
-        {
-            Contact* d = c;
-            c = c->next;
-            DestroyContact(d, &root);
-            continue;
-        }
+        // bool collided = TestOverlap(a->aabb, b->aabb);
+        // if (!collided)
+        // {
+        //     Contact* d = c;
+        //     c = c->next;
+        //     DestroyContact(d, &root);
+        //     continue;
+        // }
 
         collide(c);
         c = c->next;
@@ -178,11 +183,13 @@ void PhysicsWorld::Step(float ts)
 
     integrate_forces(bodies, gravity, ts);
 
-    solve_velocity_constraints(contacts, VEL_ITERATIONS);
+    for (int _ = 0 ; _ < VEL_ITERATIONS; ++_)
+        solve_velocity_constraints(contacts);
 
     integrate_velocities(bodies, ts);
 
-    solve_position_constraints(contacts, 1);
+    for (int _ = 0 ; _ < POS_ITERATIONS; ++_)
+        solve_position_constraints(contacts);
 }
 
 Body* PhysicsWorld::CreateBody(glm::vec2 translation, float mass, BodyType type, CollisionCallback callback, void* userData, uint32_t userFlags)

@@ -86,7 +86,7 @@ void collide(struct Contact* c)
         (penetration.x >= penetration.y), aOnTop*(penetration.x < penetration.y)
     };
 
-    c->normalMass = 1/ (a->Imass + b->Imass);
+    c->normalMass = 1 / (a->Imass + b->Imass);
 
     c->normal = normal;
 

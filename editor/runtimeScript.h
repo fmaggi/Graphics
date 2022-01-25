@@ -25,6 +25,7 @@ private:
     EventSystem* eventSystem;
 
     PhysicsWorld world;
+    bool pause = false;
 };
 
 template<>
