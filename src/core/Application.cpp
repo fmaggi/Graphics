@@ -15,6 +15,7 @@
 #include "ECS/ECS.h"
 
 #include "ImGui/imguiLayer.h"
+#include "ImGui/ui.h"
 
 #include "log/log.h"
 #include "log/timer.h"
@@ -73,6 +74,12 @@ void Application::OnRender()
     for (auto m : m_modules)
        m->OnRenderUI();
 
+    UI::BeginWindow("Stats");
+
+    ImGui::Text("Frame Time: %.3f ms", ts.dt*1000);
+
+    UI::EndWindow();
+
     ImGuiLayer::End();
 }
 
@@ -82,8 +89,8 @@ void Application::Run()
 
     while (isRunning)
     {
-        float ts = getTimestep();
-        OnUpdate(ts);
+        ts.Step();
+        OnUpdate(ts.dt);
         OnRender();
         Window::Update();
     }

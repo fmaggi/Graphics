@@ -2,13 +2,8 @@
 #define PHYSICS_H
 
 #include "glm/glm.hpp"
-struct BroadPhaseData;
 
-struct Body;
-enum class BodyType
-{
-    Static = 0, Dynamic
-};
+#include "rigidBody.h"
 
 typedef void (*CollisionCallback)(Body* self, Body* other);
 
@@ -28,7 +23,9 @@ struct PhysicsWorld
     glm::vec2 gravity = {0,0};
 
     PhysicsWorld(size_t maxBodies = 2000);
+    ~PhysicsWorld();
 
+    // steps are better with a fixed ts
     void Step(float ts);
 
     Body* CreateBody(glm::vec2 translation, float mass, BodyType type, CollisionCallback callback=0, void* userData=0, uint32_t userFlags=0);
@@ -37,12 +34,9 @@ struct PhysicsWorld
     void AddAABB(Body* body, float halfWidth, float halfHeight);
 
 private:
-    Body* memory;
+    struct Allocator* allocator = nullptr;
+    struct BroadPhaseData* broad_phase_data = nullptr;
     Body* bodies = nullptr;
-    size_t bodyCount = 0;
-    Body* freeBodies = nullptr;
-
-    BroadPhaseData* broad_phase_data;
 };
 
 #endif

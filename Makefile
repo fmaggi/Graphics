@@ -3,7 +3,7 @@ LL = llvm-ar
 
 DEPS = dependencies
 
-CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/glm/ -I$(DEPS)/stb -I$(DEPS)/imgui -Isrc -Wall -Werror -D_FORTIFY_SOURCE=2 -std=c++20 -O2
+CFLAGS = -I$(DEPS)/glad/include -I$(DEPS)/GLFW/include -I$(DEPS)/glm/ -I$(DEPS)/stb -I$(DEPS)/imgui -Isrc -Werror -D_FORTIFY_SOURCE=2 -std=c++20 -O2
 LFLAGS = $(ENGINE) $(DEPS)/glad/glad.o $(DEPS)/GLFW/src/libglfw3.a $(DEPS)/imgui/libImguiStatic.a -lm -lGL -lX11 -lpthread -lXrandr -lXi -ldl -no-pie
 
 ifndef config

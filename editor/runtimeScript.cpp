@@ -89,7 +89,10 @@ void MyLayer::OnUpdate(float ts)
         s_b->force.x += 20;
 
     if (!pause)
-        world.Step(ts);
+    {
+        float dt = 1 / 120.0f;
+        world.Step(dt);
+    }
 
     auto view = ECS::View<PhysicsComponent, TransformComponent>();
 

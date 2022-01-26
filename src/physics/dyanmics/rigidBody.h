@@ -3,7 +3,10 @@
 
 #include "glm/glm.hpp"
 
-enum class BodyType;
+enum class BodyType
+{
+    Static = 0, Dynamic
+};
 
 struct AABB;
 

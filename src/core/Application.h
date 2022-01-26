@@ -3,7 +3,9 @@
 
 #include <string>
 #include <vector>
+
 #include "module.h"
+#include "timestep.h"
 
 #include "events/event.h"
 #include "events/eventSystem.h"
@@ -30,6 +32,8 @@ private:
 
 private:
     EventSystem eventSystem;
+
+    TimeStep ts;
 
     bool isRunning = false;
     std::vector<Module*> m_modules;

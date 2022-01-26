@@ -108,7 +108,7 @@ Contact* BroadPhase(BroadPhaseData* data)
                     }
                     temp->next = nullptr;
                     temp->prev = c;
-                    if (!c)
+                    if (!c) // this branch should be 100% predicted by the branch predictor as the condition is only true once
                         root = temp;
                     else
                         c->next = temp;

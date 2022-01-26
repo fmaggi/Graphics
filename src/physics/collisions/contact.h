@@ -7,10 +7,14 @@
 
 struct Contact
 {
-    Body *left = nullptr, *right = nullptr;
-    glm::vec2 normal, minSeparation;
-    Contact *prev, *next;
-    float normalMass, normalImpulse = 0.0f;
+    Body* left = nullptr;
+    Body* right = nullptr;
+    glm::vec2 normal;
+    glm::vec2 minSeparation;
+    float normalMass = 0.0f;
+    float normalImpulse = 0.0f;
+    Contact* prev = nullptr;
+    Contact* next = nullptr;
 };
 
 struct ContactAllocator
