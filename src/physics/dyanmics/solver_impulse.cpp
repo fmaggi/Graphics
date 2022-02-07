@@ -72,11 +72,11 @@ static void solve_velocity_constraints(Contact* contact)
 
         glm::vec2 dv = b->velocity - a->velocity;
 
-        float tangentImpulse = -glm::dot(dv, tangent) * 0.3; // friction
+        float tangentImpulse = -glm::dot(dv, tangent) * 0.0; // friction
         glm::vec2 pt = tangent * tangentImpulse;
 
         float dvn = glm::dot(dv, normal);
-        float normalImpulse = dvn * -normalMass * 1.8; // restitution
+        float normalImpulse = dvn * -normalMass * 2; // restitution
 
         float newImpulse = max(normalImpulse + c->normalImpulse, 0.0f);
         normalImpulse = newImpulse - c->normalImpulse;

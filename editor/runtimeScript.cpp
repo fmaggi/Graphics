@@ -16,6 +16,8 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
 
     TextureID tex = Texture::Create("test.png");
 
+    srand(time(nullptr));
+
     world.gravity = { 0, -9.8 };
     {
         EntityID e = ECS::CreateEntity();
@@ -51,17 +53,18 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
         Body* right = world.CreateBody({6.5, 0}, 0, BodyType::Static);
         world.AddAABB(right, 0.25, 3.5);
 
-    // for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++)
     {
         EntityID id = ECS::CreateEntity();
 
         TransformComponent& ts = ECS::AddComponent<TransformComponent>(id);
-        ts.translation = {-3,0,0};
+        ts.translation = {-3 + i * 2,0,0};
+        log_vec3("", ts.translation);
         ts.scale = {0.5, 0.5};
         ts.rotation = 0;
 
         SpriteComponent& ss = ECS::AddComponent<SpriteComponent>(id);
-        ss.color = {0.3, 0.91, 0.5, 1.0};
+        ss.color = {(float)(rand() % 10) / 10.0f, (float)(rand() % 10) / 10.0f, (float)(rand() % 10) / 10.0f, 1.0};
         ss.texIndex = tex;
 
         Body* body = world.CreateBody(glm::vec2(ts.translation), 10, BodyType::Dynamic, 0, 0, 1);
