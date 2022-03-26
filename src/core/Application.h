@@ -16,7 +16,14 @@ public:
     static Application* Create(uint32_t width, uint32_t height, const std::string& name);
 
     void Run();
-    void LoadModule(Module* module);
+
+    template<typename T>
+    void LoadModule()
+    {
+        Module* m = new T;
+        m->OnAttach(m_width, m_height, &eventSystem);
+        m_modules.push_back(m);
+    }
 
 private:
     Application() = default;

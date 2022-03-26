@@ -12,8 +12,6 @@
 #include "graphics/renderer.h"
 #include "graphics/camera.h"
 
-#include "ECS/ECS.h"
-
 #include "ImGui/imguiLayer.h"
 #include "ImGui/ui.h"
 
@@ -37,7 +35,6 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
 
     Window::Create(width, height, name, &app->eventSystem);
     Renderer::Init();
-    ECS::Init();
 
     app->isRunning = true;
 
@@ -47,12 +44,6 @@ Application* Application::Create(uint32_t width, uint32_t height, const std::str
     ImGuiLayer::Init(width, height, &app->eventSystem);
 
     return app;
-}
-
-void Application::LoadModule(Module* m)
-{
-    m_modules.push_back(m);
-    m->OnAttach(m_width, m_height, &eventSystem);
 }
 
 void Application::OnUpdate(float ts)
@@ -106,7 +97,6 @@ void Application::Destroy()
     }
 
     Renderer::Destroy();
-    ECS::Destroy();
     Window::Destroy();
     LOG_TRACE("Good bye");
 }

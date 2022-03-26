@@ -25,6 +25,8 @@ private:
     EventSystem* eventSystem;
 
     PhysicsWorld world;
+    ECS ecs;
+
     bool pause = false;
 };
 

@@ -9,66 +9,68 @@
 
 #define ECS_TAG_VALUE(x) (1 << x)
 
-class ECS
-{
+class ECS {
 public:
-    static void Init();
-    static void Destroy();
+    ECS() = default;
+    ~ECS();
 
-    static EntityID CreateEntity();
-    static void DestroyEntity(EntityID id);
+    EntityID CreateEntity();
+    void DestroyEntity(EntityID id);
 
-    static std::vector<EntityID>& AllEntities();
+    std::vector<EntityID>& AllEntities();
 
     template<typename T>
-    static bool HasComponent(EntityID id)
+    bool HasComponent(EntityID id)
     {
         ComponentStorage<T>& s = *GetComponentStorage<T>();
         return s.Has(id);
     }
 
     template<typename T>
-    static T& GetComponent(EntityID id)
+    T& GetComponent(EntityID id)
     {
         ComponentStorage<T>& s = *GetComponentStorage<T>();
         return s.Get(id);
     }
 
     template<typename T>
-    static T& AddComponent(EntityID id)
+    T& AddComponent(EntityID id)
     {
         ComponentStorage<T>& s = *GetComponentStorage<T>();
         s.entities.push_back(id);
 
         uint32_t componentIndex = TypeIndex<T>::value();
-        if (registry.used[id] & ECS_TAG_VALUE(componentIndex))
+        if (m_registry.used[id] & ECS_TAG_VALUE(componentIndex))
         {
             s.sparse[id].used = true;
             return s.Get(id);
         }
 
         // this flag is used when recycling entities
-        registry.used[id] |= ECS_TAG_VALUE(componentIndex);
+        m_registry.used[id] |= ECS_TAG_VALUE(componentIndex);
 
         return s.Add(id);
     }
 
     template<typename T, typename... Ts>
-    static view<T, Ts...> View()
+    view<T, Ts...> View()
     {
         return view<T, Ts...>(GetComponentStorage<T>(), GetComponentStorage<Ts>()...);
     }
 
 private:
-    static Registry registry;
+    Registry m_registry;
 
     template<typename T>
-    static ComponentStorage<T>* GetComponentStorage()
+    ComponentStorage<T>* GetComponentStorage()
     {
         const uint32_t componentIndex = TypeIndex<T>::value();
-        ASSERT(componentIndex < registry.componentsList.size() && componentIndex < MAX_COMPONENT, "Invalid Component View");
+        if (componentIndex >= m_registry.componentsList.size()) {
+            m_registry.componentsList.resize(componentIndex + 1);
+            m_registry.componentsList[componentIndex] = new ComponentStorage<T>;
+        }
 
-        basic_component* b = registry.componentsList[componentIndex];
+        basic_component* b = m_registry.componentsList[componentIndex];
         ComponentStorage<T>* s = static_cast<ComponentStorage<T>*>(b);
         return s;
     }

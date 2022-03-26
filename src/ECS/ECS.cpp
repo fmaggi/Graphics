@@ -10,58 +10,49 @@
 
 #define INIT_COMPONENT(type) \
     TypeIndex<type>::value(); \
-    registry.componentsList.push_back(new ComponentStorage<type>());
+    m_registry.componentsList.push_back(new ComponentStorage<type>());
 
-Registry ECS::registry;
-
-void ECS::Init()
+ECS::~ECS()
 {
-    INIT_COMPONENT(TransformComponent);
-    INIT_COMPONENT(SpriteComponent);
-    INIT_COMPONENT(PhysicsComponent);
-}
-
-void ECS::Destroy()
-{
-    for (auto c : registry.componentsList)
+    for (auto c : m_registry.componentsList)
         delete c;
 }
 
 void ECS::DestroyEntity(EntityID id)
 {
-    for (int i = 0; i < registry.componentsList.size(); i++)
+    for (int i = 0; i < m_registry.componentsList.size(); i++)
     {
-        if (registry.used[id] & ECS_TAG_VALUE(i))
+        if (m_registry.used[id] & ECS_TAG_VALUE(i))
         {
-            registry.componentsList[i]->DestroyComponent(id);
+            m_registry.componentsList[i]->DestroyComponent(id);
         }
     }
 
-    registry.freeEntities.push_back(id);
+    m_registry.freeEntities.push_back(id);
 
-    auto it = std::find(registry.aliveEntities.begin(), registry.aliveEntities.end(), id);
-    ASSERT(it != registry.aliveEntities.end(), "Failed entity free");
-    registry.aliveEntities.erase(it);
+    auto it = std::find(m_registry.aliveEntities.begin(), m_registry.aliveEntities.end(), id);
+    ASSERT(it != m_registry.aliveEntities.end(), "Failed entity free");
+    m_registry.aliveEntities.erase(it);
 }
 
 EntityID ECS::CreateEntity()
 {
     EntityID entity;
-    if (!registry.freeEntities.empty())
+    if (!m_registry.freeEntities.empty())
     {
-        entity = registry.freeEntities[registry.freeEntities.size() - 1];
-        registry.freeEntities.pop_back();
+        entity = m_registry.freeEntities[m_registry.freeEntities.size() - 1];
+        m_registry.freeEntities.pop_back();
     }
     else
     {
-        entity = registry.used.size();
-        registry.used.push_back(0);
+        entity = m_registry.used.size();
+        m_registry.used.push_back(0);
     }
-    registry.aliveEntities.push_back(entity);
+    m_registry.aliveEntities.push_back(entity);
     return entity;
 }
 
 std::vector<EntityID>& ECS::AllEntities()
 {
-    return registry.aliveEntities;
+    return m_registry.aliveEntities;
 }

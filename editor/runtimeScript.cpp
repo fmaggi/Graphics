@@ -20,15 +20,15 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
 
     world.gravity = { 0, -9.8 };
     {
-        EntityID e = ECS::CreateEntity();
+        EntityID e = ecs.CreateEntity();
         player = e;
 
-        TransformComponent& t = ECS::AddComponent<TransformComponent>(e);
+        TransformComponent& t = ecs.AddComponent<TransformComponent>(e);
         t.translation = {0,0,0};
         t.scale = {0.5, 0.5};
         t.rotation = 0;
 
-        SpriteComponent& s = ECS::AddComponent<SpriteComponent>(e);
+        SpriteComponent& s = ecs.AddComponent<SpriteComponent>(e);
         s.color = {0.86, 0.3, 0.2, 1.0};
         s.texIndex = tex;
 
@@ -37,7 +37,7 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
         world.AddAABB(body, 0.25, 0.25);
         body->force = { 150, -300 };
 
-        PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(e);
+        PhysicsComponent& p = ecs.AddComponent<PhysicsComponent>(e);
         p.physicsBody = body;
     }
 
@@ -55,22 +55,22 @@ void MyLayer::OnAttach(uint32_t width, uint32_t height, EventSystem* eventSystem
 
     for (int i = 0; i < 5; i++)
     {
-        EntityID id = ECS::CreateEntity();
+        EntityID id = ecs.CreateEntity();
 
-        TransformComponent& ts = ECS::AddComponent<TransformComponent>(id);
+        TransformComponent& ts = ecs.AddComponent<TransformComponent>(id);
         ts.translation = {-3 + i * 2,0,0};
         log_vec3("", ts.translation);
         ts.scale = {0.5, 0.5};
         ts.rotation = 0;
 
-        SpriteComponent& ss = ECS::AddComponent<SpriteComponent>(id);
+        SpriteComponent& ss = ecs.AddComponent<SpriteComponent>(id);
         ss.color = {(float)(rand() % 10) / 10.0f, (float)(rand() % 10) / 10.0f, (float)(rand() % 10) / 10.0f, 1.0};
         ss.texIndex = tex;
 
         Body* body = world.CreateBody(glm::vec2(ts.translation), 10, BodyType::Dynamic, 0, 0, 1);
         world.AddAABB(body, 0.25, 0.25);
 
-        PhysicsComponent& p = ECS::AddComponent<PhysicsComponent>(id);
+        PhysicsComponent& p = ecs.AddComponent<PhysicsComponent>(id);
         p.physicsBody = body;
         LOG_WARN("%p", s_b);
     }
@@ -97,7 +97,7 @@ void MyLayer::OnUpdate(float ts)
         world.Step(dt);
     }
 
-    auto view = ECS::View<PhysicsComponent, TransformComponent>();
+    auto view = ecs.View<PhysicsComponent, TransformComponent>();
 
     for (EntityID e : view)
     {
@@ -111,7 +111,7 @@ void MyLayer::OnRender()
 {
     Renderer::StartFrame(camera);
     {
-        auto view = ECS::View<SpriteComponent, TransformComponent>();
+        auto view = ecs.View<SpriteComponent, TransformComponent>();
 
         for (EntityID e : view)
         {
@@ -136,7 +136,7 @@ void MyLayer::OnRenderUI()
     ImGui::BeginMainMenuBar();
     if (ImGui::BeginMenu("File"))
     {
-        if (ImGui::MenuItem("Open..", "Ctrl+O")) { ECS::CreateEntity(); }
+        if (ImGui::MenuItem("Open..", "Ctrl+O")) { ecs.CreateEntity(); }
         if (ImGui::MenuItem("Save", "Ctrl+S"))   {  }
         if (ImGui::MenuItem("Close", "Ctrl+W"))  {  }
         ImGui::EndMenu();
@@ -160,7 +160,7 @@ void MyLayer::OnRenderUI()
 
     UI::BeginWindow("Entities");
 
-    auto& es = ECS::AllEntities();
+    auto& es = ecs.AllEntities();
 
     for (EntityID e : es)
     {
@@ -185,16 +185,16 @@ void MyLayer::OnRenderUI()
 
     if (selectedEntity != -1)
     {
-        if (ECS::HasComponent<SpriteComponent>(selectedEntity))
+        if (ecs.HasComponent<SpriteComponent>(selectedEntity))
         {
-            SpriteComponent& s = ECS::GetComponent<SpriteComponent>(selectedEntity);
+            SpriteComponent& s = ecs.GetComponent<SpriteComponent>(selectedEntity);
             ImGui::ColorEdit4("Color", &s.color.x);
         }
         else
         {
             if (ImGui::Button("Add spriteComponent"))
             {
-                SpriteComponent& s = ECS::AddComponent<SpriteComponent>(selectedEntity);
+                SpriteComponent& s = ecs.AddComponent<SpriteComponent>(selectedEntity);
                 s.color = {0.8, 0.3, 0.4, 1.0f};
                 s.texIndex = NoTexture;
             }
@@ -202,9 +202,9 @@ void MyLayer::OnRenderUI()
 
         ImGui::Separator();
 
-        if (ECS::HasComponent<TransformComponent>(selectedEntity))
+        if (ecs.HasComponent<TransformComponent>(selectedEntity))
         {
-            TransformComponent& t = ECS::GetComponent<TransformComponent>(selectedEntity);
+            TransformComponent& t = ecs.GetComponent<TransformComponent>(selectedEntity);
             ImGui::DragFloat3("translation", &t.translation.x);
             ImGui::DragFloat2("scale", &t.scale.x);
             ImGui::DragFloat("rotation", &t.rotation);
@@ -213,7 +213,7 @@ void MyLayer::OnRenderUI()
         {
             if (ImGui::Button("Add TransformComponent"))
             {
-                TransformComponent& t = ECS::AddComponent<TransformComponent>(selectedEntity);
+                TransformComponent& t = ecs.AddComponent<TransformComponent>(selectedEntity);
                 t.scale = {50, 50};
                 t.translation = {0, 0, 0};
                 t.rotation = 0;
@@ -224,7 +224,7 @@ void MyLayer::OnRenderUI()
 
         if (ImGui::Button("Delete"))
         {
-            ECS::DestroyEntity(selectedEntity);
+            ecs.DestroyEntity(selectedEntity);
             selectedEntity = -1;
         }
 

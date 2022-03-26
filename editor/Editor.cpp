@@ -6,7 +6,7 @@
 int main()
 {
     auto app = Application::Create(1280, 720, "Test");
-    app->LoadModule(new Mandelbrot);
+    app->LoadModule<MyLayer>();
     app->Run();
     delete app;
 }
