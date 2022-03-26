@@ -1,9 +1,12 @@
 EDITOR = Editor
 
 EDITOR_SRC = $(wildcard editor/*.cpp) $(wildcard editor/**/*.cpp) $(wildcard editor/**/**/*.cpp) $(wildcard editor/**/**/**/*.cpp)
+SRC += $(EDITOR_SRC)
 
 EDITOR_OBJECTS  = $(EDITOR_SRC:editor/%.cpp=$(OBJ)/%.o)
 E_OBJDIRS = $(dir $(EDITOR_OBJECTS))
+
+JSON_EDITOR = $(EDITOR_SRC:editor/%.cpp=editor/%.j)
 
 editor: $(EDITOR)
 
@@ -20,3 +23,4 @@ editor_libs:
 
 editor_clean:
 	@rm -rf ./$(E_OBJDIRS) $(EDITOR)
+

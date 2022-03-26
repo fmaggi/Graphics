@@ -28,6 +28,9 @@ setup: libs
 clean: editor_clean engine_clean
 	@rm -rf $(OBJ)
 
+vscode_setup: engine_setup
+
+
 include build/libs.mk
 include build/engine.mk
 include build/editor.mk
